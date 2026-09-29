@@ -19,7 +19,15 @@
   добавляется, только если Renode найден (`BLUEPILL_RENODE_TEST`, в HIL-пресетах выключен).
 - Python для HIL ищется сначала по `PATH` (`Python3_FIND_REGISTRY=LAST`).
 
+- Сценарий `HW_BOOT_CMSIS`: проверки загрузки через имена CMSIS (`RCC->CFGR & RCC_CFGR_SWS`,
+  `DBGMCU_IDCODE_DEV_ID`, `FLASHSIZE_BASE`) и контракт `cmsis_boot_macros`, который проверяет
+  наличие макросов в ELF без платы (`prepare.HW_BOOT_CMSIS`).
+
 ### Fixed
+
+- HIL-сборка с `-fno-eliminate-unused-debug-types`: без неё `HW_BOOT_CMSIS` падал на
+  `DBGMCU->IDCODE` с ошибкой «No symbol "DBGMCU_TypeDef"» — неиспользуемый тип CMSIS не попадал
+  в отладочную информацию.
 
 - `g_led` объявлен `const volatile`: константа подставлялась в код, `--gc-sections` удалял
   переменную, и `HW_BLINK` завершался ошибкой «Missing ELF symbol "g_led"».

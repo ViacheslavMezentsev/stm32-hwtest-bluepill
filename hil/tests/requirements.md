@@ -8,6 +8,13 @@ HIL_F103CB) и описанием MCU в hil/profiles/<BOARD>.toml.
 density; проверка описания MCU при политике strict). Ядро работает от HSI 8 МГц:
 источник SYSCLK — HSI, SystemCoreClock = 8 000 000.
 
+## HW_BOOT_CMSIS
+То же, что HW_BOOT, в терминах CMSIS: при входе в board::init() HSI готов (RCC_CR_HSIRDY),
+PLL выключен (RCC_CR_PLLON), источник SYSCLK — RCC_CFGR_SWS_HSI, DEV_ID
+(DBGMCU->IDCODE & DBGMCU_IDCODE_DEV_ID) равен 0x410, размер Flash по FLASHSIZE_BASE — 64 или
+128 КиБ, SystemCoreClock = 8 000 000. Макросы CMSIS доступны в отладочной информации ELF
+(контракт cmsis_boot_macros).
+
 ## HW_SETUP_DONE
 setup() завершается и управление доходит до loop(): g_app.setup_done = 1, SysTick
 включён с периодом 1 мс при 8 МГц (RELOAD = 7999).

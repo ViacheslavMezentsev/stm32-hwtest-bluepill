@@ -14,7 +14,9 @@ hil/
   profiles/F103C8_PC13.toml   MCU description: Flash 64 KiB, DEV_ID 0x410, 6 breakpoints
   profiles/F103CB_PB2.toml    the same, Flash 128 KiB
   tests/requirements.md       HW_* requirements (shared by both boards)
-  tests/board/test_boot.py    HW_BOOT — boot, HSI 8 MHz clock
+  tests/contracts.json        cmsis_boot_macros contract: CMSIS macros in the ELF debug info
+  tests/board/test_boot.py    HW_BOOT — boot, HSI 8 MHz clock (register addresses)
+  tests/board/test_boot_cmsis.py  HW_BOOT_CMSIS — the same through CMSIS names
   tests/board/test_app.py     HW_SETUP_DONE, HW_POST, HW_BLINK
   stands/*.example.toml       stand examples: ST-LINK GDB Server, OpenOCD, J-Link
   tools/results.py            run results summary
@@ -52,7 +54,7 @@ python -B modules/stm32-gdbtest/stm32_gdbtest/cli.py doctor --stand hil/stands/F
 cmake --preset HIL_F103CB
 cmake --build --preset HIL_F103CB
 ctest --preset HIL_F103CB-host     # no board: requirement traceability and prepare.*
-ctest --preset HIL_F103CB-hw       # on the board: hw.HW_BOOT, hw.HW_SETUP_DONE, hw.HW_POST, hw.HW_BLINK
+ctest --preset HIL_F103CB-hw       # on the board: all hw.* (5 scenarios)
 python hil/tools/results.py --runs build/HIL_F103CB/hwtest/runs
 ```
 
@@ -65,11 +67,26 @@ up as `hw.<ID>` and `prepare.<ID>`.
 | Scenario | Checks |
 | --- | --- |
 | `HW_BOOT` | stop in `main()`, SYSCLK from HSI, `SystemCoreClock = 8000000` |
+| `HW_BOOT_CMSIS` | the same through CMSIS: `(RCC->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_HSI`, `DBGMCU->IDCODE & DBGMCU_IDCODE_DEV_ID`, `FLASHSIZE_BASE` |
 | `HW_SETUP_DONE` | `setup()` returned, `g_app.setup_done = 1`, SysTick 1 ms |
 | `HW_POST` | `g_post.status = PostOk`, VDDA 2900–3600 mV, temperature −10…+85 °C |
 | `HW_BLINK` | between two `board::ledToggle()` calls the LED toggled, the counter +1 |
 
 ## Notes
+
+**CMSIS macros in scenarios.** GDB expands macros (`RCC`, `RCC_CFGR_SWS`, …) when the build
+uses `-g3` (Debug, all HIL presets) and the current stop is in a translation unit that
+includes `stm32f1xx.h`. `main.cpp` does not include it, so `HW_BOOT_CMSIS` first reaches
+`board::init()`. The `cmsis_boot_macros` contract checks that the macros are in the ELF already
+in `prepare.HW_BOOT_CMSIS`, without a board: if a macro disappears (another header, a build
+without `-g3`), the error comes before Flash programming, not in the middle of a scenario. The
+contract context is a function with a plain name from the same translation unit
+(`SysTick_Handler`); names like `board::init` are not supported in contracts.
+
+A macro such as `DBGMCU` expands to a cast (`(DBGMCU_TypeDef *)…`). GCC omits types the firmware
+does not use from the debug info, and GDB answers `No symbol "DBGMCU_TypeDef"`. So the HIL build
+uses `-fno-eliminate-unused-debug-types` (`cmake/hil.cmake`): only the debug info grows, the
+code is the same. The contract checks macro presence and expansion, not the types in it.
 
 **No LTO.** With LTO the compiler inlines and reorders functions across translation
 units, creates clones (`[clone .constprop.0]`) and drops functions without external

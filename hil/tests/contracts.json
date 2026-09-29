@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "contracts": {
+    "cmsis_boot_macros": {
+      "macros": {
+        "context": "SysTick_Handler",
+        "expressions": [
+          "RCC",
+          "RCC_CR_HSIRDY",
+          "RCC_CR_PLLON",
+          "RCC_CFGR_SWS",
+          "RCC_CFGR_SWS_HSI",
+          "DBGMCU",
+          "DBGMCU_IDCODE_DEV_ID",
+          "FLASHSIZE_BASE"
+        ]
+      }
+    }
+  }
+}

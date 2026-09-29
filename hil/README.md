@@ -14,7 +14,9 @@ hil/
   profiles/F103C8_PC13.toml   описание MCU: Flash 64 КиБ, DEV_ID 0x410, 6 точек останова
   profiles/F103CB_PB2.toml    то же, Flash 128 КиБ
   tests/requirements.md       требования HW_* (общие для обеих плат)
-  tests/board/test_boot.py    HW_BOOT — загрузка, тактирование от HSI 8 МГц
+  tests/contracts.json        контракт cmsis_boot_macros: макросы CMSIS в отладочной информации ELF
+  tests/board/test_boot.py    HW_BOOT — загрузка, тактирование от HSI 8 МГц (адреса регистров)
+  tests/board/test_boot_cmsis.py  HW_BOOT_CMSIS — то же через имена CMSIS
   tests/board/test_app.py     HW_SETUP_DONE, HW_POST, HW_BLINK
   stands/*.example.toml       примеры стендов: ST-LINK GDB Server, OpenOCD, J-Link
   tools/results.py            сводка результатов запусков
@@ -52,7 +54,7 @@ python -B modules/stm32-gdbtest/stm32_gdbtest/cli.py doctor --stand hil/stands/F
 cmake --preset HIL_F103CB
 cmake --build --preset HIL_F103CB
 ctest --preset HIL_F103CB-host     # без платы: трассировка требований и prepare.*
-ctest --preset HIL_F103CB-hw       # на плате: hw.HW_BOOT, hw.HW_SETUP_DONE, hw.HW_POST, hw.HW_BLINK
+ctest --preset HIL_F103CB-hw       # на плате: все hw.* (5 сценариев)
 python hil/tools/results.py --runs build/HIL_F103CB/hwtest/runs
 ```
 
@@ -65,11 +67,27 @@ python hil/tools/results.py --runs build/HIL_F103CB/hwtest/runs
 | Сценарий | Что проверяет |
 | --- | --- |
 | `HW_BOOT` | остановка в `main()`, SYSCLK от HSI, `SystemCoreClock = 8000000` |
+| `HW_BOOT_CMSIS` | то же через CMSIS: `(RCC->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_HSI`, `DBGMCU->IDCODE & DBGMCU_IDCODE_DEV_ID`, `FLASHSIZE_BASE` |
 | `HW_SETUP_DONE` | `setup()` завершилась, `g_app.setup_done = 1`, SysTick 1 мс |
 | `HW_POST` | `g_post.status = PostOk`, VDDA 2900–3600 мВ, температура −10…+85 °C |
 | `HW_BLINK` | между двумя вызовами `board::ledToggle()` светодиод переключился, счётчик +1 |
 
 ## Особенности
+
+**Макросы CMSIS в сценариях.** GDB раскрывает макросы (`RCC`, `RCC_CFGR_SWS`, …), если
+сборка с `-g3` (Debug, все HIL-пресеты) и текущая точка остановки находится в единице
+трансляции, которая включает `stm32f1xx.h`. `main.cpp` его не включает, поэтому
+`HW_BOOT_CMSIS` сначала доходит до `board::init()`. Контракт `cmsis_boot_macros` проверяет
+наличие макросов в ELF ещё в `prepare.HW_BOOT_CMSIS`, без платы: если макрос пропал (другой
+заголовок, сборка без `-g3`), ошибка будет до записи Flash, а не в середине сценария.
+Контекст контракта — функция с простым именем из той же единицы трансляции
+(`SysTick_Handler`), имена вида `board::init` в контрактах не поддерживаются.
+
+Макрос вроде `DBGMCU` раскрывается в приведение к типу (`(DBGMCU_TypeDef *)…`). Типы, которые
+прошивка не использует, GCC в отладочную информацию не пишет, и GDB отвечает `No symbol
+"DBGMCU_TypeDef"`. Поэтому HIL-сборка компилируется с `-fno-eliminate-unused-debug-types`
+(`cmake/hil.cmake`): растёт только отладочная информация, код тот же. Контракт проверяет
+наличие и раскрытие макросов, но не типы в раскрытии.
 
 **LTO не используется.** С LTO компилятор встраивает и переставляет функции между
 единицами трансляции, создаёт клоны (`[clone .constprop.0]`) и убирает функции без

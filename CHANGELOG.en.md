@@ -19,7 +19,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   added only when Renode is found (`BLUEPILL_RENODE_TEST`, off in the HIL presets).
 - Python for HIL is looked up on `PATH` first (`Python3_FIND_REGISTRY=LAST`).
 
+- `HW_BOOT_CMSIS` scenario: boot checks through CMSIS names (`RCC->CFGR & RCC_CFGR_SWS`,
+  `DBGMCU_IDCODE_DEV_ID`, `FLASHSIZE_BASE`) and the `cmsis_boot_macros` contract that checks the
+  macros in the ELF without a board (`prepare.HW_BOOT_CMSIS`).
+
 ### Fixed
+
+- The HIL build uses `-fno-eliminate-unused-debug-types`: without it `HW_BOOT_CMSIS` failed on
+  `DBGMCU->IDCODE` with "No symbol \"DBGMCU_TypeDef\"" — the unused CMSIS type was not in the
+  debug info.
 
 - `g_led` is `const volatile`: the constant was folded into the code, `--gc-sections` removed
   the variable and `HW_BLINK` failed with "Missing ELF symbol \"g_led\"".

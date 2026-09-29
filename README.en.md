@@ -94,7 +94,8 @@ through USART1 rather than semihosting.
 
 ## HIL tests
 
-The scenarios in `hil/tests/board` check the firmware on the board: boot and clock,
+The scenarios in `hil/tests/board` check the firmware on the board: boot and clock (also
+with CMSIS register names, `HW_BOOT_CMSIS`),
 `setup()` completion, POST results and the LED blink. Without a board the requirement
 traceability and run preparation are checked (`ctest --preset HIL_F103C8-host`); on the
 board run `ctest --preset HIL_F103C8-hw` after setting up a stand. Details:

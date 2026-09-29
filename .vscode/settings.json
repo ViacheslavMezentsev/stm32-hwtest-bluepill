@@ -1,4 +1,5 @@
 {
+    "cSpell.ignoreRegExpList": ["\\b[0-9A-Z_]+\\b"],
     // Конфигурации берутся из CMakePresets.json: Debug_*/Release_* и HIL_* для F103C8 и F103CB.
     // Каталог сборки — build/<пресет>; toolchain — cmake/arm-gcc.cmake
     // (ARM_TOOLCHAIN_ROOT или %USERPROFILE%/xpack-arm-none-eabi-gcc-14.2.1-1.1).

@@ -148,7 +148,7 @@
       "id": "hilTest",
       "type": "pickString",
       "description": "Сценарий",
-      "options": [ "HW_BOOT", "HW_SETUP_DONE", "HW_POST", "HW_BLINK" ],
+      "options": [ "HW_BOOT", "HW_BOOT_CMSIS", "HW_SETUP_DONE", "HW_POST", "HW_BLINK" ],
       "default": "HW_BOOT"
     },
     {

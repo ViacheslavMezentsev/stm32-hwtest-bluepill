@@ -27,6 +27,11 @@ if(BLUEPILL_HIL)
         endforeach()
     endif()
 
+    # Типы CMSIS (DBGMCU_TypeDef и др.), которые прошивка не использует, GCC не пишет в
+    # отладочную информацию. Сценарии обращаются к регистрам по именам CMSIS
+    # (DBGMCU->IDCODE), поэтому в HIL-сборке типы сохраняются; код не меняется.
+    target_compile_options(${PROJECT_NAME} PRIVATE -fno-eliminate-unused-debug-types)
+
     message(STATUS "HIL: MCU description ${HIL_PROFILE}")
     include(CTest)
     include("${STM32_GDBTEST_SOURCE_DIR}/stm32_gdbtest/cmake/STM32GDBTest.cmake")
