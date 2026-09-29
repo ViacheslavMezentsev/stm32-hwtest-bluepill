@@ -7,6 +7,10 @@ endif()
 
 project(stm32_hwtest_bluepill VERSION 0.1.0 LANGUAGES C CXX ASM)
 
+# Python ищется сначала по PATH, а не в реестре Windows: иначе FindPython может взять
+# интерпретатор Visual Studio (например, 3.9) вместо установленного в PATH 3.11+.
+set(Python3_FIND_REGISTRY LAST)
+
 # =============================================================================
 # Плата (профиль): F103C8_PC13 — обычная Blue Pill, F103CB_PB2 — WeAct BluePill-Plus.
 # =============================================================================
@@ -86,12 +90,17 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 # Дымовой тест в эмуляторе Renode (без платы): ctest -L emu. Нужны Renode 1.16+ и Python 3.
 # Путь к Renode: -DRENODE_EXECUTABLE=..., переменная RENODE_BINARY или PATH.
 # =============================================================================
-if(DEFINED ENV{RENODE_BINARY} AND NOT RENODE_EXECUTABLE)
-    set(RENODE_EXECUTABLE "$ENV{RENODE_BINARY}" CACHE FILEPATH "Renode executable")
+option(BLUEPILL_RENODE_TEST "Renode smoke test (ctest -L emu) when Renode is found" ON)
+if(BLUEPILL_RENODE_TEST)
+    if(DEFINED ENV{RENODE_BINARY} AND NOT RENODE_EXECUTABLE)
+        set(RENODE_EXECUTABLE "$ENV{RENODE_BINARY}" CACHE FILEPATH "Renode executable")
+    endif()
+    find_program(RENODE_EXECUTABLE NAMES renode Renode PATHS "$ENV{ProgramFiles}/Renode")
 endif()
-find_program(RENODE_EXECUTABLE NAMES renode Renode PATHS "$ENV{ProgramFiles}/Renode")
-find_package(Python3 COMPONENTS Interpreter QUIET)
-if(RENODE_EXECUTABLE AND Python3_Interpreter_FOUND)
+if(BLUEPILL_RENODE_TEST AND RENODE_EXECUTABLE)
+    find_package(Python3 3.11 COMPONENTS Interpreter QUIET)
+endif()
+if(BLUEPILL_RENODE_TEST AND RENODE_EXECUTABLE AND Python3_Interpreter_FOUND)
     enable_testing()
     add_test(NAME emu.renode_smoke
         COMMAND "${Python3_EXECUTABLE}" -B "${CMAKE_SOURCE_DIR}/tools/renode_smoke.py"

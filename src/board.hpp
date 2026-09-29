@@ -11,7 +11,7 @@ struct LedInfo
     uint32_t active_high;
 };
 
-extern const LedInfo g_led;
+extern const volatile LedInfo g_led;
 
 namespace board
 {

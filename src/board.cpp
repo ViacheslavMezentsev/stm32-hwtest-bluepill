@@ -9,9 +9,11 @@ namespace
     volatile uint32_t g_ticks = 0;
 }
 
+// g_led читают и код, и сценарии HIL через GDB. volatile не даёт компилятору подставить
+// константы вместо чтения: иначе --gc-sections удалит переменную из ELF (HW_BLINK: Missing ELF symbol).
 #if defined( BOARD_F103C8_PC13 )
 // Обычная Blue Pill: светодиод на PC13, горит при низком уровне.
-const LedInfo g_led = { GPIOC_BASE + offsetof( GPIO_TypeDef, ODR ), GPIO_ODR_ODR13, 0 };
+const volatile LedInfo g_led = { GPIOC_BASE + offsetof( GPIO_TypeDef, ODR ), GPIO_ODR_ODR13, 0 };
 
 static void ledPinInit()
 {
@@ -25,7 +27,7 @@ static void ledPinInit()
 static const char* const kBoardName = "F103C8_PC13";
 #elif defined( BOARD_F103CB_PB2 )
 // WeAct BluePill-Plus v1.1: светодиод на PB2, горит при высоком уровне.
-const LedInfo g_led = { GPIOB_BASE + offsetof( GPIO_TypeDef, ODR ), GPIO_ODR_ODR2, 1 };
+const volatile LedInfo g_led = { GPIOB_BASE + offsetof( GPIO_TypeDef, ODR ), GPIO_ODR_ODR2, 1 };
 
 static void ledPinInit()
 {

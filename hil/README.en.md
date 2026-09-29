@@ -99,5 +99,9 @@ and use it in `configFiles` of the "Debug (ocd/stlink)" configuration. For HIL t
 `openocd_target` in a local copy of the MCU description. MCU clones are not supported by
 this project: the `strict` DEV_ID check still reports ERROR for them.
 
+**Python.** Python ≥ 3.11 is required. CMake looks on `PATH` first and then in the Windows
+registry (`Python3_FIND_REGISTRY=LAST`), so a Visual Studio Python does not interfere. Another
+interpreter: `-DPython3_EXECUTABLE=<path>`; after a change use "Delete Cache and Reconfigure".
+
 **Results.** A run directory `build/HIL_<board>/hwtest/runs/<time>-<ID>-<pid>/` contains
 `result.json`, GDB and server logs, the ELF snapshot and the build manifest.

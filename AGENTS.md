@@ -38,7 +38,9 @@ Requirements: CMake ≥ 3.25, Ninja, xPack GNU Arm 14.2.1-1.1 (`ARM_TOOLCHAIN_RO
 
 1. Keep `setup()`/`loop()` and the global state (`g_app`, `g_post`, `g_led`) readable
    from GDB: the HIL scenarios depend on these names. Renaming them means updating
-   `hil/tests` and `hil/tests/requirements.md` in the same commit.
+   `hil/tests` and `hil/tests/requirements.md` in the same commit. Data read only by the
+   scenarios must survive optimization and `--gc-sections`: `g_led` is `const volatile` for
+   this reason (a plain `const` was folded away and HW_BLINK failed with "Missing ELF symbol").
 2. Every `@case` ID has a `## HW_...` section in `hil/tests/requirements.md`.
 3. No LTO (see `hil/README.md`). No HAL; registers through CMSIS names.
 4. Format `src/` with the repository `.clang-format`; never reformat `cmsis/`.

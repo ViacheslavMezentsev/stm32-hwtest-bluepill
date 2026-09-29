@@ -15,5 +15,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   (VDDA via VREFINT and the die temperature), output on USART1 (PA9, 115200).
 - HIL: stm32-gdbtest as a submodule, scenarios `HW_BOOT`, `HW_SETUP_DONE`, `HW_POST`,
   `HW_BLINK`, Windows stand examples for ST-LINK GDB Server, OpenOCD and J-Link.
-- Renode 1.16 smoke test (`ctest -L emu`, `Debug_*-emu` presets): UART, `setup()`, blink.
+- Renode 1.16 smoke test (`ctest -L emu`, `Debug_*-emu` presets): UART, `setup()`, blink;
+  added only when Renode is found (`BLUEPILL_RENODE_TEST`, off in the HIL presets).
+- Python for HIL is looked up on `PATH` first (`Python3_FIND_REGISTRY=LAST`).
+
+### Fixed
+
+- `g_led` is `const volatile`: the constant was folded into the code, `--gc-sections` removed
+  the variable and `HW_BLINK` failed with "Missing ELF symbol \"g_led\"".
 - GitHub Actions: formatting, six presets built, Renode, HIL checks without a board.

@@ -16,7 +16,7 @@
       "name": "hil",
       "hidden": true,
       "description": "HIL: аппаратные тесты по методу DDTT (Debugger-Driven Testing on Target) — сценарии hil/tests проверяют работающую прошивку на плате через GDB и SWD",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug", "BLUEPILL_HIL": "ON" }
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug", "BLUEPILL_HIL": "ON", "BLUEPILL_RENODE_TEST": "OFF" }
     },
     { "name": "Debug_F103C8", "displayName": "Debug (F103C8, LED PC13)", "inherits": "f103c8", "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" } },
     { "name": "Release_F103C8", "displayName": "Release (F103C8, LED PC13)", "inherits": "f103c8", "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" } },

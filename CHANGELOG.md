@@ -15,5 +15,12 @@
   АЦП (VDDA по VREFINT и температура кристалла), вывод в USART1 (PA9, 115200).
 - HIL: stm32-gdbtest подмодулем, сценарии `HW_BOOT`, `HW_SETUP_DONE`, `HW_POST`, `HW_BLINK`,
   примеры стендов ST-LINK GDB Server, OpenOCD и J-Link для Windows.
-- Дымовой тест в Renode 1.16 (`ctest -L emu`, пресеты `Debug_*-emu`): UART, `setup()`, мигание.
+- Дымовой тест в Renode 1.16 (`ctest -L emu`, пресеты `Debug_*-emu`): UART, `setup()`, мигание;
+  добавляется, только если Renode найден (`BLUEPILL_RENODE_TEST`, в HIL-пресетах выключен).
+- Python для HIL ищется сначала по `PATH` (`Python3_FIND_REGISTRY=LAST`).
+
+### Fixed
+
+- `g_led` объявлен `const volatile`: константа подставлялась в код, `--gc-sections` удалял
+  переменную, и `HW_BLINK` завершался ошибкой «Missing ELF symbol "g_led"».
 - GitHub Actions: форматирование, сборка шести пресетов, Renode, HIL-проверки без платы.

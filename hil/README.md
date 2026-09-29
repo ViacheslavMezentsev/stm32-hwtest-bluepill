@@ -100,5 +100,9 @@ source [find target/stm32f1x.cfg]
 `openocd_target` в локальной копии описания MCU. Клоны MCU проектом не поддерживаются:
 проверка DEV_ID при `strict` для них всё равно даст ERROR.
 
+**Python.** Нужен Python ≥ 3.11. CMake ищет его сначала по `PATH`, затем в реестре Windows
+(`Python3_FIND_REGISTRY=LAST`), поэтому Python из Visual Studio не мешает. Другой интерпретатор:
+`-DPython3_EXECUTABLE=<путь>`; после смены — «Delete Cache and Reconfigure».
+
 **Результаты.** Каталог запуска `build/HIL_<плата>/hwtest/runs/<время>-<ID>-<pid>/`
 содержит `result.json`, журналы GDB и сервера, снимок ELF и build manifest.

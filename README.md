@@ -82,8 +82,8 @@ PA9 платы с выводом RX (VCP_RX) отладчика и GND — вы�
 ctest --preset Debug_F103C8-emu          # или задача VS Code «Эмулятор: дымовой тест (Renode)»
 ```
 
-Тест появляется, если CMake нашёл Renode: `RENODE_BINARY`, `PATH` или
-`%ProgramFiles%\Renode`. Журналы — `build/<пресет>/renode/`. Подход и версия Renode — как в
+Тест появляется, только если CMake нашёл Renode: `RENODE_BINARY`, `PATH` или
+`%ProgramFiles%\Renode`; в HIL-пресетах и с `-DBLUEPILL_RENODE_TEST=OFF` его нет. Журналы — `build/<пресет>/renode/`. Подход и версия Renode — как в
 [stm32-cmake-yml](https://github.com/ViacheslavMezentsev/stm32-cmake-yml). QEMU здесь не
 используется: его машины с Cortex-M3 (`netduino2` — STM32F205, `stm32vldiscovery` — STM32F100
 с 8 КиБ SRAM) не совпадают с STM32F103 по памяти и адресам периферии, а прошивка выводит

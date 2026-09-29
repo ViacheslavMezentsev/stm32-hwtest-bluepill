@@ -84,7 +84,8 @@ expected.
 ctest --preset Debug_F103C8-emu          # or the VS Code task "Эмулятор: дымовой тест (Renode)"
 ```
 
-The test exists when CMake finds Renode: `RENODE_BINARY`, `PATH` or `%ProgramFiles%\Renode`.
+The test exists only when CMake finds Renode: `RENODE_BINARY`, `PATH` or `%ProgramFiles%\Renode`;
+the HIL presets and `-DBLUEPILL_RENODE_TEST=OFF` leave it out.
 Logs go to `build/<preset>/renode/`. The approach and the Renode version follow
 [stm32-cmake-yml](https://github.com/ViacheslavMezentsev/stm32-cmake-yml). QEMU is not used
 here: its Cortex-M3 machines (`netduino2` — STM32F205, `stm32vldiscovery` — STM32F100 with
