@@ -86,7 +86,9 @@ contract context is a function with a plain name from the same translation unit
 A macro such as `DBGMCU` expands to a cast (`(DBGMCU_TypeDef *)…`). GCC omits types the firmware
 does not use from the debug info, and GDB answers `No symbol "DBGMCU_TypeDef"`. So the HIL build
 uses `-fno-eliminate-unused-debug-types` (`cmake/hil.cmake`): only the debug info grows, the
-code is the same. The contract checks macro presence and expansion, not the types in it.
+code is the same. With the stm32-gdbtest submodule newer than v0.1.0-rc.1 the contract also checks
+the type of the expansion (`whatis`): without this flag `prepare.HW_BOOT_CMSIS` reports "typed DBGMCU
+(No symbol \"DBGMCU_TypeDef\" …)" before any board is used.
 
 **No LTO.** With LTO the compiler inlines and reorders functions across translation
 units, creates clones (`[clone .constprop.0]`) and drops functions without external
