@@ -1,0 +1,40 @@
+# Toolchain GNU Arm Embedded (xPack) для Cortex-M3.
+# Каталог toolchain: -DARM_TOOLCHAIN_ROOT=..., переменная окружения ARM_TOOLCHAIN_ROOT,
+# иначе %USERPROFILE%/xpack-arm-none-eabi-gcc-14.2.1-1.1 (Windows), иначе PATH.
+set(CMAKE_SYSTEM_NAME Generic)
+set(CMAKE_SYSTEM_PROCESSOR arm)
+
+if(NOT ARM_TOOLCHAIN_ROOT)
+    if(DEFINED ENV{ARM_TOOLCHAIN_ROOT})
+        set(ARM_TOOLCHAIN_ROOT "$ENV{ARM_TOOLCHAIN_ROOT}")
+    elseif(DEFINED ENV{USERPROFILE} AND EXISTS "$ENV{USERPROFILE}/xpack-arm-none-eabi-gcc-14.2.1-1.1")
+        set(ARM_TOOLCHAIN_ROOT "$ENV{USERPROFILE}/xpack-arm-none-eabi-gcc-14.2.1-1.1")
+    endif()
+endif()
+file(TO_CMAKE_PATH "${ARM_TOOLCHAIN_ROOT}" ARM_TOOLCHAIN_ROOT)
+set(ARM_TOOLCHAIN_ROOT "${ARM_TOOLCHAIN_ROOT}" CACHE PATH "GNU Arm toolchain root (contains bin/)")
+# try_compile получает те же значения.
+list(APPEND CMAKE_TRY_COMPILE_PLATFORM_VARIABLES ARM_TOOLCHAIN_ROOT)
+
+if(ARM_TOOLCHAIN_ROOT)
+    set(ARM_TOOLCHAIN_BIN "${ARM_TOOLCHAIN_ROOT}/bin/")
+else()
+    set(ARM_TOOLCHAIN_BIN "")
+endif()
+if(CMAKE_HOST_WIN32)
+    set(ARM_TOOLCHAIN_EXT ".exe")
+else()
+    set(ARM_TOOLCHAIN_EXT "")
+endif()
+
+set(CMAKE_C_COMPILER "${ARM_TOOLCHAIN_BIN}arm-none-eabi-gcc${ARM_TOOLCHAIN_EXT}")
+set(CMAKE_CXX_COMPILER "${ARM_TOOLCHAIN_BIN}arm-none-eabi-g++${ARM_TOOLCHAIN_EXT}")
+set(CMAKE_ASM_COMPILER "${ARM_TOOLCHAIN_BIN}arm-none-eabi-gcc${ARM_TOOLCHAIN_EXT}")
+set(CMAKE_OBJCOPY "${ARM_TOOLCHAIN_BIN}arm-none-eabi-objcopy${ARM_TOOLCHAIN_EXT}" CACHE FILEPATH "")
+set(CMAKE_SIZE "${ARM_TOOLCHAIN_BIN}arm-none-eabi-size${ARM_TOOLCHAIN_EXT}" CACHE FILEPATH "")
+
+set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
+
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)

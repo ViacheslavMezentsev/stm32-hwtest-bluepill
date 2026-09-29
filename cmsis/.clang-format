@@ -1,0 +1,3 @@
+# Файлы CMSIS/ST оставляются без изменений: стиль проекта применяется только к src/.
+DisableFormat: true
+SortIncludes: Never

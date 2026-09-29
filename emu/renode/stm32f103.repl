@@ -1,0 +1,31 @@
+// Модель Renode для дымового теста прошивки STM32F103 (ядро, память, SysTick, USART1).
+// Периферия, которой прошивка только пишет настройки (RCC, FLASH, GPIO, AFIO, ADC1), —
+// заглушки из RAM: АЦП не моделируется, поэтому POST в эмуляторе завершается FAIL.
+// Подход — как в stm32-cmake-yml (tests/firmware/renode/f103-smoke.repl).
+cpu: CPU.CortexM @ sysbus
+    cpuType: "cortex-m3"
+    nvic: nvic
+nvic: IRQControllers.NVIC @ sysbus 0xE000E000
+    -> cpu@0
+    priorityMask: 0xF0
+    systickFrequency: 8000000
+flash: Memory.MappedMemory @ sysbus 0x08000000
+    size: 0x20000
+sram: Memory.MappedMemory @ sysbus 0x20000000
+    size: 0x5000
+usart1: UART.STM32_UART @ sysbus <0x40013800, +0x400>
+    -> nvic@37
+afio: Memory.MappedMemory @ sysbus 0x40010000
+    size: 0x400
+gpioa: Memory.MappedMemory @ sysbus 0x40010800
+    size: 0x400
+gpiob: Memory.MappedMemory @ sysbus 0x40010C00
+    size: 0x400
+gpioc: Memory.MappedMemory @ sysbus 0x40011000
+    size: 0x400
+adc1: Memory.MappedMemory @ sysbus 0x40012400
+    size: 0x400
+rcc: Memory.MappedMemory @ sysbus 0x40021000
+    size: 0x400
+flash_ctrl: Memory.MappedMemory @ sysbus 0x40022000
+    size: 0x400

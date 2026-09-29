@@ -1,0 +1,23 @@
+# Описание MCU для stm32-gdbtest (схема 1): WeAct BluePill-Plus v1.1, светодиод PB2 (горит при 1).
+# Flash 128 КиБ.
+schema = 1
+name = "bluepillcb"
+mcu = "STM32F103CBT6"
+openocd_target = "target/stm32f1x.cfg"
+flash_start = 0x08000000
+flash_size = 131072
+flash_size_address = 0x1FFFF7E0       # F_SIZE: заводской размер Flash, КиБ (RM0008)
+breakpoint_limit = 6                  # FPB Cortex-M3: 6 аппаратных точек останова
+fault_handlers = ["HardFault_Handler", "MemManage_Handler", "BusFault_Handler", "UsageFault_Handler"]
+core_registers = ["pc", "lr", "sp", "xPSR"]
+reset_halt = "monitor reset halt"
+reset_run = "monitor reset run"
+
+[identity]
+address = 0xE0042000                  # DBGMCU_IDCODE
+mask = 0xFFF
+value = 0x410                         # DEV_ID STM32F10x medium-density (F103x8, F103xB)
+
+[diagnostic_registers]
+CFSR = 0xE000ED28
+HFSR = 0xE000ED2C

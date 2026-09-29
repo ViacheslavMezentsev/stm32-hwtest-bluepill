@@ -1,0 +1,9 @@
+# J-Link через J-Link GDB Server (SEGGER), Windows.
+# Скопировать в hil/stands/F103C8.local.toml или F103CB.local.toml (не коммитится) и заменить значения.
+# Серийный номер — десятичный номер USB из J-Link Commander или J-Link Configurator.
+[probe]
+backend = "jlink"
+serial = "REPLACE_WITH_JLINK_SERIAL"
+executable = "C:/Program Files/SEGGER/JLink/JLinkGDBServerCL.exe"
+speed_khz = 1000
+flash = "if-different"

@@ -1,0 +1,24 @@
+{
+    // Конфигурации берутся из CMakePresets.json: Debug_*/Release_* и HIL_* для F103C8 и F103CB.
+    // Каталог сборки — build/<пресет>; toolchain — cmake/arm-gcc.cmake
+    // (ARM_TOOLCHAIN_ROOT или %USERPROFILE%/xpack-arm-none-eabi-gcc-14.2.1-1.1).
+    "cmake.useCMakePresets": "always",
+    "cmake.ctest.testExplorerIntegrationEnabled": true,
+
+    // cortex-debug (Windows). Серверы отладки ищутся в PATH или по указанным путям.
+    "cortex-debug.gdbPath.windows": "${env:USERPROFILE}/xpack-arm-none-eabi-gcc-14.2.1-1.1/bin/arm-none-eabi-gdb.exe",
+    "cortex-debug.stlinkPath.windows": "ST-LINK_gdbserver.exe",
+    "cortex-debug.JLinkGDBServerPath.windows": "C:/Program Files/SEGGER/JLink/JLinkGDBServerCL.exe",
+    "cortex-debug.openocdPath.windows": "openocd.exe",
+
+    // ELF выбранного пресета.
+    "executable": "${command:cmake.buildDirectory}/stm32_hwtest_bluepill.elf",
+    // SVD для просмотра регистров (необязательно): STM32F103.svd из STM32CubeCLT или
+    // https://github.com/modm-io/cmsis-svd-stm32 — положите в hil/ или укажите свой путь.
+    "svdFile": "",
+
+    // HIL (stm32-gdbtest): модуль — подмодуль modules/stm32-gdbtest.
+    // Стенды — hil/stands/F103C8.local.toml и F103CB.local.toml, плата выбирается в задачах «HIL: …».
+    "hil.gdbtest": "modules/stm32-gdbtest",
+    "hil.gdb": "${env:USERPROFILE}/xpack-arm-none-eabi-gcc-14.2.1-1.1/bin/arm-none-eabi-gdb-py3.exe"
+}

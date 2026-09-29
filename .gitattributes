@@ -1,0 +1,5 @@
+* text=auto
+*.sh text eol=lf
+.github/** text eol=lf
+*.bin binary
+*.elf binary

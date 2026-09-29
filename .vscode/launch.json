@@ -1,0 +1,58 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // ST-LINK GDB Server из STM32CubeCLT; плата любая (C8 или CB).
+      "name": "Debug (gdb/stlink)",
+      "type": "cortex-debug",
+      "request": "launch",
+      "servertype": "stlink",
+      "cwd": "${workspaceFolder}",
+      "executable": "${config:executable}",
+      "interface": "swd",
+      "device": "STM32F103C8",
+      "preLaunchTask": "CMake: build",
+      "runToEntryPoint": "main",
+      "svdFile": "${config:svdFile}"
+    },
+    {
+      // OpenOCD + ST-Link. Для клонов MCU с другим CPUTAPID см. hil/README.md.
+      "name": "Debug (ocd/stlink)",
+      "type": "cortex-debug",
+      "request": "launch",
+      "servertype": "openocd",
+      "cwd": "${workspaceFolder}",
+      "executable": "${config:executable}",
+      "configFiles": [ "interface/stlink.cfg", "target/stm32f1x.cfg" ],
+      "preLaunchTask": "CMake: build",
+      "runToEntryPoint": "main",
+      "svdFile": "${config:svdFile}"
+    },
+    {
+      "name": "Debug F103C8 (jlink)",
+      "type": "cortex-debug",
+      "request": "launch",
+      "servertype": "jlink",
+      "cwd": "${workspaceFolder}",
+      "executable": "${config:executable}",
+      "interface": "swd",
+      "device": "STM32F103C8",
+      "preLaunchTask": "CMake: build",
+      "runToEntryPoint": "main",
+      "svdFile": "${config:svdFile}"
+    },
+    {
+      "name": "Debug F103CB (jlink)",
+      "type": "cortex-debug",
+      "request": "launch",
+      "servertype": "jlink",
+      "cwd": "${workspaceFolder}",
+      "executable": "${config:executable}",
+      "interface": "swd",
+      "device": "STM32F103CB",
+      "preLaunchTask": "CMake: build",
+      "runToEntryPoint": "main",
+      "svdFile": "${config:svdFile}"
+    }
+  ]
+}

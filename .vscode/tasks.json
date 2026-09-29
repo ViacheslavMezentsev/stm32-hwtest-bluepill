@@ -1,0 +1,162 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "cmake",
+      "label": "CMake: build",
+      "command": "build",
+      "problemMatcher": [ "$gcc" ],
+      "group": { "kind": "build", "isDefault": true },
+      "detail": "Сборка выбранного пресета."
+    },
+
+    // ------------------------------------------------------------------
+    // Прошивка без отладчика VS Code (ELF/HEX выбранного пресета).
+    // ------------------------------------------------------------------
+    {
+      "label": "Прошить (openocd/stlink)",
+      "type": "shell",
+      "command": "openocd",
+      "args": [ "-f", "interface/stlink.cfg", "-f", "target/stm32f1x.cfg",
+                "-c", "program {${command:cmake.buildDirectory}/stm32_hwtest_bluepill.elf} verify reset exit" ],
+      "problemMatcher": [],
+      "group": "build",
+      "detail": "OpenOCD + ST-Link: запись, проверка, сброс."
+    },
+    {
+      "label": "Прошить (STM32CubeProgrammer/stlink)",
+      "type": "shell",
+      "command": "STM32_Programmer_CLI",
+      "args": [ "-c", "port=SWD", "-w", "${command:cmake.buildDirectory}/stm32_hwtest_bluepill.hex", "-v", "-rst" ],
+      "problemMatcher": [],
+      "group": "build",
+      "detail": "STM32_Programmer_CLI из STM32CubeCLT (в PATH)."
+    },
+    {
+      "label": "Прошить (j-link)…",
+      "type": "shell",
+      "command": "cmd",
+      "args": [ "/C",
+                "((echo r & echo h & echo loadfile ${command:cmake.buildDirectory}/stm32_hwtest_bluepill.hex & echo r & echo g & echo q) > flash.jlink) && (JLink.exe -device ${input:jlinkDevice} -if swd -speed 4000 -autoconnect 1 -nogui 1 -CommandFile flash.jlink) && del flash.jlink" ],
+      "options": { "cwd": "${command:cmake.buildDirectory}" },
+      "problemMatcher": [],
+      "group": "build",
+      "detail": "J-Link Commander: STM32F103C8 или STM32F103CB."
+    },
+
+    {
+      "label": "Эмулятор: дымовой тест (Renode)",
+      "type": "shell",
+      "command": "ctest",
+      "args": [ "--test-dir", "${command:cmake.buildDirectory}", "-L", "emu", "--output-on-failure" ],
+      "dependsOn": "CMake: build",
+      "problemMatcher": [],
+      "group": "test",
+      "detail": "Прошивка выбранного пресета в Renode: UART, setup(), мигание (нужен Renode, см. README)."
+    },
+
+    // ------------------------------------------------------------------
+    // HIL (stm32-gdbtest). Сценарии — hil/tests/board/test_*.py, стенд —
+    // hil/stands/<плата>.local.toml. Тесты можно запускать и из панели «Testing».
+    // ------------------------------------------------------------------
+    {
+      "label": "HIL: doctor (стенд)",
+      "type": "shell",
+      "command": "python",
+      "args": [ "-B", "${config:hil.gdbtest}/stm32_gdbtest/cli.py", "doctor",
+                "--gdb", "${config:hil.gdb}", "--stand", "hil/stands/${input:hilBoard}.local.toml" ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": [],
+      "group": "test",
+      "detail": "Окружение и стенд без обращения к плате."
+    },
+    {
+      "label": "HIL: сборка",
+      "type": "shell",
+      "command": "cmake",
+      "args": [ "--build", "--preset", "HIL_${input:hilBoard}" ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": [ "$gcc" ],
+      "group": "build",
+      "detail": "Сборка build/HIL_<плата> (пресет должен быть сконфигурирован)."
+    },
+    {
+      "label": "HIL: подготовка без платы",
+      "type": "shell",
+      "command": "ctest",
+      "args": [ "--preset", "HIL_${input:hilBoard}-host" ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "dependsOn": "HIL: сборка",
+      "problemMatcher": [],
+      "group": "test",
+      "detail": "host.traceability и prepare.* — профиль, manifest, образ; плата не нужна."
+    },
+    {
+      "label": "HIL: тест на плате…",
+      "type": "shell",
+      "command": "python",
+      "args": [ "-B", "${config:hil.gdbtest}/stm32_gdbtest/cli.py", "run",
+                "--session", "build/HIL_${input:hilBoard}/hwtest/session.json", "--identity-policy", "strict",
+                "--test", "${input:hilTest}", "--stand", "hil/stands/${input:hilBoard}.local.toml" ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "dependsOn": "HIL: сборка",
+      "problemMatcher": [],
+      "group": "test",
+      "detail": "Один сценарий по ID; может записать Flash (flash = if-different в стенде)."
+    },
+    {
+      "label": "HIL: все тесты на плате",
+      "type": "shell",
+      "command": "ctest",
+      "args": [ "--preset", "HIL_${input:hilBoard}-hw" ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "dependsOn": "HIL: сборка",
+      "problemMatcher": [],
+      "group": "test",
+      "detail": "Все hw.* по очереди."
+    },
+    {
+      "label": "HIL: результаты",
+      "type": "shell",
+      "command": "python",
+      "args": [ "hil/tools/results.py", "--runs", "build/HIL_${input:hilBoard}/hwtest/runs" ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": [],
+      "group": "test",
+      "detail": "Последний аппаратный запуск каждого сценария."
+    },
+    {
+      "label": "HIL: результаты сценария…",
+      "type": "shell",
+      "command": "python",
+      "args": [ "hil/tools/results.py", "--runs", "build/HIL_${input:hilBoard}/hwtest/runs", "${input:hilTest}" ],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": [],
+      "group": "test",
+      "detail": "Проверки, ошибка и журналы последнего запуска сценария."
+    }
+  ],
+  "inputs": [
+    {
+      "id": "hilBoard",
+      "type": "pickString",
+      "description": "Плата",
+      "options": [ "F103C8", "F103CB" ],
+      "default": "F103C8"
+    },
+    {
+      "id": "hilTest",
+      "type": "pickString",
+      "description": "Сценарий",
+      "options": [ "HW_BOOT", "HW_SETUP_DONE", "HW_POST", "HW_BLINK" ],
+      "default": "HW_BOOT"
+    },
+    {
+      "id": "jlinkDevice",
+      "type": "pickString",
+      "description": "Устройство J-Link",
+      "options": [ "STM32F103C8", "STM32F103CB" ],
+      "default": "STM32F103C8"
+    }
+  ]
+}

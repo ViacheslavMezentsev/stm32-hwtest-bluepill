@@ -1,0 +1,23 @@
+# Описание MCU для stm32-gdbtest (схема 1): обычная Blue Pill, светодиод PC13 (горит при 0).
+# Flash 64 КиБ. На многих платах в кристалле фактически 128 КиБ (регистр размера Flash показывает 128): identity даёт предупреждение, не ошибку, даже при strict.
+schema = 1
+name = "bluepillc8"
+mcu = "STM32F103C8T6"
+openocd_target = "target/stm32f1x.cfg"
+flash_start = 0x08000000
+flash_size = 65536
+flash_size_address = 0x1FFFF7E0       # F_SIZE: заводской размер Flash, КиБ (RM0008)
+breakpoint_limit = 6                  # FPB Cortex-M3: 6 аппаратных точек останова
+fault_handlers = ["HardFault_Handler", "MemManage_Handler", "BusFault_Handler", "UsageFault_Handler"]
+core_registers = ["pc", "lr", "sp", "xPSR"]
+reset_halt = "monitor reset halt"
+reset_run = "monitor reset run"
+
+[identity]
+address = 0xE0042000                  # DBGMCU_IDCODE
+mask = 0xFFF
+value = 0x410                         # DEV_ID STM32F10x medium-density (F103x8, F103xB)
+
+[diagnostic_registers]
+CFSR = 0xE000ED28
+HFSR = 0xE000ED2C

@@ -1,0 +1,79 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": { "major": 3, "minor": 25, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "description": "Ninja, каталог build/<пресет>. Toolchain: ARM_TOOLCHAIN_ROOT или %USERPROFILE%/xpack-arm-none-eabi-gcc-14.2.1-1.1 (cmake/arm-gcc.cmake)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": { "CMAKE_EXPORT_COMPILE_COMMANDS": "ON" }
+    },
+    { "name": "f103c8", "hidden": true, "inherits": "base", "cacheVariables": { "BOARD": "F103C8_PC13" } },
+    { "name": "f103cb", "hidden": true, "inherits": "base", "cacheVariables": { "BOARD": "F103CB_PB2" } },
+    {
+      "name": "hil",
+      "hidden": true,
+      "description": "HIL: аппаратные тесты по методу DDTT (Debugger-Driven Testing on Target) — сценарии hil/tests проверяют работающую прошивку на плате через GDB и SWD",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug", "BLUEPILL_HIL": "ON" }
+    },
+    { "name": "Debug_F103C8", "displayName": "Debug (F103C8, LED PC13)", "inherits": "f103c8", "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" } },
+    { "name": "Release_F103C8", "displayName": "Release (F103C8, LED PC13)", "inherits": "f103c8", "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" } },
+    { "name": "Debug_F103CB", "displayName": "Debug (F103CB, LED PB2)", "inherits": "f103cb", "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" } },
+    { "name": "Release_F103CB", "displayName": "Release (F103CB, LED PB2)", "inherits": "f103cb", "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" } },
+    { "name": "HIL_F103C8", "displayName": "HIL F103C8 (Debug)", "inherits": [ "hil", "f103c8" ] },
+    { "name": "HIL_F103CB", "displayName": "HIL F103CB (Debug)", "inherits": [ "hil", "f103cb" ] }
+  ],
+  "buildPresets": [
+    { "name": "Debug_F103C8", "displayName": "Debug (F103C8)", "configurePreset": "Debug_F103C8" },
+    { "name": "Release_F103C8", "displayName": "Release (F103C8)", "configurePreset": "Release_F103C8" },
+    { "name": "Debug_F103CB", "displayName": "Debug (F103CB)", "configurePreset": "Debug_F103CB" },
+    { "name": "Release_F103CB", "displayName": "Release (F103CB)", "configurePreset": "Release_F103CB" },
+    { "name": "HIL_F103C8", "displayName": "HIL F103C8", "configurePreset": "HIL_F103C8" },
+    { "name": "HIL_F103CB", "displayName": "HIL F103CB", "configurePreset": "HIL_F103CB" }
+  ],
+  "testPresets": [
+    {
+      "name": "Debug_F103C8-emu", "displayName": "Renode: дымовой тест (F103C8, без платы)", "configurePreset": "Debug_F103C8",
+      "filter": { "include": { "label": "^emu$" } }, "output": { "outputOnFailure": true }, "execution": { "noTestsAction": "error" }
+    },
+    {
+      "name": "Debug_F103CB-emu", "displayName": "Renode: дымовой тест (F103CB, без платы)", "configurePreset": "Debug_F103CB",
+      "filter": { "include": { "label": "^emu$" } }, "output": { "outputOnFailure": true }, "execution": { "noTestsAction": "error" }
+    },
+    {
+      "name": "hil-common",
+      "hidden": true,
+      "environment": { "STM32_GDBTEST_IDENTITY_POLICY": "strict" },
+      "output": { "outputOnFailure": true },
+      "execution": { "noTestsAction": "error" }
+    },
+    {
+      "name": "HIL_F103C8", "displayName": "HIL F103C8: все тесты (для панели Testing)", "configurePreset": "HIL_F103C8", "inherits": "hil-common",
+      "environment": { "STM32_GDBTEST_STAND": "${sourceDir}/hil/stands/F103C8.local.toml" }
+    },
+    {
+      "name": "HIL_F103C8-host", "displayName": "HIL F103C8: без платы (traceability, prepare)", "configurePreset": "HIL_F103C8", "inherits": "hil-common",
+      "filter": { "include": { "label": "^host$" } }
+    },
+    {
+      "name": "HIL_F103C8-hw", "displayName": "HIL F103C8: на плате", "configurePreset": "HIL_F103C8", "inherits": "hil-common",
+      "environment": { "STM32_GDBTEST_STAND": "${sourceDir}/hil/stands/F103C8.local.toml" },
+      "filter": { "include": { "label": "^hw$" } }, "output": { "outputOnFailure": true, "verbosity": "verbose" }
+    },
+    {
+      "name": "HIL_F103CB", "displayName": "HIL F103CB: все тесты (для панели Testing)", "configurePreset": "HIL_F103CB", "inherits": "hil-common",
+      "environment": { "STM32_GDBTEST_STAND": "${sourceDir}/hil/stands/F103CB.local.toml" }
+    },
+    {
+      "name": "HIL_F103CB-host", "displayName": "HIL F103CB: без платы (traceability, prepare)", "configurePreset": "HIL_F103CB", "inherits": "hil-common",
+      "filter": { "include": { "label": "^host$" } }
+    },
+    {
+      "name": "HIL_F103CB-hw", "displayName": "HIL F103CB: на плате", "configurePreset": "HIL_F103CB", "inherits": "hil-common",
+      "environment": { "STM32_GDBTEST_STAND": "${sourceDir}/hil/stands/F103CB.local.toml" },
+      "filter": { "include": { "label": "^hw$" } }, "output": { "outputOnFailure": true, "verbosity": "verbose" }
+    }
+  ]
+}

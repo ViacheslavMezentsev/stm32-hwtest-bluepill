@@ -1,0 +1,12 @@
+# Сборка и локальные файлы разработчика.
+build/
+CMakeUserPresets.json
+*.local.toml
+flash.jlink
+__pycache__/
+*.pyc
+.vs/
+.idea/
+*.swp
+Thumbs.db
+.DS_Store

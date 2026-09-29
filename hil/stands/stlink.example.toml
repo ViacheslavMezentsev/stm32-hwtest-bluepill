@@ -1,0 +1,10 @@
+# ST-Link через ST-LINK GDB Server (STM32CubeCLT), Windows.
+# Скопировать в hil/stands/F103C8.local.toml или F103CB.local.toml
+# (*.local.toml не коммитится) и заменить значения. %USERPROFILE% и ~ раскрываются.
+[probe]
+backend = "stlink"
+serial = "REPLACE_WITH_STLINK_SERIAL"
+executable = "%USERPROFILE%/AppData/Local/Programs/STM32CubeCLT_1.22.0/STLink-gdb-server/bin/ST-LINK_gdbserver.exe"
+programmer_dir = "%USERPROFILE%/AppData/Local/Programs/STM32CubeCLT_1.22.0/STM32CubeProgrammer/bin"
+speed_khz = 1000
+flash = "if-different"              # для платы, которую нельзя перепрошивать: "verify-only"
