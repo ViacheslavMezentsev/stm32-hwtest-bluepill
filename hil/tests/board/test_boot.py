@@ -11,8 +11,9 @@ HSI_HZ = 8_000_000
 DEV_ID_MEDIUM_DENSITY = 0x410
 # RCC_CFGR address (RM0008: RCC base 0x40021000, offset 0x04); SWS is bits 3:2, 0 selects HSI.
 RCC_CFGR = 0x40021004
-# SRAM window of STM32F103 (20 KiB from 0x20000000).
-SRAM = within(0x20000000, 0x20004FFF)
+# SRAM of STM32F103: 20 KiB from 0x20000000. The stack is full descending, so the initial stack
+# pointer may equal the end address: the first push stores below it (ld/stm32f103.ld.in, _estack).
+SRAM_START, SRAM_END = 0x20000000, 0x20005000
 # USART1 data register: a peripheral address, never read as memory.
 USART1_DR = 0x40013804
 
@@ -70,7 +71,8 @@ def board_profile(t):
     vectors = t.memory(profile["flash_start"], 8)
     stack, reset = int.from_bytes(vectors[:4], "little"), int.from_bytes(vectors[4:], "little")
     flash = within(profile["flash_start"], profile["flash_start"] + profile["flash_size"] - 1)
-    t.check("initial stack pointer in SRAM", stack, SRAM)
+    t.check("initial stack pointer in SRAM", stack, within(SRAM_START + 8, SRAM_END))
+    t.check("initial stack pointer 8-byte aligned (AAPCS)", stack % 8, 0)
     t.check("reset vector in the profile flash", reset & ~1, flash)
     t.check("reset vector is Thumb code", reset & 1)
 
