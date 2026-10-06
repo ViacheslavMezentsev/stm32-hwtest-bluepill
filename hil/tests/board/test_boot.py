@@ -58,7 +58,9 @@ def board_profile(t):
     board = profile.data["board"]["board"]
 
     # TECH-018: the firmware names its board in a C string; TECH-017: the run names it in the board data.
-    t.check(f"firmware is built for {board['name']}", t.evaluate("g_board_name", as_type=str), board["name"])
+    # Units that see only the extern declaration give the array no bound, so it is read through a pointer.
+    name = t.evaluate("(const char *)g_board_name", as_type=str)
+    t.check(f"firmware is built for {board['name']}", name, board["name"])
     t.check("the build defines the board", f"BOARD_{board['name']}" in profile.build["defines"])
     t.check("the board data comes from its file", profile.origin("data.board.board.name")["file"],
             profile.files["data.board"]["reference"])

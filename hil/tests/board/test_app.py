@@ -79,15 +79,21 @@ def blink(t):
 def toggle_writers(t):
     writers = []
 
-    # TECH-013: a write watch point on the field stops right after each store that changes it.
+    # TECH-013: a write watch point on the field stops just after each store that changes it.
     with t.watch("g_app.last_toggle_ms"):
         # The first change comes from setup(), the second from the first toggle in loop().
         for _ in range(2):
             stop = t.resume()["stop"]
             t.check("the stop is the watch point", stop["kind"], "watchpoint")
             chain = t.frames(4)["frames"]
-            writers.append([frame["name"] for frame in chain[:2]])
+            names = [frame["name"] for frame in chain]
             t.record("writer", dict(frames=chain, value=t.read("g_app.last_toggle_ms")))
+
+            # The DWT reports a write after the next instruction. In loop() the store is followed by
+            # the call of ledToggle(), so the stop may land at its entry, with loop() as the caller.
+            if names[0] == "board::ledToggle":
+                names = names[1:]
+            writers.append(names[:2])
 
     t.check("setup() stores the start time, called from main()", writers[0], ["setup", "main"])
     t.check("loop() stores the toggle time, called from main()", writers[1], ["loop", "main"])

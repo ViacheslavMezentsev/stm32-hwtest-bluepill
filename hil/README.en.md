@@ -115,6 +115,15 @@ the STM32G474 project described in the stm32-gdbtest documentation does).
 **STM32F103C8 with 128 KiB.** Many C8 chips report 128 KiB in the Flash size register.
 stm32-gdbtest reports this as a warning even with `strict`: the DEV_ID matches.
 
+**A watch point stops slightly after the write.** The Cortex-M3 DWT reports a write after the
+next instruction. In `loop()` the store to `g_app.last_toggle_ms` is directly followed by the call of
+`board::ledToggle()`, so `HW_TOGGLE_WRITERS` may stop at the entry of `ledToggle()`; the scenario then
+takes the caller as the writer.
+
+**A string from an array without a bound.** Translation units that see only the declaration
+`extern const char g_board_name[]` give the array no size, and GDB may pick that type.
+`HW_BOARD_PROFILE` therefore reads the string through a pointer: `(const char *)g_board_name`.
+
 **OpenOCD and an "unexpected" IDCODE.** If OpenOCD reports `UNEXPECTED idcode` (usually an
 MCU clone or a rare revision), manual debugging can skip the check: create
 `target/stm32f1x-anyid.cfg` in the OpenOCD scripts directory (`share/openocd/scripts`):
