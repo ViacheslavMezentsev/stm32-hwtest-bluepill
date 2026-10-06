@@ -11,6 +11,15 @@ The firmware is deliberately simple: `setup()` runs once after reset, performs a
 (supply voltage and die temperature through the ADC) and prints the result to UART;
 `loop()` blinks the user LED at 1 Hz. The only library is CMSIS.
 
+```mermaid
+flowchart LR
+    E["ELF + debug info"] --> G["GDB + Python scenarios"]
+    R["stm32-gdbtest on the PC"] --> G
+    G <--> S["GDB server: OpenOCD, ST-LINK, J-Link"]
+    S <-->|SWD| M["Firmware on the board"]
+    R --> J["JSON / JUnit"]
+```
+
 ## Boards
 
 | Profile (`BOARD`) | Board | MCU | Flash | LED |
@@ -103,6 +112,8 @@ traceability and run preparation are checked (`ctest --preset HIL_F103C8-host`);
 board run `ctest --preset HIL_F103C8-hw` after setting up a stand. Details:
 [hil/README.en.md](hil/README.en.md).
 
+Latest hardware run: BluePill-Plus (`F103CB_PB2`) through J-Link — 11/11 PASS; `F103C8_PC13` checked without a board.
+
 ## Layout
 
 ```text
@@ -114,11 +125,18 @@ emu/renode/     Renode model for the smoke test
 tools/          renode_smoke.py — smoke test runner
 hil/            run configurations, MCU descriptions, board data, scenarios and requirements, stands
 modules/        stm32-gdbtest (Git submodule)
+.claude/skills/ stm32-gdbtest agent skills
 .vscode/        tasks, debug configurations, settings
 .github/        GitHub Actions: formatting, build, Renode, HIL without a board
 ```
 
-Development rules — [AGENTS.md](AGENTS.md), changes — [CHANGELOG.en.md](CHANGELOG.en.md).
+## Documentation
+
+- stm32-gdbtest v0.3.0: [README](https://github.com/ViacheslavMezentsev/stm32-gdbtest/blob/v0.3.0/README.en.md), [API reference](https://github.com/ViacheslavMezentsev/stm32-gdbtest/blob/v0.3.0/docs/en/api/index.md),
+  [testing techniques](https://github.com/ViacheslavMezentsev/stm32-gdbtest/blob/v0.3.0/docs/en/TESTING_TECHNIQUES.md), [agent skills](https://github.com/ViacheslavMezentsev/stm32-gdbtest/blob/v0.3.0/skills/README.en.md).
+- This project: [HIL tests](hil/README.en.md), [requirements](hil/tests/requirements.md) (Russian),
+  [changes](CHANGELOG.en.md), [development rules](AGENTS.md).
+- A similar example: [stm32-hwtest-blackpill](https://github.com/ViacheslavMezentsev/stm32-hwtest-blackpill).
 
 ## License
 

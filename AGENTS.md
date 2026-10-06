@@ -19,7 +19,7 @@ CMSIS only. Boards: `F103C8_PC13` (common Blue Pill, LED PC13 active low) and
 | `emu/renode/`, `tools/renode_smoke.py` | Renode model and smoke test (`ctest -L emu`) |
 | `hil/` | HIL: `sessions/` (run configuration per board), `profiles/` (MCU descriptions), `boards/` (board data), `api.toml`, `tests/` (scenarios, requirements, contracts), `stands/` (examples), `tools/` |
 | `.claude/skills/` | Copies of the stm32-gdbtest skills (`stm32-gdbtest-integrate`, `-scenarios`, `-run`); refresh with the submodule |
-| `modules/stm32-gdbtest` | Git submodule |
+| `modules/stm32-gdbtest` | Git submodule, pinned to v0.3.0 |
 
 ## Build and checks
 
@@ -53,5 +53,7 @@ Requirements: CMake ≥ 3.25, Ninja, xPack GNU Arm 14.2.1-1.1 (`ARM_TOOLCHAIN_RO
 6. Update `CHANGELOG.md` and `CHANGELOG.en.md` (`[Unreleased]`) for user-visible changes;
    keep RU and EN documents in sync.
 7. Branches `<agent>/<task>` from an up-to-date `main`; signed Conventional Commits in
-   English without links to chat sessions. Push, tags and releases are done by the owner.
+   English without links to chat sessions, ending with one `Co-authored-by:` line of the agent
+   that took part. Push, `git land`, tags and releases are done by the owner, after the CI of the
+   published branch is green.
 8. Do not claim hardware results that were not run; state what was checked and how.

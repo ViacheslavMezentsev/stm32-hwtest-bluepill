@@ -11,6 +11,15 @@ SWD-отладчик сценариями на Python — метод DDTT (Debug
 питания и температура кристалла через АЦП) и печатает результат в UART, `loop()` мигает
 светодиодом пользователя с частотой 1 Гц. Из библиотек — только CMSIS.
 
+```mermaid
+flowchart LR
+    E["ELF + отладочная информация"] --> G["GDB + сценарии Python"]
+    R["stm32-gdbtest на ПК"] --> G
+    G <--> S["GDB-сервер: OpenOCD, ST-LINK, J-Link"]
+    S <-->|SWD| M["Прошивка на плате"]
+    R --> J["JSON / JUnit"]
+```
+
 ## Платы
 
 | Профиль (`BOARD`) | Плата | MCU | Flash | Светодиод |
@@ -99,6 +108,8 @@ POST, мигание и кто пишет время переключения (�
 трассировка требований и подготовка запуска (`ctest --preset HIL_F103C8-host`); на плате —
 `ctest --preset HIL_F103C8-hw` после настройки стенда. Подробно: [hil/README.md](hil/README.md).
 
+Последний аппаратный прогон: BluePill-Plus (`F103CB_PB2`) через J-Link — 11/11 PASS; `F103C8_PC13` проверен без платы.
+
 ## Структура
 
 ```text
@@ -110,11 +121,18 @@ emu/renode/     модель Renode для дымового теста
 tools/          renode_smoke.py — запуск дымового теста
 hil/            конфигурации прогона, описания MCU, данные плат, сценарии и требования, стенды
 modules/        stm32-gdbtest (Git-подмодуль)
+.claude/skills/ навыки агентов stm32-gdbtest
 .vscode/        задачи, конфигурации отладки, настройки
 .github/        GitHub Actions: форматирование, сборка, Renode, HIL без платы
 ```
 
-Правила разработки — [AGENTS.md](AGENTS.md), изменения — [CHANGELOG.md](CHANGELOG.md).
+## Документация
+
+- stm32-gdbtest v0.3.0: [README](https://github.com/ViacheslavMezentsev/stm32-gdbtest/blob/v0.3.0/README.md), [справочник API](https://github.com/ViacheslavMezentsev/stm32-gdbtest/blob/v0.3.0/docs/ru/api/index.md),
+  [техники тестирования](https://github.com/ViacheslavMezentsev/stm32-gdbtest/blob/v0.3.0/docs/ru/TESTING_TECHNIQUES.md), [навыки агентов](https://github.com/ViacheslavMezentsev/stm32-gdbtest/blob/v0.3.0/skills/README.md).
+- Этот проект: [HIL-тесты](hil/README.md), [требования](hil/tests/requirements.md),
+  [изменения](CHANGELOG.md), [правила разработки](AGENTS.md).
+- Аналогичный пример: [stm32-hwtest-blackpill](https://github.com/ViacheslavMezentsev/stm32-hwtest-blackpill).
 
 ## Лицензия
 

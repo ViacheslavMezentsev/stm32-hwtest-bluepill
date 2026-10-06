@@ -25,6 +25,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Changed
 
+- The look follows the layout shared with stm32-hwtest-blackpill: a diagram, a Documentation section with
+  links to stm32-gdbtest v0.3.0 and the agent skills, and the latest hardware run in the README.
 - stm32-gdbtest updated to v0.3.0. The board is described by the run configuration `hil/sessions/<BOARD>.toml`
   (`SESSION_CONFIG` instead of `PROFILE`): the MCU description, the shared `hil/api.toml` with scenario
   parameters and the board data file `hil/boards/<BOARD>.toml` (LED pin and active level, UART speed).
