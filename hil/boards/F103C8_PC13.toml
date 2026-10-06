@@ -1,0 +1,12 @@
+# Файл данных платы для сценариев HIL: t.profile.data["board"].
+# Обычная Blue Pill: светодиод на PC13, горит при низком уровне.
+[board]
+name = "F103C8_PC13"
+title = "Blue Pill"
+led_port = "GPIOC"
+led_pin = 13
+led_active_high = false
+
+# USART1 (PA9 — TX) выводит имя платы и итог POST.
+[uart]
+baud = 115200

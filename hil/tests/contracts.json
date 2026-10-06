@@ -15,6 +15,59 @@
           "FLASHSIZE_BASE"
         ]
       }
+    },
+    "cmsis_core_macros": {
+      "macros": {
+        "context": "SysTick_Handler",
+        "expressions": [
+          "SysTick",
+          "SysTick_CTRL_ENABLE_Msk",
+          "SysTick_CTRL_TICKINT_Msk",
+          "SysTick_CTRL_CLKSOURCE_Msk",
+          "ADC1",
+          "ADC_CR2_ADON",
+          "ADC_CR2_TSVREFE"
+        ]
+      }
+    },
+    "cmsis_gpio_macros": {
+      "macros": {
+        "context": "SysTick_Handler",
+        "expressions": [
+          "RCC",
+          "GPIOB",
+          "GPIOC",
+          "RCC_APB2ENR_IOPBEN",
+          "RCC_APB2ENR_IOPCEN",
+          "GPIO_CRL_MODE2",
+          "GPIO_CRL_CNF2",
+          "GPIO_CRL_MODE2_1",
+          "GPIO_CRH_MODE13",
+          "GPIO_CRH_CNF13",
+          "GPIO_CRH_MODE13_1",
+          "GPIO_ODR_ODR2",
+          "GPIO_ODR_ODR13"
+        ]
+      }
+    },
+    "cmsis_uart_macros": {
+      "macros": {
+        "context": "SysTick_Handler",
+        "expressions": [
+          "RCC",
+          "GPIOA",
+          "USART1",
+          "RCC_APB2ENR_USART1EN",
+          "RCC_APB2ENR_IOPAEN",
+          "GPIO_CRH_MODE9",
+          "GPIO_CRH_CNF9",
+          "GPIO_CRH_CNF9_1",
+          "USART_CR1_UE",
+          "USART_CR1_TE",
+          "USART_CR1_RE",
+          "USART_SR_TC"
+        ]
+      }
     }
   }
 }

@@ -11,20 +11,29 @@ JUnit. В прошивку тестовый код не добавляется.
 
 ```text
 hil/
-  profiles/F103C8_PC13.toml   описание MCU: Flash 64 КиБ, DEV_ID 0x410, 6 точек останова
-  profiles/F103CB_PB2.toml    то же, Flash 128 КиБ
-  tests/requirements.md       требования HW_* (общие для обеих плат)
-  tests/contracts.json        контракт cmsis_boot_macros: макросы CMSIS в отладочной информации ELF
-  tests/board/test_boot.py    HW_BOOT — загрузка, тактирование от HSI 8 МГц (адреса регистров)
-  tests/board/test_boot_cmsis.py  HW_BOOT_CMSIS — то же через имена CMSIS
-  tests/board/test_app.py     HW_SETUP_DONE, HW_POST, HW_BLINK
-  stands/*.example.toml       примеры стендов: ST-LINK GDB Server, OpenOCD, J-Link
-  tools/results.py            сводка результатов запусков
+  sessions/<BOARD>.toml        конфигурация прогона платы: описание MCU, api.toml, файл данных платы
+  profiles/F103C8_PC13.toml    описание MCU: Flash 64 КиБ, DEV_ID 0x410, 6 точек останова
+  profiles/F103CB_PB2.toml     то же, Flash 128 КиБ
+  boards/<BOARD>.toml          файл данных платы: имя, вывод и активный уровень светодиода, скорость UART
+  api.toml                     параметры сценариев: полупериод мигания, пределы POST, значение инъекции
+  tests/requirements.md        требования HW_* (общие для обеих плат)
+  tests/contracts.json         контракты: макросы CMSIS в отладочной информации ELF
+  tests/board/test_boot.py     HW_BOOT, HW_BOOT_CMSIS, HW_BOARD_PROFILE — кристалл, тактирование, профиль
+  tests/board/test_board.py    HW_GPIO_CONFIG, HW_UART_CONFIG — вывод светодиода и USART1
+  tests/board/test_app.py      HW_SETUP_DONE, HW_POST, HW_BLINK, HW_TOGGLE_WRITERS
+  tests/board/test_injection.py  HW_LED_FORCED_STATE, HW_POST_VDDA_LOW — инъекции
+  stands/*.example.toml        примеры стендов: ST-LINK GDB Server, OpenOCD, J-Link
+  tools/results.py             сводка результатов запусков
 ```
 
 Плата выбирается сборкой: пресеты `HIL_F103C8` и `HIL_F103CB` задают `BOARD` и
-`BLUEPILL_HIL=ON`, `cmake/hil.cmake` подключает stm32-gdbtest (`modules/stm32-gdbtest`) с
-описанием MCU `hil/profiles/<BOARD>.toml` и общими сценариями `hil/tests`.
+`BLUEPILL_HIL=ON`, `cmake/hil.cmake` подключает stm32-gdbtest v0.3.0 (`modules/stm32-gdbtest`) с
+конфигурацией прогона `hil/sessions/<BOARD>.toml` (`SESSION_CONFIG`) и общими сценариями `hil/tests`.
+Конфигурация связывает описание MCU, общий `api.toml` и файл данных платы: сценарии читают их
+через `t.profile` (`t.profile.data["board"]`, `t.profile.get("user.post.vdda_mv")`), поэтому один
+сценарий обслуживает обе платы, а ожидания, зависящие от платы, лежат в данных, а не в коде.
+Сценарии написаны на API 0.3.0 и проверяются тестом стиля модуля:
+`python modules/stm32-gdbtest/tests/host/test_scenario_style.py hil/tests/board/*.py`.
 
 ## Стенд
 
@@ -54,7 +63,7 @@ python -B modules/stm32-gdbtest/stm32_gdbtest/cli.py doctor --stand hil/stands/F
 cmake --preset HIL_F103CB
 cmake --build --preset HIL_F103CB
 ctest --preset HIL_F103CB-host     # без платы: трассировка требований и prepare.*
-ctest --preset HIL_F103CB-hw       # на плате: все hw.* (5 сценариев)
+ctest --preset HIL_F103CB-hw       # на плате: все hw.* (11 сценариев)
 python hil/tools/results.py --runs build/HIL_F103CB/hwtest/runs
 ```
 
@@ -64,13 +73,19 @@ python hil/tools/results.py --runs build/HIL_F103CB/hwtest/runs
 выбирается из списка) и панель «Testing», где каждый сценарий виден как `hw.<ID>` и
 `prepare.<ID>`.
 
-| Сценарий | Что проверяет |
-| --- | --- |
-| `HW_BOOT` | остановка в `main()`, SYSCLK от HSI, `SystemCoreClock = 8000000` |
-| `HW_BOOT_CMSIS` | то же через CMSIS: `(RCC->CFGR & RCC_CFGR_SWS) == RCC_CFGR_SWS_HSI`, `DBGMCU->IDCODE & DBGMCU_IDCODE_DEV_ID`, `FLASHSIZE_BASE` |
-| `HW_SETUP_DONE` | `setup()` завершилась, `g_app.setup_done = 1`, SysTick 1 мс |
-| `HW_POST` | `g_post.status = PostOk`, VDDA 2900–3600 мВ, температура −10…+85 °C |
-| `HW_BLINK` | между двумя вызовами `board::ledToggle()` светодиод переключился, счётчик +1 |
+| Сценарий | Что проверяет | Приёмы ([техники](https://github.com/ViacheslavMezentsev/stm32-gdbtest/blob/v0.3.0/docs/ru/TESTING_TECHNIQUES.md)) |
+| --- | --- | --- |
+| `HW_BOOT` | DEV_ID и F_SIZE по адресам из описания MCU, SYSCLK от HSI, `SystemCoreClock` | `t.profile`, `evaluate`, `read` |
+| `HW_BOOT_CMSIS` | то же именами CMSIS при входе в `board::init()` | таблица `check(rows)`, контракт, TECH-001 |
+| `HW_BOARD_PROFILE` | строка `g_board_name` = имя из файла данных, `BOARD_*` в сборке, таблица векторов, отказ чтения периферии | TECH-017, TECH-018, `memory`, `refused` |
+| `HW_GPIO_CONFIG` | вывод светодиода из файла данных: тактирование, режим, `g_led` | ожидания из `profile.data`, TECH-001 |
+| `HW_UART_CONFIG` | USART1: тактирование, PA9, делитель BRR для скорости из файла данных, TE/RE, TC | таблица, контракт |
+| `HW_SETUP_DONE` | `setup()` завершилась, SysTick 1 мс | `read`, таблица |
+| `HW_POST` | `PostOk`, VDDA и температура в пределах из `api.toml`, АЦП выключен | `within`, `profile.get`, `record` |
+| `HW_BLINK` | уровень светодиода меняется, счётчик +1, интервал — полупериод | `read` структуры, `within` |
+| `HW_TOGGLE_WRITERS` | `g_app.last_toggle_ms` пишут `setup()` и `loop()`, обе из `main()` | `watch`, `frames`, TECH-013 |
+| `HW_LED_FORCED_STATE` | `ledToggle()` ставит уровень, обратный ответу `ledIsOn()` | `ret`, `finish`, TECH-004 |
+| `HW_POST_VDDA_LOW` | подменённый отсчёт VREFINT даёт VDDA 1638 мВ и `PostVddaOutOfRange`, приложение запускается | `watch`, `write`, TECH-005 |
 
 ## Особенности
 
@@ -100,11 +115,6 @@ Flash не критичен, поэтому LTO нет ни в одной сбо
 
 **STM32F103C8 со 128 КиБ.** Регистр размера Flash у многих C8 показывает 128 КиБ.
 stm32-gdbtest сообщает об этом предупреждением даже при `strict`: DEV_ID совпадает.
-
-**J-Link и F103CB.** Имя устройства J-Link `STM32F103CB` для MCU `STM32F103CBT6` есть в
-stm32-gdbtest после v0.1.0-rc.1. С подмодулем на теге v0.1.0-rc.1 J-Link на профиле
-`F103CB_PB2` отклоняется («mapping not validated»); используйте ST-Link или обновите
-подмодуль до `main`.
 
 **OpenOCD и «неожиданный» IDCODE.** Если OpenOCD сообщает `UNEXPECTED idcode` (обычно это
 клон MCU или редкая ревизия), для ручной отладки можно отключить проверку: создайте файл

@@ -13,6 +13,9 @@ struct LedInfo
 
 extern const volatile LedInfo g_led;
 
+// Имя платы (профиль сборки BOARD): его выводит UART, а сценарии HIL сверяют с файлом данных платы.
+extern const char g_board_name[];
+
 namespace board
 {
     // Тактирование GPIO, вывод светодиода (выключен), SysTick 1 мс.

@@ -1,14 +1,15 @@
 # =============================================================================
 # HIL-тесты stm32-gdbtest (метод DDTT), выключены по умолчанию.
 # Включение: пресеты HIL_F103C8 и HIL_F103CB (-DBLUEPILL_HIL=ON, генератор Ninja).
-# Сценарии и требования общие (hil/tests), описание MCU — hil/profiles/<BOARD>.toml.
+# Сценарии и требования общие (hil/tests). Плату описывает конфигурация прогона
+# hil/sessions/<BOARD>.toml: описание MCU (hil/profiles), общий hil/api.toml и файл данных платы (hil/boards).
 # =============================================================================
 option(BLUEPILL_HIL "Hardware tests via stm32-gdbtest" OFF)
 
 if(BLUEPILL_HIL)
-    set(HIL_PROFILE "${CMAKE_SOURCE_DIR}/hil/profiles/${BOARD}.toml")
-    if(NOT EXISTS "${HIL_PROFILE}")
-        message(FATAL_ERROR "No HIL MCU description for BOARD=${BOARD}: ${HIL_PROFILE}")
+    set(HIL_SESSION "${CMAKE_SOURCE_DIR}/hil/sessions/${BOARD}.toml")
+    if(NOT EXISTS "${HIL_SESSION}")
+        message(FATAL_ERROR "No HIL run configuration for BOARD=${BOARD}: ${HIL_SESSION}")
     endif()
 
     set(STM32_GDBTEST_SOURCE_DIR "${CMAKE_SOURCE_DIR}/modules/stm32-gdbtest" CACHE PATH "stm32-gdbtest checkout")
@@ -32,12 +33,12 @@ if(BLUEPILL_HIL)
     # (DBGMCU->IDCODE), поэтому в HIL-сборке типы сохраняются; код не меняется.
     target_compile_options(${PROJECT_NAME} PRIVATE -fno-eliminate-unused-debug-types)
 
-    message(STATUS "HIL: MCU description ${HIL_PROFILE}")
+    message(STATUS "HIL: run configuration ${HIL_SESSION}")
     include(CTest)
     include("${STM32_GDBTEST_SOURCE_DIR}/stm32_gdbtest/cmake/STM32GDBTest.cmake")
     stm32_gdbtest_attach(${PROJECT_NAME}
         PROFILE_DIR "${CMAKE_SOURCE_DIR}/hil"
-        PROFILE "${HIL_PROFILE}"
+        SESSION_CONFIG "${HIL_SESSION}"
         MANIFEST_INPUTS
             "${CMAKE_SOURCE_DIR}/ld/stm32f103.ld.in"
             "${CMAKE_SOURCE_DIR}/CMakeLists.txt"

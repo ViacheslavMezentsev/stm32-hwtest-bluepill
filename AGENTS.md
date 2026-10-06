@@ -17,7 +17,8 @@ CMSIS only. Boards: `F103C8_PC13` (common Blue Pill, LED PC13 active low) and
 | `ld/` | Own linker script template (Flash size from `BOARD`) |
 | `cmake/` | Toolchain (`arm-gcc.cmake`) and HIL integration (`hil.cmake`) |
 | `emu/renode/`, `tools/renode_smoke.py` | Renode model and smoke test (`ctest -L emu`) |
-| `hil/` | HIL: `profiles/` (MCU descriptions), `tests/` (scenarios, requirements), `stands/` (examples), `tools/` |
+| `hil/` | HIL: `sessions/` (run configuration per board), `profiles/` (MCU descriptions), `boards/` (board data), `api.toml`, `tests/` (scenarios, requirements, contracts), `stands/` (examples), `tools/` |
+| `.claude/skills/` | Copies of the stm32-gdbtest skills (`stm32-gdbtest-integrate`, `-scenarios`, `-run`); refresh with the submodule |
 | `modules/stm32-gdbtest` | Git submodule |
 
 ## Build and checks
@@ -41,7 +42,11 @@ Requirements: CMake ≥ 3.25, Ninja, xPack GNU Arm 14.2.1-1.1 (`ARM_TOOLCHAIN_RO
    `hil/tests` and `hil/tests/requirements.md` in the same commit. Data read only by the
    scenarios must survive optimization and `--gc-sections`: `g_led` is `const volatile` for
    this reason (a plain `const` was folded away and HW_BLINK failed with "Missing ELF symbol").
-2. Every `@case` ID has a `## HW_...` section in `hil/tests/requirements.md`.
+2. Every `@case` ID has a `## HW_...` section in `hil/tests/requirements.md`. Scenarios follow
+   the stm32-gdbtest API of the pinned submodule (v0.3.0) and its scenario style
+   (`skills/stm32-gdbtest-scenarios` in the module; check with
+   `python modules/stm32-gdbtest/tests/host/test_scenario_style.py hil/tests/board/*.py`).
+   Board-specific expectations belong in `hil/boards/<BOARD>.toml`, scenario parameters in `hil/api.toml`.
 3. No LTO (see `hil/README.md`). No HAL; registers through CMSIS names.
 4. Format `src/` with the repository `.clang-format`; never reformat `cmsis/`.
 5. Never commit `*.local.toml` stands, probe serial numbers, personal paths or `build/`.

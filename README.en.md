@@ -94,9 +94,11 @@ through USART1 rather than semihosting.
 
 ## HIL tests
 
-The scenarios in `hil/tests/board` check the firmware on the board: boot and clock (also
-with CMSIS register names, `HW_BOOT_CMSIS`),
-`setup()` completion, POST results and the LED blink. Without a board the requirement
+The scenarios in `hil/tests/board` (stm32-gdbtest v0.3.0, 11 scenarios) check the firmware on the
+board: chip, clock and run profile, LED and USART1 configuration, `setup()` completion, POST, the
+blink and who writes the toggle time (a watch point), and the firmware reaction to injections — a
+substituted function answer and a substituted ADC sample. The MCU description and the board data
+file, shared by all scenarios, describe the board. Without a board the requirement
 traceability and run preparation are checked (`ctest --preset HIL_F103C8-host`); on the
 board run `ctest --preset HIL_F103C8-hw` after setting up a stand. Details:
 [hil/README.en.md](hil/README.en.md).
@@ -110,7 +112,7 @@ ld/             linker script (Flash size per board)
 cmake/          toolchain and HIL integration
 emu/renode/     Renode model for the smoke test
 tools/          renode_smoke.py — smoke test runner
-hil/            MCU profiles, scenarios and requirements, stand examples, tools
+hil/            run configurations, MCU descriptions, board data, scenarios and requirements, stands
 modules/        stm32-gdbtest (Git submodule)
 .vscode/        tasks, debug configurations, settings
 .github/        GitHub Actions: formatting, build, Renode, HIL without a board

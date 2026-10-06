@@ -24,7 +24,7 @@ static void ledPinInit()
     GPIOC->CRH = ( GPIOC->CRH & ~( GPIO_CRH_MODE13 | GPIO_CRH_CNF13 ) ) | GPIO_CRH_MODE13_1;
 }
 
-static const char* const kBoardName = "F103C8_PC13";
+const char g_board_name[] = "F103C8_PC13";
 #elif defined( BOARD_F103CB_PB2 )
 // WeAct BluePill-Plus v1.1: светодиод на PB2, горит при высоком уровне.
 const volatile LedInfo g_led = { GPIOB_BASE + offsetof( GPIO_TypeDef, ODR ), GPIO_ODR_ODR2, 1 };
@@ -38,7 +38,7 @@ static void ledPinInit()
     GPIOB->CRL = ( GPIOB->CRL & ~( GPIO_CRL_MODE2 | GPIO_CRL_CNF2 ) ) | GPIO_CRL_MODE2_1;
 }
 
-static const char* const kBoardName = "F103CB_PB2";
+const char g_board_name[] = "F103CB_PB2";
 #else
 #error "Define BOARD_F103C8_PC13 or BOARD_F103CB_PB2"
 #endif
@@ -85,7 +85,7 @@ namespace board
 
     const char* name()
     {
-        return kBoardName;
+        return g_board_name;
     }
 }
 

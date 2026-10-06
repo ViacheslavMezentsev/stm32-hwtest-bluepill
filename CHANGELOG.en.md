@@ -23,6 +23,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   `DBGMCU_IDCODE_DEV_ID`, `FLASHSIZE_BASE`) and the `cmsis_boot_macros` contract that checks the
   macros in the ELF without a board (`prepare.HW_BOOT_CMSIS`).
 
+### Changed
+
+- stm32-gdbtest updated to v0.3.0. The board is described by the run configuration `hil/sessions/<BOARD>.toml`
+  (`SESSION_CONFIG` instead of `PROFILE`): the MCU description, the shared `hil/api.toml` with scenario
+  parameters and the board data file `hil/boards/<BOARD>.toml` (LED pin and active level, UART speed).
+- Scenarios rewritten on API 0.3.0: `check(rows)` tables, expectations by CMSIS names and from the board data
+  file, `read`/`evaluate` instead of `value`, macro contracts per scenario group; the module test checks the style.
+- The board name is the global array `g_board_name` (was `static`): scenarios read it as a C string.
+
+### Added
+
+- Scenarios `HW_BOARD_PROFILE` (run profile, board string, vector table, refused peripheral read),
+  `HW_GPIO_CONFIG`, `HW_UART_CONFIG`, `HW_TOGGLE_WRITERS` (watch point and frame chain),
+  `HW_LED_FORCED_STATE` (substituted `ledIsOn()` return) and `HW_POST_VDDA_LOW` (substituted VREFINT sample).
+- stm32-gdbtest agent skills in `.claude/skills/`: integration, scenarios, runs.
+
 ### Fixed
 
 - The HIL build uses `-fno-eliminate-unused-debug-types`: without it `HW_BOOT_CMSIS` failed on

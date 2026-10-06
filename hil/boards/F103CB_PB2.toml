@@ -1,0 +1,12 @@
+# Файл данных платы для сценариев HIL: t.profile.data["board"].
+# WeAct BluePill-Plus v1.1: светодиод на PB2, горит при высоком уровне.
+[board]
+name = "F103CB_PB2"
+title = "WeAct BluePill-Plus v1.1"
+led_port = "GPIOB"
+led_pin = 2
+led_active_high = true
+
+# USART1 (PA9 — TX) выводит имя платы и итог POST.
+[uart]
+baud = 115200

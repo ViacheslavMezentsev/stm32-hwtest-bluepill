@@ -23,6 +23,22 @@
   `DBGMCU_IDCODE_DEV_ID`, `FLASHSIZE_BASE`) и контракт `cmsis_boot_macros`, который проверяет
   наличие макросов в ELF без платы (`prepare.HW_BOOT_CMSIS`).
 
+### Changed
+
+- stm32-gdbtest обновлён до v0.3.0. Плату описывает конфигурация прогона `hil/sessions/<BOARD>.toml`
+  (`SESSION_CONFIG` вместо `PROFILE`): описание MCU, общий `hil/api.toml` с параметрами сценариев и файл
+  данных платы `hil/boards/<BOARD>.toml` (вывод и активный уровень светодиода, скорость UART).
+- Сценарии переписаны на API 0.3.0: таблицы `check(rows)`, ожидания именами CMSIS и из файла данных платы,
+  `read`/`evaluate` вместо `value`, контракты макросов для каждой группы сценариев; стиль проверяет тест модуля.
+- Имя платы — глобальный массив `g_board_name` (было `static`): сценарии читают его как C-строку.
+
+### Added
+
+- Сценарии `HW_BOARD_PROFILE` (профиль прогона, строка платы, таблица векторов, отказ чтения периферии),
+  `HW_GPIO_CONFIG`, `HW_UART_CONFIG`, `HW_TOGGLE_WRITERS` (точка наблюдения и цепочка кадров),
+  `HW_LED_FORCED_STATE` (подмена возврата `ledIsOn()`) и `HW_POST_VDDA_LOW` (подмена отсчёта VREFINT).
+- Навыки агентов stm32-gdbtest в `.claude/skills/`: подключение, сценарии, запуск.
+
 ### Fixed
 
 - HIL-сборка с `-fno-eliminate-unused-debug-types`: без неё `HW_BOOT_CMSIS` падал на

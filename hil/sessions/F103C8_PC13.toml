@@ -1,0 +1,9 @@
+# Конфигурация прогона HIL для платы F103C8_PC13 (SESSION_CONFIG в cmake/hil.cmake).
+# Пути — относительно этого файла.
+[config]
+target = "../profiles/F103C8_PC13.toml"
+api = "../api.toml"
+
+# Файлы данных проекта: t.profile.data["board"].
+[data]
+board = "../boards/F103C8_PC13.toml"
