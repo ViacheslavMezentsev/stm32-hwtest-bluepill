@@ -7,3 +7,7 @@ api = "../api.toml"
 # Файлы данных проекта: t.profile.data["board"].
 [data]
 board = "../boards/F103C8_PC13.toml"
+
+# Preserve immutable evidence for each DDTT attempt.
+[results]
+capture = true
