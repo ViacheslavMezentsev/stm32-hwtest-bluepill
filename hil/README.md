@@ -27,12 +27,12 @@ hil/
 ```
 
 Плата выбирается сборкой: пресеты `HIL_F103C8` и `HIL_F103CB` задают `BOARD` и
-`BLUEPILL_HIL=ON`, `cmake/hil.cmake` подключает stm32-gdbtest v0.3.0 (`modules/stm32-gdbtest`) с
+`BLUEPILL_HIL=ON`, `cmake/hil.cmake` подключает stm32-gdbtest v0.4.0 (`modules/stm32-gdbtest`) с
 конфигурацией прогона `hil/sessions/<BOARD>.toml` (`SESSION_CONFIG`) и общими сценариями `hil/tests`.
 Конфигурация связывает описание MCU, общий `api.toml` и файл данных платы: сценарии читают их
 через `t.profile` (`t.profile.data["board"]`, `t.profile.get("user.post.vdda_mv")`), поэтому один
 сценарий обслуживает обе платы, а ожидания, зависящие от платы, лежат в данных, а не в коде.
-Сценарии написаны на API 0.3.0 и проверяются тестом стиля модуля:
+Сценарии написаны на API модуля 0.4.0 и проверяются тестом стиля модуля:
 `python modules/stm32-gdbtest/tests/host/test_scenario_style.py hil/tests/board/*.py`.
 
 ## Стенд
@@ -63,7 +63,7 @@ python -B modules/stm32-gdbtest/stm32_gdbtest/cli.py doctor --stand hil/stands/F
 cmake --preset HIL_F103CB
 cmake --build --preset HIL_F103CB
 ctest --preset HIL_F103CB-host     # без платы: трассировка требований и prepare.*
-ctest --preset HIL_F103CB-hw       # на плате: все hw.* (11 сценариев)
+ctest --preset HIL_F103CB-hw       # на плате: все hw.* (12 сценариев)
 python hil/tools/results.py --runs build/HIL_F103CB/hwtest/runs
 ```
 
@@ -73,7 +73,7 @@ python hil/tools/results.py --runs build/HIL_F103CB/hwtest/runs
 выбирается из списка) и панель «Testing», где каждый сценарий виден как `hw.<ID>` и
 `prepare.<ID>`.
 
-| Сценарий | Что проверяет | Приёмы ([техники](https://github.com/ViacheslavMezentsev/stm32-gdbtest/blob/v0.3.0/docs/ru/TESTING_TECHNIQUES.md)) |
+| Сценарий | Что проверяет | Приёмы ([техники](https://github.com/ViacheslavMezentsev/stm32-gdbtest/blob/v0.4.0/docs/ru/TESTING_TECHNIQUES.md)) |
 | --- | --- | --- |
 | `HW_BOOT` | DEV_ID и F_SIZE по адресам из описания MCU, SYSCLK от HSI, `SystemCoreClock` | `t.profile`, `evaluate`, `read` |
 | `HW_BOOT_CMSIS` | то же именами CMSIS при входе в `board::init()` | таблица `check(rows)`, контракт, TECH-001 |
@@ -144,3 +144,14 @@ source [find target/stm32f1x.cfg]
 
 **Результаты.** Каталог запуска `build/HIL_<плата>/hwtest/runs/<время>-<ID>-<pid>/`
 содержит `result.json`, журналы GDB и сервера, снимок ELF и build manifest.
+
+## Разработка через DDTT
+
+[План](plans/ddtt-feedback.md) и [результат цикла](plans/ddtt-feedback-results.md):
+сначала сценарий выявляет дефект на исходной прошивке, затем проверяет исправление и регрессию.
+Навык — `.claude/skills/stm32-gdbtest-develop/SKILL.md`; его опытная копия сопровождает эту ветку,
+а gitlink модуля остаётся на опубликованной 0.4.0. Остальные копии навыков обновлены для 0.4.0.
+В отличие от stand-loop, разработке нужен checkout исходников и компилятор, а не только ZIP.
+Профили используют target schema 2 с `[openocd]`; сессии включают `[results] capture = true`.
+
+Новый сценарий: `HW_POST_ADC_CLEANUP` (`tests/board/test_ddtt_feedback.py`).

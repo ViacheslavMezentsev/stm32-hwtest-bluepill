@@ -68,3 +68,9 @@ loop(). Проверяется логика переключения, а не и
 1200 · 4095 / 3000 = 1638 мВ, ниже предела прошивки 2000 мВ, и сообщает PostVddaOutOfRange.
 setup() всё равно завершается (g_app.setup_done = 1): приложение запускается и с отказом POST.
 Отсчёт подменяется сразу после записи в g_post.vrefint_raw; физическое питание не меняется.
+
+## HW_POST_ADC_CLEANUP
+
+RU: POST при недопустимом нулевом VREFINT сохраняет PostAdcTimeout, продолжает setup и сбрасывает ADON/TSVREFE до loop.
+
+EN: POST with a zero VREFINT sample retains PostAdcTimeout, continues setup and clears ADON/TSVREFE before loop.

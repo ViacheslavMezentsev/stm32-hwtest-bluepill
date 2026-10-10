@@ -91,7 +91,9 @@ namespace post
         if ( !adcInit() || !convert( kChannelVrefInt, g_post.vrefint_raw ) || !convert( kChannelTemp, g_post.temp_raw ) ||
              g_post.vrefint_raw == 0 )
         {
-            g_post.status = PostAdcTimeout;
+            // Release the ADC and internal sensors on the early failure path too.
+            ADC1->CR2     &= ~( ADC_CR2_ADON | ADC_CR2_TSVREFE );
+            g_post.status  = PostAdcTimeout;
             return false;
         }
 

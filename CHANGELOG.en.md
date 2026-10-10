@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+- Pinned the module to v0.4.0, target schema 2 and capture; refreshed skills and added a trial DDTT development loop.
+- POST releases ADC/sensors on early failure too. Added HW_POST_ADC_CLEANUP; the existing VDDA injection arms its watchpoint after result initialization.
+
 ### Added
 
 - An stm32-gdbtest demo project on STM32F103: profiles `F103C8_PC13` (Blue Pill, LED PC13)

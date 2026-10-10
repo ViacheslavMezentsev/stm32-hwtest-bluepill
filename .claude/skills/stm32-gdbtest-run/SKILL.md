@@ -43,7 +43,7 @@ description: Запуск сценариев stm32-gdbtest и разбор ре�
 | --- | --- | --- |
 | Отладчик у рабочего компьютера | `[probe]` | там же |
 | Linux-стенд, всё на нём | `[probe]`, окружение `tools/linux_stand.py` (`. ~/.local/stm32-gdbtest/env.sh`) | на стенде |
-| Runner на Windows/WSL2, сервер на Linux-стенде | `[probe]` + `[remote]` (host, user, identity_file) | у разработчика; сервер по SSH |
+| Runner на Windows/WSL2, сервер на Linux-стенде | `[probe]` + `[remote]` (host, user, identity_file), файл `<board>-<backend>.remote.toml` | у разработчика; сервер по SSH |
 | Пакет подготовленного запуска | `[probe]` на стенде | сборка и подготовка — в другом месте |
 | Аппаратный CI | стенды раннера `~/.config/stm32-gdbtest/stands/` | self-hosted раннер |
 
@@ -53,13 +53,15 @@ description: Запуск сценариев stm32-gdbtest и разбор ре�
 
 ## Результат
 
-Итоговая строка `run`: `<СТАТУС> <ID>: <каталог>/result.json`. Коды: PASS 0, FAIL 1, ERROR 2.
+Итоговая строка `run`: `<СТАТУС> <ID>: <каталог>/result.json`. Коды штатных исходов: PASS 0, FAIL 1, ERROR 2, SKIP 77.
+Ошибка capture может оставить status=PASS/SKIP, но дать command_code=2. Коды не агрегируются через max.
 Каталог запуска — `<build>/hwtest/runs/<время>-<ID>-<pid>/`:
 
 | Файл | Зачем читать |
 | --- | --- |
 | `result.json` | `status`, `checks` (имя, фактическое, ожидаемое), `stops`, `mutations`, `evaluations`, `warnings`, `profile`, `error` |
-| `junit.xml` | для CI и панели Testing |
+| `junit.xml` | для CI и панели Testing, включая skipped и причину |
+| `records.json` | только при включённом capture: произвольные записи, ID, sequence; сверить с метаданными capture |
 | `gdb.log` | команды и ответы GDB, Python-трассировка сценария |
 | `server.log` | запуск GDB-сервера: serial, USB, занятость отладчика |
 | `recovery.log` | восстановление после таймаута или аварии |
@@ -70,17 +72,31 @@ description: Запуск сценариев stm32-gdbtest и разбор ре�
 `result.json` (`error`), затем `gdb.log`; ошибка подготовки (контракт, manifest, образ) видна уже на
 ступени 2. Ожидаемый отказ остаётся ERROR и PASS не становится.
 
+Для разбора артефактов без нового запуска используй
+[stm32-gdbtest-results](../stm32-gdbtest-results/SKILL.md): связь с кодом сценария, хеши,
+общий журнал/проекции, независимые исходы export/verify/report. В session.toml `[results] capture = true`
+включает сохранение records; отсутствие capture не означает пустой журнал.
+
+Для каждого backend читай [отдельную страницу](../../docs/ru/BACKENDS.md). st-util 1.6.0 и 1.9.0
+не взаимозаменяемы по подтверждённым результатам. На OrangePi GitHub self-hosted job с локальным
+[probe] исполняет runner/GDB/server на одном хосте; это не SSH-схема.
+Создавай новый каталог для каждой попытки. На Windows выбирай короткий --workdir/--output:
+встроенный Python GDB может не открыть пути длиннее 260 символов (см. HOWTO).
+Штатный SKIP завершается code77; CTest использует SKIP_RETURN_CODE=77. Не превращай неожиданный
+пропуск в PASS. Для согласованного выборочного прогона 0.4.0 есть tests/firmware/api040.py;
+он не заменяет проверки приложения и полного набора.
+
 ## Частые отказы
 
 | Сообщение | Действие |
 | --- | --- |
 | `Debugger already owned by another runner` | дождаться другого запуска; параллельно не запускать |
-| `Abandoned debugger ownership` | найти и остановить оставшиеся серверы (`pgrep -a openocd; pgrep -a JLink` / `Get-Process openocd, JLinkGDBServerCL, ST-LINK_gdbserver`), повторить |
+| `Abandoned debugger ownership` | установить владельца процессов и согласовать остановку оставшихся серверов (`pgrep -a openocd; pgrep -a JLink` / `Get-Process openocd, JLinkGDBServerCL, ST-LINK_gdbserver`), повторить |
 | `GDB server exited before ready; see server.log` | неверный serial, отладчик занят другой программой, нет доступа к USB (udev) |
 | `GDB server startup timed out` | `server.log`; медленному отладчику — `startup_timeout_s` в стенде |
 | `Flash capacity differs … image fits both` | предупреждение: кристалл с большей Flash, чем в профиле; запуск продолжается |
 | `Stand host refused the run: busy/abandoned/port/executable` | на хосте стенда: занят, остатки процессов, диапазон 61000–64999 занят, нет сервера в `PATH`/`env.sh` |
-| `Permission denied (publickey)`, `Host key verification failed` | ключ не в `authorized_keys`; один раз `ssh <user>@<host> exit`, при смене ключа хоста — `ssh-keygen -R` |
+| `Permission denied (publickey)`, `Host key verification failed` | ключ не в `authorized_keys`; сверить пользователя/ключ и fingerprint хоста с владельцем; не удалять known_hosts и не отключать проверку ради обхода |
 | `Rename legacy environment variables to STM32_GDBTEST_` | `HWTEST_*` → `STM32_GDBTEST_*` |
 | `No module named 'tomllib'` на Linux-стенде | не подключён `env.sh`: системный Python ниже 3.11 |
 | `reach` ждёт до таймаута | функция встроена (LTO) или уже выполнена; сборка без LTO, другое место остановки |
@@ -91,5 +107,5 @@ description: Запуск сценариев stm32-gdbtest и разбор ре�
 ## Отчёт владельцу
 
 Коммит модуля и проекта, MCU и стенд (без серийного номера), схема, версия GDB, команда, итог
-(PASS/FAIL/ERROR по сценариям), для не-PASS — проверка, фактическое и ожидаемое значение и вывод.
+(PASS/FAIL/ERROR/SKIP по сценариям), для не-PASS — проверка, фактическое и ожидаемое значение и вывод.
 Что изменилось на плате (записанный образ, инъекции) и как восстановлено.

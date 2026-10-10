@@ -31,6 +31,9 @@ def led_forced_state(t):
 def post_vdda_low(t):
     raw = t.profile.get("user.injection.vrefint_raw")
 
+    # Arm the watchpoint after POST clears its structure; observe the first actual publication.
+    t.reach("board::delayMs")
+
     # TECH-013 and TECH-005: the watch point stops right after convert() stores the VREFINT average;
     # the stored sample is replaced before post::run() computes VDDA from it.
     with t.watch("g_post.vrefint_raw"):

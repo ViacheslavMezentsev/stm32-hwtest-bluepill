@@ -18,7 +18,7 @@ CMSIS only. Boards: `F103C8_PC13` (common Blue Pill, LED PC13 active low) and
 | `cmake/` | Toolchain (`arm-gcc.cmake`) and HIL integration (`hil.cmake`) |
 | `emu/renode/`, `tools/renode_smoke.py` | Renode model and smoke test (`ctest -L emu`) |
 | `hil/` | HIL: `sessions/` (run configuration per board), `profiles/` (MCU descriptions), `boards/` (board data), `api.toml`, `tests/` (scenarios, requirements, contracts), `stands/` (examples), `tools/` |
-| `.claude/skills/` | Copies of the stm32-gdbtest skills (`stm32-gdbtest-integrate`, `-scenarios`, `-run`); refresh with the submodule |
+| `.claude/skills/` | Copies of the stm32-gdbtest skills (integration, scenarios, run, results, stand-loop and develop); refresh with the submodule |
 | `modules/stm32-gdbtest` | Git submodule |
 
 ## Build and checks
@@ -43,7 +43,7 @@ Requirements: CMake ≥ 3.25, Ninja, xPack GNU Arm 14.2.1-1.1 (`ARM_TOOLCHAIN_RO
    scenarios must survive optimization and `--gc-sections`: `g_led` is `const volatile` for
    this reason (a plain `const` was folded away and HW_BLINK failed with "Missing ELF symbol").
 2. Every `@case` ID has a `## HW_...` section in `hil/tests/requirements.md`. Scenarios follow
-   the stm32-gdbtest API of the pinned submodule (v0.3.0) and its scenario style
+   the stm32-gdbtest API of the pinned submodule (v0.4.0) and its scenario style
    (`skills/stm32-gdbtest-scenarios` in the module; check with
    `python modules/stm32-gdbtest/tests/host/test_scenario_style.py hil/tests/board/*.py`).
    Board-specific expectations belong in `hil/boards/<BOARD>.toml`, scenario parameters in `hil/api.toml`.
@@ -55,3 +55,10 @@ Requirements: CMake ≥ 3.25, Ninja, xPack GNU Arm 14.2.1-1.1 (`ARM_TOOLCHAIN_RO
 7. Branches `<agent>/<task>` from an up-to-date `main`; signed Conventional Commits in
    English without links to chat sessions. Push, tags and releases are done by the owner.
 8. Do not claim hardware results that were not run; state what was checked and how.
+
+## DDTT development loop
+
+For firmware changes with target feedback, read `.claude/skills/stm32-gdbtest-develop/SKILL.md`
+and `hil/plans/ddtt-feedback.en.md`. The develop skill is a trial copy accompanying this branch;
+the module remains pinned to released 0.4.0. Preserve red attempts, then verify the unchanged
+assertion and adjacent scenarios after fixing production code. No test hooks.
