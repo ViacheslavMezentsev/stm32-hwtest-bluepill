@@ -135,3 +135,5 @@ MIT ([LICENSE](LICENSE)). Файлы `cmsis/` — Arm и STMicroelectronics, Apa
 [Ошибка DMA и восстановление](docs/DMA_ERROR.md).
 
 [Таймауты POST](docs/POST_TIMEOUT.md).
+
+[Переносимая раскраска исходников для Pages (пока локально)](docs/DDTT_PAGES.md).

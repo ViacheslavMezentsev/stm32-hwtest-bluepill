@@ -164,3 +164,5 @@ Indication: HW_INDICATOR_NORMAL, HW_INDICATOR_INVALID, HW_INDICATOR_RANGE. [Beha
 [DMA error and recovery](../docs/DMA_ERROR.en.md).
 
 [POST timeouts](../docs/POST_TIMEOUT.en.md).
+
+[Portable source highlighting for Pages (local only)](../docs/DDTT_PAGES.en.md).

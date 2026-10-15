@@ -454,6 +454,26 @@
         "cwd": "${workspaceFolder}"
       },
       "problemMatcher": []
+    },
+    {
+      "label": "HIL: DDTT portable report (no publish)",
+      "type": "process",
+      "command": "python",
+      "args": [
+        "hil/tools/ddtt_pages.py",
+        "--runs",
+        "${input:ddttRuns}",
+        "--provenance",
+        "${input:ddttProvenance}",
+        "--revision",
+        "${input:ddttRevision}",
+        "--repository",
+        "ViacheslavMezentsev/stm32-hwtest-bluepill"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
     }
   ],
   "inputs": [
@@ -508,6 +528,17 @@
       "type": "promptString",
       "description": "Каталог runs свежей аппаратной кампании для текущего ELF",
       "default": "build/f103cb-hil/hwtest/runs"
+    },
+    {
+      "id": "ddttProvenance",
+      "type": "promptString",
+      "description": "Локальный campaign.json, полученный begin/seal",
+      "default": "build/ddtt-pages-campaign/campaign.json"
+    },
+    {
+      "id": "ddttRevision",
+      "type": "promptString",
+      "description": "Полный SHA проверенной ревизии из campaign.json"
     }
   ]
 }

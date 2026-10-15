@@ -139,3 +139,5 @@ Expanded startup map and viewing workflow: [DDTT_STARTUP](docs/DDTT_STARTUP.en.m
 [DMA error and recovery](docs/DMA_ERROR.en.md).
 
 [POST timeouts](docs/POST_TIMEOUT.en.md).
+
+[Portable source highlighting for Pages (local only)](docs/DDTT_PAGES.en.md).
