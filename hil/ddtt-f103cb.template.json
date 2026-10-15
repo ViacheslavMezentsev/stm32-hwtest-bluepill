@@ -443,6 +443,54 @@
       "anchor": "if ( g_button.stable || g_app.indication == MeasurementFault )",
       "scenario": "HW_BUTTON_VIRTUAL",
       "check": "hold suppresses blinking"
+    },
+    {
+      "source": "src/monitor.cpp",
+      "anchor": "if ( status & DMA_ISR_TEIF1 )",
+      "scenario": "HW_DMA_ERROR",
+      "check": "TE takes priority over TC"
+    },
+    {
+      "source": "src/monitor.cpp",
+      "anchor": "++g_monitor.dma_errors;",
+      "scenario": "HW_DMA_ERROR",
+      "check": "TE counted once"
+    },
+    {
+      "source": "src/monitor.cpp",
+      "anchor": "monitor::invalidate();",
+      "scenario": "HW_DMA_ERROR",
+      "check": "error state fault"
+    },
+    {
+      "source": "src/monitor_processing.cpp",
+      "anchor": "++g_monitor.accepted;",
+      "scenario": "HW_DMA_ERROR",
+      "check": "recovered block accepted once"
+    },
+    {
+      "source": "src/monitor.cpp",
+      "anchor": "if ( status & DMA_ISR_TEIF1 )",
+      "scenario": "HW_DMA_ERROR_TC",
+      "check": "TE takes priority over TC"
+    },
+    {
+      "source": "src/monitor.cpp",
+      "anchor": "++g_monitor.dma_errors;",
+      "scenario": "HW_DMA_ERROR_TC",
+      "check": "TE counted once"
+    },
+    {
+      "source": "src/monitor.cpp",
+      "anchor": "monitor::invalidate();",
+      "scenario": "HW_DMA_ERROR_TC",
+      "check": "error state fault"
+    },
+    {
+      "source": "src/monitor_processing.cpp",
+      "anchor": "++g_monitor.accepted;",
+      "scenario": "HW_DMA_ERROR_TC",
+      "check": "recovered block accepted once"
     }
   ],
   "schema": 1

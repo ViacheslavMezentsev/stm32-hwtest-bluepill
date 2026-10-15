@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+- Added TE and TE+TC DMA handler scenarios with real-transfer recovery and eight DDTT links; no firmware changes.
+
 - Button: debounced hold forces the LED on; release restores measurement indication. Two HIL scenarios, 23/23 WeAct PASS; DDTT 74 links / 65 lines. Export rejects comments and stale source bindings, clears old LCOV on failure.
 
 - Measurement LED: pending/normal/fault with recovery; three HIL scenarios, 21/21 WeAct PASS and DDTT map 64/55. GitHub-style HTML defaults to dark with a round dark/light/auto button.
