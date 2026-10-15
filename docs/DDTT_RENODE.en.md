@@ -69,3 +69,12 @@ not the site; check the SHA in the Pages header. Deployment replaces the reposit
 previous site entirely, rather than adding a section to a hardware site. If Pages already
 hosts other content, agree on the site structure first. This workflow does not publish
 hardware evidence. See [custom workflows](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
+
+## Local validation
+
+2026-10-16: actual Renode/GDB runs with fresh builds passed on Windows and Linux
+in a Docker volume: 10/10 assertions, 7 lines. Tested input revision:
+`e6c4227e81df33717f6975b5cdc3ecc8eef9542f`. Host regressions: 19/19, including
+UNKNOWN/FAIL, annotations, unchanged hardware export, package privacy and matching
+LCOV/Cobertura. Original unsuccessful attempts remain locally available.
+GitHub CI for the final branch and Pages deployment still require owner validation.

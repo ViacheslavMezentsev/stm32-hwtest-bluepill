@@ -137,3 +137,5 @@ MIT ([LICENSE](LICENSE)). Файлы `cmsis/` — Arm и STMicroelectronics, Apa
 [Таймауты POST](docs/POST_TIMEOUT.md).
 
 [Переносимая раскраска исходников для Pages (пока локально)](docs/DDTT_PAGES.md).
+
+Renode/GDB в CI: [отдельные свидетельства DDTT, аннотации и просмотр на Pages](docs/DDTT_RENODE.md).
