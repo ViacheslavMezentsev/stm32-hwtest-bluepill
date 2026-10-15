@@ -57,7 +57,7 @@ def project(mapping, checks, status, sha, repository, stamp):
         if name == 'UART banner':
             scenario_path = 'tools/renode_ddtt.py'
             text = at_revision(ROOT, sha, scenario_path).decode('utf-8-sig').splitlines()
-            locations = [i + 1 for i, line in enumerate(text) if "checks['UART banner'] =" in line]
+            locations = [i + 1 for i, line in enumerate(text) if line.lstrip().startswith("checks['UART banner'] =")]
         if len(locations) != 1:
             raise ValueError('Ambiguous check location: ' + name)
         sources[entry['source']] = at_revision(ROOT, sha, entry['source']).decode('utf-8-sig').splitlines()
