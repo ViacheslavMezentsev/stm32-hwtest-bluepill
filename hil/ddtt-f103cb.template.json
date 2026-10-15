@@ -491,6 +491,78 @@
       "anchor": "++g_monitor.accepted;",
       "scenario": "HW_DMA_ERROR_TC",
       "check": "recovered block accepted once"
+    },
+    {
+      "source": "src/post.cpp",
+      "anchor": "while ( ( ADC1->CR2 & ADC_CR2_RSTCAL ) != 0 )",
+      "scenario": "HW_POST_RSTCAL_TIMEOUT",
+      "check": "10 ms still waiting"
+    },
+    {
+      "source": "src/post.cpp",
+      "anchor": "while ( ( ADC1->CR2 & ADC_CR2_RSTCAL ) != 0 )",
+      "scenario": "HW_POST_RSTCAL_TIMEOUT",
+      "check": "timed function returned false"
+    },
+    {
+      "source": "src/post.cpp",
+      "anchor": "ADC1->CR2     &= ~( ADC_CR2_ADON | ADC_CR2_TSVREFE );",
+      "scenario": "HW_POST_RSTCAL_TIMEOUT",
+      "check": "timeout releases ADC sensors"
+    },
+    {
+      "source": "src/post.cpp",
+      "anchor": "g_post.status  = PostAdcTimeout;",
+      "scenario": "HW_POST_RSTCAL_TIMEOUT",
+      "check": "POST timeout status"
+    },
+    {
+      "source": "src/post.cpp",
+      "anchor": "while ( ( ADC1->CR2 & ADC_CR2_CAL ) != 0 )",
+      "scenario": "HW_POST_CAL_TIMEOUT",
+      "check": "10 ms still waiting"
+    },
+    {
+      "source": "src/post.cpp",
+      "anchor": "while ( ( ADC1->CR2 & ADC_CR2_CAL ) != 0 )",
+      "scenario": "HW_POST_CAL_TIMEOUT",
+      "check": "timed function returned false"
+    },
+    {
+      "source": "src/post.cpp",
+      "anchor": "ADC1->CR2     &= ~( ADC_CR2_ADON | ADC_CR2_TSVREFE );",
+      "scenario": "HW_POST_CAL_TIMEOUT",
+      "check": "timeout releases ADC sensors"
+    },
+    {
+      "source": "src/post.cpp",
+      "anchor": "g_post.status  = PostAdcTimeout;",
+      "scenario": "HW_POST_CAL_TIMEOUT",
+      "check": "POST timeout status"
+    },
+    {
+      "source": "src/post.cpp",
+      "anchor": "while ( ( ADC1->SR & ADC_SR_EOC ) == 0 )",
+      "scenario": "HW_POST_EOC_TIMEOUT",
+      "check": "10 ms still waiting"
+    },
+    {
+      "source": "src/post.cpp",
+      "anchor": "while ( ( ADC1->SR & ADC_SR_EOC ) == 0 )",
+      "scenario": "HW_POST_EOC_TIMEOUT",
+      "check": "timed function returned false"
+    },
+    {
+      "source": "src/post.cpp",
+      "anchor": "ADC1->CR2     &= ~( ADC_CR2_ADON | ADC_CR2_TSVREFE );",
+      "scenario": "HW_POST_EOC_TIMEOUT",
+      "check": "timeout releases ADC sensors"
+    },
+    {
+      "source": "src/post.cpp",
+      "anchor": "g_post.status  = PostAdcTimeout;",
+      "scenario": "HW_POST_EOC_TIMEOUT",
+      "check": "POST timeout status"
     }
   ],
   "schema": 1

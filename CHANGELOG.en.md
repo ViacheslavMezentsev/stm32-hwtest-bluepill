@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+- Added RSTCAL/CAL/EOC POST timeout scenarios: 10/11 ms boundaries, ADC cleanup, normal reboot, ELF instruction preflight and twelve DDTT links. Firmware unchanged.
+
 - Added TE and TE+TC DMA handler scenarios with real-transfer recovery and eight DDTT links; no firmware changes.
 
 - Button: debounced hold forces the LED on; release restores measurement indication. Two HIL scenarios, 23/23 WeAct PASS; DDTT 74 links / 65 lines. Export rejects comments and stale source bindings, clears old LCOV on failure.

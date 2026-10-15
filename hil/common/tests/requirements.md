@@ -135,3 +135,18 @@ ready не публикуется, accepted и irq_count не растут, ADC/
 
 ## HW_DMA_ERROR_TC
 Те же условия при TEIF1 | TCIF1: ошибка имеет приоритет, завершение не публикует ошибочный блок.
+
+## HW_POST_RSTCAL_TIMEOUT
+Подмена CPU-снимка RSTCAL: на 10 мс цикл продолжает ожидание, на 11 возвращает false.
+POST сообщает PostAdcTimeout, очищает ADON/TSVREFE и допускает setup без публикации отсчётов.
+После reset штатный POST проходит. Физический отказ ADC не создаётся.
+
+## HW_POST_CAL_TIMEOUT
+Подмена CPU-снимка CAL: на 10 мс цикл продолжает ожидание, на 11 возвращает false.
+POST сообщает PostAdcTimeout, очищает ADON/TSVREFE и допускает setup без публикации отсчётов.
+После reset штатный POST проходит. Физический отказ ADC не создаётся.
+
+## HW_POST_EOC_TIMEOUT
+Подмена CPU-снимка EOC: на 10 мс цикл продолжает ожидание, на 11 возвращает false.
+POST сообщает PostAdcTimeout, очищает ADON/TSVREFE и допускает setup без публикации отсчётов.
+После reset штатный POST проходит. Физический отказ ADC не создаётся.

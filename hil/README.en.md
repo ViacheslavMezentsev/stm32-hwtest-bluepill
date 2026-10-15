@@ -57,7 +57,7 @@ python -B modules/stm32-gdbtest/stm32_gdbtest/cli.py doctor --stand hil/F103CB/s
 cmake --preset f103cb-hil
 cmake --build --preset f103cb-hil
 ctest --preset f103cb-hil-host     # no board: requirement traceability and prepare.*
-ctest --preset f103cb-hil-hw       # on the board: all hw.* (25 scenarios)
+ctest --preset f103cb-hil-hw       # on the board: all hw.* (28 scenarios)
 python hil/tools/results.py --runs build/f103cb-hil/hwtest/runs
 ```
 
@@ -162,3 +162,5 @@ Indication: HW_INDICATOR_NORMAL, HW_INDICATOR_INVALID, HW_INDICATOR_RANGE. [Beha
 [KEY, virtual presses and current DDTT export](../docs/BUTTON.en.md).
 
 [DMA error and recovery](../docs/DMA_ERROR.en.md).
+
+[POST timeouts](../docs/POST_TIMEOUT.en.md).

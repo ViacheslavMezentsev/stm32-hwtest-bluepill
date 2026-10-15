@@ -57,7 +57,7 @@ python -B modules/stm32-gdbtest/stm32_gdbtest/cli.py doctor --stand hil/F103CB/s
 cmake --preset f103cb-hil
 cmake --build --preset f103cb-hil
 ctest --preset f103cb-hil-host     # без платы: трассировка требований и prepare.*
-ctest --preset f103cb-hil-hw       # на плате: все hw.* (25 сценариев)
+ctest --preset f103cb-hil-hw       # на плате: все hw.* (28 сценариев)
 python hil/tools/results.py --runs build/f103cb-hil/hwtest/runs
 ```
 
@@ -163,3 +163,5 @@ source [find target/stm32f1x.cfg]
 [KEY, виртуальные нажатия и актуальный экспорт DDTT](../docs/BUTTON.md).
 
 [Ошибка DMA и восстановление](../docs/DMA_ERROR.md).
+
+[Таймауты POST](../docs/POST_TIMEOUT.md).
