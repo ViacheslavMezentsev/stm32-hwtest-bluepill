@@ -122,4 +122,4 @@ MIT ([LICENSE](LICENSE)). Файлы `cmsis/` — Arm и STMicroelectronics, Apa
 ([cmsis/README.md](cmsis/README.md)).
 
 
-[Окружение разработчика и маршруты VS Code](hil/DEVELOPER_ENVIRONMENT.md).
+[Окружение разработчика и маршруты VS Code](docs/DEVELOPER_ENVIRONMENT.md).

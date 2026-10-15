@@ -63,4 +63,4 @@ and `hil/common/plans/ddtt-feedback.en.md`. The develop skill is a trial copy ac
 the module remains pinned to released 0.4.1. Preserve red attempts, then verify the unchanged
 assertion and adjacent scenarios after fixing production code. No test hooks.
 
-Developer workflows: [hil/DEVELOPER_ENVIRONMENT.en.md](hil/DEVELOPER_ENVIRONMENT.en.md).
+Developer workflows: [docs/DEVELOPER_ENVIRONMENT.en.md](docs/DEVELOPER_ENVIRONMENT.en.md).

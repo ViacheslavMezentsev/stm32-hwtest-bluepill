@@ -1,6 +1,6 @@
 # Developer environment
 
-[Русский](DEVELOPER_ENVIRONMENT.md) · [HIL](README.en.md)
+[Русский](DEVELOPER_ENVIRONMENT.md) · [HIL](../hil/README.en.md)
 
 The project uses its own CMake/CMSIS build, without stm32-cmake-yml. Firmware and scenario code
 are unchanged. BOARD selects F103C8_PC13 or F103CB_PB2.

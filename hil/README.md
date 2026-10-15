@@ -151,4 +151,4 @@ source [find target/stm32f1x.cfg]
 Новый сценарий: `HW_POST_ADC_CLEANUP` (`tests/board/test_ddtt_feedback.py`).
 
 
-[Окружение разработчика](DEVELOPER_ENVIRONMENT.md).
+[Окружение разработчика](../docs/DEVELOPER_ENVIRONMENT.md).

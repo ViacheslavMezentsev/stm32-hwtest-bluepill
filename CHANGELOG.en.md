@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+- Moved both developer environment guides from `hil/` to `docs/` and updated links.
+
 - Aligned f103c8/f103cb-debug/release/hil presets, VS Code tasks and compact HIL profiles. CI uses the new names and Renode 1.17.0; firmware is unchanged.
 
 - Pinned the module to v0.4.0, target schema 2 and capture; refreshed skills and added a trial DDTT development loop.

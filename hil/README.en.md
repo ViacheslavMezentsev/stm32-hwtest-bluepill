@@ -150,4 +150,4 @@ Profiles use target schema 2 with `[openocd]`; sessions enable `[results] captur
 New scenario: `HW_POST_ADC_CLEANUP` (`tests/board/test_ddtt_feedback.py`).
 
 
-[Developer environment](DEVELOPER_ENVIRONMENT.en.md).
+[Developer environment](../docs/DEVELOPER_ENVIRONMENT.en.md).

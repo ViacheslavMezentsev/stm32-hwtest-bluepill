@@ -126,4 +126,4 @@ MIT ([LICENSE](LICENSE)). Files in `cmsis/` are by Arm and STMicroelectronics, A
 ([cmsis/README.md](cmsis/README.md)).
 
 
-[Developer environment and VS Code workflows](hil/DEVELOPER_ENVIRONMENT.en.md).
+[Developer environment and VS Code workflows](docs/DEVELOPER_ENVIRONMENT.en.md).

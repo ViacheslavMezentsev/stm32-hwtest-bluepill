@@ -1,6 +1,6 @@
 # Окружение разработчика
 
-[English](DEVELOPER_ENVIRONMENT.en.md) · [HIL](README.md)
+[English](DEVELOPER_ENVIRONMENT.en.md) · [HIL](../hil/README.md)
 
 Проект собирается собственным CMake и CMSIS, без stm32-cmake-yml. Код прошивки и сценарии
 при реорганизации не изменены. BOARD выбирает F103C8_PC13 или F103CB_PB2.
