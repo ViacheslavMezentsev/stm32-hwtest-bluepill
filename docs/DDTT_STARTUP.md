@@ -43,19 +43,19 @@ Windows, OpenOCD 0.12.0/ST-Link, WeAct F103CB, xPack 14.2.1-1.1 (GDB 15.2.90),
 
 | Строка | Сценарий | Точное имя проверки |
 | --- | --- | --- |
-| [src/app.cpp:49](../src/app.cpp#L49) | `HW_BLINK` | toggles a half period apart, ms |
-| [src/app.cpp:50](../src/app.cpp#L50) | `HW_BLINK` | LED state changed |
-| [src/app.cpp:51](../src/app.cpp#L51) | `HW_BLINK` | blink counter advanced by one |
-| [src/app.cpp:41](../src/app.cpp#L41) | `HW_POST_VDDA_LOW` | setup still finished |
-| [src/app.cpp:41](../src/app.cpp#L41) | `HW_SETUP_DONE` | setup finished |
-| [src/app.cpp:40](../src/app.cpp#L40) | `HW_TOGGLE_WRITERS` | setup() stores the start time, called from main() |
-| [src/app.cpp:49](../src/app.cpp#L49) | `HW_TOGGLE_WRITERS` | loop() stores the toggle time, called from main() |
+| [src/app.cpp:50](../src/app.cpp#L50) | `HW_BLINK` | toggles a half period apart, ms |
+| [src/app.cpp:51](../src/app.cpp#L51) | `HW_BLINK` | LED state changed |
+| [src/app.cpp:52](../src/app.cpp#L52) | `HW_BLINK` | blink counter advanced by one |
+| [src/app.cpp:42](../src/app.cpp#L42) | `HW_POST_VDDA_LOW` | setup still finished |
+| [src/app.cpp:42](../src/app.cpp#L42) | `HW_SETUP_DONE` | setup finished |
+| [src/app.cpp:41](../src/app.cpp#L41) | `HW_TOGGLE_WRITERS` | setup() stores the start time, called from main() |
+| [src/app.cpp:50](../src/app.cpp#L50) | `HW_TOGGLE_WRITERS` | loop() stores the toggle time, called from main() |
 | [src/main.cpp:6](../src/main.cpp#L6) | `HW_STARTUP_ORDER` | setup called from main |
 | [src/main.cpp:9](../src/main.cpp#L9) | `HW_STARTUP_ORDER` | loop called from main |
-| [src/app.cpp:31](../src/app.cpp#L31) | `HW_STARTUP_ORDER` | board init called from setup |
-| [src/app.cpp:32](../src/app.cpp#L32) | `HW_STARTUP_ORDER` | UART transmitter before POST |
-| [src/app.cpp:37](../src/app.cpp#L37) | `HW_STARTUP_ORDER` | POST called from setup |
-| [src/app.cpp:41](../src/app.cpp#L41) | `HW_STARTUP_ORDER` | setup published before loop |
+| [src/app.cpp:32](../src/app.cpp#L32) | `HW_STARTUP_ORDER` | board init called from setup |
+| [src/app.cpp:33](../src/app.cpp#L33) | `HW_STARTUP_ORDER` | UART transmitter before POST |
+| [src/app.cpp:38](../src/app.cpp#L38) | `HW_STARTUP_ORDER` | POST called from setup |
+| [src/app.cpp:42](../src/app.cpp#L42) | `HW_STARTUP_ORDER` | setup published before loop |
 | [src/board.cpp:34](../src/board.cpp#L34) | `HW_STARTUP_ORDER` | LED clock before UART |
 | [src/board.cpp:36](../src/board.cpp#L36) | `HW_STARTUP_ORDER` | LED initially off |
 | [src/board.cpp:38](../src/board.cpp#L38) | `HW_STARTUP_ORDER` | LED output before UART |
@@ -76,6 +76,27 @@ Windows, OpenOCD 0.12.0/ST-Link, WeAct F103CB, xPack 14.2.1-1.1 (GDB 15.2.90),
 | [src/post.cpp:100](../src/post.cpp#L100) | `HW_POST_VDDA_LOW` | VDDA computed from the substituted sample |
 | [src/post.cpp:107](../src/post.cpp#L107) | `HW_POST_VDDA_LOW` | POST reports VDDA out of range |
 | [src/post.cpp:95](../src/post.cpp#L95) | `HW_POST_ADC_CLEANUP` | ADC and internal sensors released |
+| [src/app.cpp:55](../src/app.cpp#L55) | `HW_DMA_CAPTURE` | block accepted exactly once |
+| [src/monitor.cpp:21](../src/monitor.cpp#L21) | `HW_DMA_CAPTURE` | DMA clock enabled |
+| [src/monitor.cpp:26](../src/monitor.cpp#L26) | `HW_DMA_CAPTURE` | ADC scan enabled |
+| [src/monitor.cpp:28](../src/monitor.cpp#L28) | `HW_DMA_CAPTURE` | ADC scans two channels |
+| [src/monitor.cpp:30](../src/monitor.cpp#L30) | `HW_DMA_CAPTURE` | ADC channel order |
+| [src/monitor.cpp:31](../src/monitor.cpp#L31) | `HW_DMA_CAPTURE` | DMA halfword normal mode |
+| [src/monitor.cpp:32](../src/monitor.cpp#L32) | `HW_DMA_CAPTURE` | DMA peripheral address |
+| [src/monitor.cpp:33](../src/monitor.cpp#L33) | `HW_DMA_CAPTURE` | DMA owned buffer address |
+| [src/monitor.cpp:48](../src/monitor.cpp#L48) | `HW_DMA_CAPTURE` | DMA block length |
+| [src/monitor.cpp:97](../src/monitor.cpp#L97) | `HW_DMA_CAPTURE` | DMA transfer completed |
+| [src/monitor.cpp:107](../src/monitor.cpp#L107) | `HW_DMA_CAPTURE` | one IRQ per block |
+| [src/monitor.cpp:109](../src/monitor.cpp#L109) | `HW_DMA_CAPTURE` | block accepted exactly once |
+| [src/monitor.cpp:84](../src/monitor.cpp#L84) | `HW_DMA_TIMEOUT` | missing requests timed out |
+| [src/monitor_processing.cpp:9](../src/monitor_processing.cpp#L9) | `HW_DMA_PROCESS` | first voltage seeds filter |
+| [src/monitor_processing.cpp:17](../src/monitor_processing.cpp#L17) | `HW_DMA_PROCESS` | Kalman second voltage |
+| [src/monitor_processing.cpp:50](../src/monitor_processing.cpp#L50) | `HW_DMA_PROCESS` | temperature conversion |
+| [src/monitor_processing.cpp:55](../src/monitor_processing.cpp#L55) | `HW_DMA_PROCESS` | two valid blocks accepted |
+| [src/monitor_processing.cpp:26](../src/monitor_processing.cpp#L26) | `HW_DMA_PROCESS` | two invalid blocks rejected |
+| [src/monitor_processing.cpp:38](../src/monitor_processing.cpp#L38) | `HW_DMA_PROCESS` | bad block preserves filter |
+| [src/monitor_processing.cpp:51](../src/monitor_processing.cpp#L51) | `HW_DMA_CAPTURE` | DMA voltage plausible |
+| [src/monitor_processing.cpp:52](../src/monitor_processing.cpp#L52) | `HW_DMA_CAPTURE` | DMA temperature plausible |
 
 ## Повторить и увидеть в VS Code
 
@@ -118,3 +139,5 @@ GPIO ODR не доказывает физическое свечение. Нас
 на выводе. ADC sampling/clock не доказывают точность температуры; прерывания под GDB не
 измеряют реальные сроки. DMA, фильтр и пользовательская кнопка — следующий этап. Ни записи
 произвольной SRAM, ни вмешательства в периферию новые сценарии не выполняют.
+
+Текущий этап: [ADC/DMA и HTML-отчёт](ADC_DMA.md), 54 связи на 49 строках; выше результаты первоначальной серии запуска.

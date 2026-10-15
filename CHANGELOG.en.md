@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+- Added periodic ADC1/DMA1 capture of eight pairs, averaging and scalar Kalman filters. Three new cases, full WeAct suite 18/18, both profiles host 19/19. DDTT map: 54 links/49 lines; HTML shows scenarios, evidence and selected campaign attempts.
+
 - Added three startup/peripheral hardware cases with Russian comments; the WeAct PB2 DDTT map now links 33 assertions to 28 source lines. Updated the submodule to accepted main eb085b3 (post-v0.4.1, not release 0.4.2). F103CB/OpenOCD: all 15 cases PASS; both profiles: host 16/16.
 
 - Moved both developer environment guides from `hil/` to `docs/` and updated links.

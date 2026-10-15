@@ -197,6 +197,132 @@
       "anchor": "ADC1->CR2     &= ~( ADC_CR2_ADON | ADC_CR2_TSVREFE );",
       "scenario": "HW_POST_ADC_CLEANUP",
       "check": "ADC and internal sensors released"
+    },
+    {
+      "source": "src/app.cpp",
+      "anchor": "monitor::poll();",
+      "scenario": "HW_DMA_CAPTURE",
+      "check": "block accepted exactly once"
+    },
+    {
+      "source": "src/monitor.cpp",
+      "anchor": "RCC->AHBENR  |= RCC_AHBENR_DMA1EN;",
+      "scenario": "HW_DMA_CAPTURE",
+      "check": "DMA clock enabled"
+    },
+    {
+      "source": "src/monitor.cpp",
+      "anchor": "ADC1->CR1           = ADC_CR1_SCAN;",
+      "scenario": "HW_DMA_CAPTURE",
+      "check": "ADC scan enabled"
+    },
+    {
+      "source": "src/monitor.cpp",
+      "anchor": "ADC1->SQR1          = ADC_SQR1_L_0;",
+      "scenario": "HW_DMA_CAPTURE",
+      "check": "ADC scans two channels"
+    },
+    {
+      "source": "src/monitor.cpp",
+      "anchor": "ADC1->SQR3          = 17U | ( 16U << 5 );",
+      "scenario": "HW_DMA_CAPTURE",
+      "check": "ADC channel order"
+    },
+    {
+      "source": "src/monitor.cpp",
+      "anchor": "DMA1_Channel1->CCR  = DMA_CCR_MINC | DMA_CCR_PSIZE_0 | DMA_CCR_MSIZE_0 | DMA_CCR_TCIE | DMA_CCR_TEIE;",
+      "scenario": "HW_DMA_CAPTURE",
+      "check": "DMA halfword normal mode"
+    },
+    {
+      "source": "src/monitor.cpp",
+      "anchor": "DMA1_Channel1->CPAR = reinterpret_cast<uint32_t>( &ADC1->DR );",
+      "scenario": "HW_DMA_CAPTURE",
+      "check": "DMA peripheral address"
+    },
+    {
+      "source": "src/monitor.cpp",
+      "anchor": "DMA1_Channel1->CMAR = reinterpret_cast<uint32_t>( &g_monitor.raw[0] );",
+      "scenario": "HW_DMA_CAPTURE",
+      "check": "DMA owned buffer address"
+    },
+    {
+      "source": "src/monitor.cpp",
+      "anchor": "DMA1_Channel1->CNDTR  = kMonitorWords;",
+      "scenario": "HW_DMA_CAPTURE",
+      "check": "DMA block length"
+    },
+    {
+      "source": "src/monitor.cpp",
+      "anchor": "uint32_t status = DMA1->ISR;",
+      "scenario": "HW_DMA_CAPTURE",
+      "check": "DMA transfer completed"
+    },
+    {
+      "source": "src/monitor.cpp",
+      "anchor": "++g_monitor.irq_count;",
+      "scenario": "HW_DMA_CAPTURE",
+      "check": "one IRQ per block"
+    },
+    {
+      "source": "src/monitor.cpp",
+      "anchor": "g_monitor.ready = 1;",
+      "scenario": "HW_DMA_CAPTURE",
+      "check": "block accepted exactly once"
+    },
+    {
+      "source": "src/monitor.cpp",
+      "anchor": "++g_monitor.timeouts;",
+      "scenario": "HW_DMA_TIMEOUT",
+      "check": "missing requests timed out"
+    },
+    {
+      "source": "src/monitor_processing.cpp",
+      "anchor": "value       = measurement;",
+      "scenario": "HW_DMA_PROCESS",
+      "check": "first voltage seeds filter"
+    },
+    {
+      "source": "src/monitor_processing.cpp",
+      "anchor": "value           += gain * ( measurement - value );",
+      "scenario": "HW_DMA_PROCESS",
+      "check": "Kalman second voltage"
+    },
+    {
+      "source": "src/monitor_processing.cpp",
+      "anchor": "float temp                = 25.0F + ( 1430.0F - average_temperature * vdda / 4095.0F ) / 4.3F;",
+      "scenario": "HW_DMA_PROCESS",
+      "check": "temperature conversion"
+    },
+    {
+      "source": "src/monitor_processing.cpp",
+      "anchor": "++g_monitor.accepted;",
+      "scenario": "HW_DMA_PROCESS",
+      "check": "two valid blocks accepted"
+    },
+    {
+      "source": "src/monitor_processing.cpp",
+      "anchor": "if ( data == nullptr || count != kMonitorWords )",
+      "scenario": "HW_DMA_PROCESS",
+      "check": "two invalid blocks rejected"
+    },
+    {
+      "source": "src/monitor_processing.cpp",
+      "anchor": "if ( r == 0 || r > 4095 || t > 4095 )",
+      "scenario": "HW_DMA_PROCESS",
+      "check": "bad block preserves filter"
+    },
+    {
+      "source": "src/monitor_processing.cpp",
+      "anchor": "g_monitor.vdda_mv         = g_monitor.voltage.update( vdda );",
+      "scenario": "HW_DMA_CAPTURE",
+      "check": "DMA voltage plausible"
+    },
+    {
+      "source": "src/monitor_processing.cpp",
+      "anchor": "g_monitor.temp_c          = g_monitor.temperature.update( temp );",
+      "scenario": "HW_DMA_CAPTURE",
+      "check": "DMA temperature plausible"
     }
   ],
   "schema": 1

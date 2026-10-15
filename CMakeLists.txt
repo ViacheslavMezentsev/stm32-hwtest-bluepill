@@ -39,6 +39,8 @@ add_executable(${PROJECT_NAME}
     src/main.cpp
     src/app.cpp
     src/board.cpp
+    src/monitor.cpp
+    src/monitor_processing.cpp
     src/post.cpp
     src/uart.cpp
     src/faults.cpp

@@ -26,5 +26,6 @@
     "coverage-gutters.coverageFileNames": ["lcov.info"],
     "coverage-gutters.manualCoverageFilePaths": [],
     "coverage-gutters.showLineCoverage": true,
+    "coverage-gutters.coverageReportFileName": "build/ddtt-view/index.html",
     "hil.gdbtest": "modules/stm32-gdbtest"
 }

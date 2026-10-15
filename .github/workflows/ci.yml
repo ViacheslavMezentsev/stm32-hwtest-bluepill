@@ -70,6 +70,11 @@ jobs:
       - name: HIL checks without a board
         if: endsWith(matrix.preset, '-hil')
         run: ctest --preset "${{ matrix.preset }}-host" --output-junit junit-host.xml
+      - name: Native ADC processing vectors
+        if: endsWith(matrix.preset, '-hil')
+        run: |
+          python3 hil/tools/check_monitor.py
+          python3 -m unittest discover -s hil/tools -p test_ddtt_report.py
       - name: Upload firmware and reports
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

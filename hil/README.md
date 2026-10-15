@@ -57,7 +57,7 @@ python -B modules/stm32-gdbtest/stm32_gdbtest/cli.py doctor --stand hil/F103CB/s
 cmake --preset f103cb-hil
 cmake --build --preset f103cb-hil
 ctest --preset f103cb-hil-host     # без платы: трассировка требований и prepare.*
-ctest --preset f103cb-hil-hw       # на плате: все hw.* (15 сценариев)
+ctest --preset f103cb-hil-hw       # на плате: все hw.* (18 сценариев)
 python hil/tools/results.py --runs build/f103cb-hil/hwtest/runs
 ```
 
@@ -155,3 +155,5 @@ source [find target/stm32f1x.cfg]
 
 Новые сценарии: `HW_STARTUP_ORDER`, `HW_SYSTICK_PROGRESS`, `HW_ADC_INITIALIZATION`.
 Карта WeAct PB2 и объяснения: [DDTT_STARTUP](../docs/DDTT_STARTUP.md).
+
+[ADC/DMA, фильтрация и HTML DDTT / processing and evidence report](../docs/ADC_DMA.md).

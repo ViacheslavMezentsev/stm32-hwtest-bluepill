@@ -2,6 +2,7 @@
 
 #include "board.hpp"
 #include "post.hpp"
+#include "monitor.hpp"
 #include "uart.hpp"
 
 AppState g_app = {};
@@ -50,4 +51,6 @@ void loop()
         board::ledToggle();
         ++g_app.blink_count;
     }
+    // После POST, не задерживая мигание ожиданием готовности DMA.
+    monitor::poll();
 }

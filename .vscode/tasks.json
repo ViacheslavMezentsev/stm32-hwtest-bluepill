@@ -472,7 +472,10 @@
         "HW_UART_CONFIG",
         "HW_STARTUP_ORDER",
         "HW_SYSTICK_PROGRESS",
-        "HW_ADC_INITIALIZATION"
+        "HW_ADC_INITIALIZATION",
+        "HW_DMA_CAPTURE",
+        "HW_DMA_PROCESS",
+        "HW_DMA_TIMEOUT"
       ],
       "default": "HW_BOOT"
     }
