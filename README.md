@@ -91,7 +91,7 @@ ctest --preset f103c8-debug-emulator          # или задача VS Code «Э
 
 ## HIL-тесты
 
-Сценарии в `hil/common/tests/board` (stm32-gdbtest `eb085b3` (post-v0.4.1), 21 сценарий) проверяют прошивку на плате:
+Сценарии в `hil/common/tests/board` (stm32-gdbtest `eb085b3` (post-v0.4.1), 23 сценария) проверяют прошивку на плате:
 кристалл, тактирование и профиль прогона, конфигурацию светодиода и USART1, завершение `setup()`,
 POST, мигание и кто пишет время переключения (точка наблюдения), а также реакцию прошивки на
 инъекции — подменённый ответ функции и подменённый отсчёт АЦП. Плату описывают описание MCU и
@@ -129,3 +129,5 @@ MIT ([LICENSE](LICENSE)). Файлы `cmsis/` — Arm и STMicroelectronics, Apa
 [ADC/DMA, фильтрация и HTML DDTT / processing and evidence report](docs/ADC_DMA.md).
 
 [Индикация измерений и темы отчёта](docs/MEASUREMENT_LED.md).
+
+[KEY, виртуальные нажатия и актуальный экспорт DDTT](docs/BUTTON.md).

@@ -70,3 +70,5 @@ ctest --preset f103cb-hil-hw
 For isolated campaigns/map refresh follow DDTT_STARTUP. Do not mix old ELF results. Native g++
 is needed only for numerical vectors; firmware uses Arm GCC. The button and further failure branches remain future work. LED indication is described
 in [Measurement indication](MEASUREMENT_LED.en.md).
+
+KEY hold overrides measurement indication. Current button behavior and unified DDTT export task: [BUTTON](BUTTON.en.md).

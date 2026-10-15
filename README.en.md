@@ -94,7 +94,7 @@ through USART1 rather than semihosting.
 
 ## HIL tests
 
-The scenarios in `hil/common/tests/board` (stm32-gdbtest `eb085b3` (post-v0.4.1), 21 scenarios) check the firmware on the
+The scenarios in `hil/common/tests/board` (stm32-gdbtest `eb085b3` (post-v0.4.1), 23 scenarios) check the firmware on the
 board: chip, clock and run profile, LED and USART1 configuration, `setup()` completion, POST, the
 blink and who writes the toggle time (a watch point), and the firmware reaction to injections — a
 substituted function answer and a substituted ADC sample. The MCU description and the board data
@@ -133,3 +133,5 @@ Expanded startup map and viewing workflow: [DDTT_STARTUP](docs/DDTT_STARTUP.en.m
 [ADC/DMA, фильтрация и HTML DDTT / processing and evidence report](docs/ADC_DMA.en.md).
 
 [Measurement indication and report themes](docs/MEASUREMENT_LED.en.md).
+
+[KEY, virtual presses and current DDTT export](docs/BUTTON.en.md).

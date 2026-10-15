@@ -48,8 +48,24 @@ namespace board
     void init()
     {
         ledPinInit();
+#if defined( BOARD_F103CB_PB2 )
+        // SW2 через 330 Ом соединяет PA0 с 3,3 В. Без pull-down отпущенный вход плавает.
+        RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;
+        ( void ) RCC->APB2ENR;
+        GPIOA->BRR = GPIO_BRR_BR0;
+        GPIOA->CRL = ( GPIOA->CRL & ~( GPIO_CRL_MODE0 | GPIO_CRL_CNF0 ) ) | GPIO_CRL_CNF0_1;
+#endif
         SystemCoreClockUpdate();
         SysTick_Config( SystemCoreClock / 1000U );
+    }
+
+    bool buttonPressed()
+    {
+#if defined( BOARD_F103CB_PB2 )
+        return ( GPIOA->IDR & GPIO_IDR_IDR0 ) != 0;
+#else
+        return false;
+#endif
     }
 
     void ledSet( bool on )

@@ -57,7 +57,7 @@ python -B modules/stm32-gdbtest/stm32_gdbtest/cli.py doctor --stand hil/F103CB/s
 cmake --preset f103cb-hil
 cmake --build --preset f103cb-hil
 ctest --preset f103cb-hil-host     # no board: requirement traceability and prepare.*
-ctest --preset f103cb-hil-hw       # on the board: all hw.* (21 scenarios)
+ctest --preset f103cb-hil-hw       # on the board: all hw.* (23 scenarios)
 python hil/tools/results.py --runs build/f103cb-hil/hwtest/runs
 ```
 
@@ -158,3 +158,5 @@ WeAct PB2 map and rationale: [DDTT_STARTUP](../docs/DDTT_STARTUP.en.md).
 [ADC/DMA, фильтрация и HTML DDTT / processing and evidence report](../docs/ADC_DMA.en.md).
 
 Indication: HW_INDICATOR_NORMAL, HW_INDICATOR_INVALID, HW_INDICATOR_RANGE. [Behaviour and report themes](../docs/MEASUREMENT_LED.en.md).
+
+[KEY, virtual presses and current DDTT export](../docs/BUTTON.en.md).

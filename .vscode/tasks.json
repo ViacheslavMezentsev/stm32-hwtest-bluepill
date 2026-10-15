@@ -440,6 +440,20 @@
       },
       "problemMatcher": [],
       "dependsOn": "Сборка: собрать (активный пресет)"
+    },
+    {
+      "label": "HIL: DDTT report (F103CB)",
+      "type": "process",
+      "command": "python",
+      "args": [
+        "hil/tools/ddtt_export.py",
+        "--runs",
+        "${input:ddttRuns}"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
     }
   ],
   "inputs": [
@@ -478,9 +492,17 @@
         "HW_DMA_TIMEOUT",
         "HW_INDICATOR_NORMAL",
         "HW_INDICATOR_INVALID",
-        "HW_INDICATOR_RANGE"
+        "HW_INDICATOR_RANGE",
+        "HW_BUTTON_CONFIG",
+        "HW_BUTTON_VIRTUAL"
       ],
       "default": "HW_BOOT"
+    },
+    {
+      "id": "ddttRuns",
+      "type": "promptString",
+      "description": "Каталог runs свежей аппаратной кампании для текущего ELF",
+      "default": "build/f103cb-hil/hwtest/runs"
     }
   ]
 }

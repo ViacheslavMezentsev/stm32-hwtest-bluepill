@@ -383,6 +383,66 @@
       "anchor": "++g_monitor.timeouts;",
       "scenario": "HW_DMA_TIMEOUT",
       "check": "timeout lights LED"
+    },
+    {
+      "source": "src/board.cpp",
+      "anchor": "GPIOA->BRR = GPIO_BRR_BR0;",
+      "scenario": "HW_BUTTON_CONFIG",
+      "check": "KEY pull down"
+    },
+    {
+      "source": "src/board.cpp",
+      "anchor": "GPIOA->CRL = ( GPIOA->CRL & ~( GPIO_CRL_MODE0 | GPIO_CRL_CNF0 ) ) | GPIO_CRL_CNF0_1;",
+      "scenario": "HW_BUTTON_CONFIG",
+      "check": "KEY input with pull"
+    },
+    {
+      "source": "src/board.cpp",
+      "anchor": "return ( GPIOA->IDR & GPIO_IDR_IDR0 ) != 0;",
+      "scenario": "HW_BUTTON_CONFIG",
+      "check": "KEY physically released"
+    },
+    {
+      "source": "src/button.cpp",
+      "anchor": "candidate  = pressed;",
+      "scenario": "HW_BUTTON_VIRTUAL",
+      "check": "bounce restarts debounce"
+    },
+    {
+      "source": "src/button.cpp",
+      "anchor": "changed_ms = now;",
+      "scenario": "HW_BUTTON_VIRTUAL",
+      "check": "bounce restarts debounce"
+    },
+    {
+      "source": "src/button.cpp",
+      "anchor": "if ( candidate == stable || now - changed_ms < kButtonDebounceMs )",
+      "scenario": "HW_BUTTON_VIRTUAL",
+      "check": "short press rejected"
+    },
+    {
+      "source": "src/button.cpp",
+      "anchor": "stable = candidate;",
+      "scenario": "HW_BUTTON_VIRTUAL",
+      "check": "stable release accepted"
+    },
+    {
+      "source": "src/button.cpp",
+      "anchor": "++presses;",
+      "scenario": "HW_BUTTON_VIRTUAL",
+      "check": "stable press counted"
+    },
+    {
+      "source": "src/app.cpp",
+      "anchor": "g_button.update( board::buttonPressed(), now );",
+      "scenario": "HW_BUTTON_VIRTUAL",
+      "check": "held KEY lights LED"
+    },
+    {
+      "source": "src/app.cpp",
+      "anchor": "if ( g_button.stable || g_app.indication == MeasurementFault )",
+      "scenario": "HW_BUTTON_VIRTUAL",
+      "check": "hold suppresses blinking"
     }
   ],
   "schema": 1

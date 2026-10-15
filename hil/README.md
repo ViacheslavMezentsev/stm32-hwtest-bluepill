@@ -57,7 +57,7 @@ python -B modules/stm32-gdbtest/stm32_gdbtest/cli.py doctor --stand hil/F103CB/s
 cmake --preset f103cb-hil
 cmake --build --preset f103cb-hil
 ctest --preset f103cb-hil-host     # без платы: трассировка требований и prepare.*
-ctest --preset f103cb-hil-hw       # на плате: все hw.* (21 сценарий)
+ctest --preset f103cb-hil-hw       # на плате: все hw.* (23 сценария)
 python hil/tools/results.py --runs build/f103cb-hil/hwtest/runs
 ```
 
@@ -159,3 +159,5 @@ source [find target/stm32f1x.cfg]
 [ADC/DMA, фильтрация и HTML DDTT / processing and evidence report](../docs/ADC_DMA.md).
 
 Индикация: HW_INDICATOR_NORMAL, HW_INDICATOR_INVALID, HW_INDICATOR_RANGE. [Описание и темы отчёта](../docs/MEASUREMENT_LED.md).
+
+[KEY, виртуальные нажатия и актуальный экспорт DDTT](../docs/BUTTON.md).

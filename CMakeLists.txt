@@ -39,6 +39,7 @@ add_executable(${PROJECT_NAME}
     src/main.cpp
     src/app.cpp
     src/board.cpp
+    src/button.cpp
     src/monitor.cpp
     src/monitor_processing.cpp
     src/post.cpp

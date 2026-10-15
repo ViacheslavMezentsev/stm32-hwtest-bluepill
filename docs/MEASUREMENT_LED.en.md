@@ -54,3 +54,5 @@ Reopen Preview Report or reload the browser after HTML regeneration.
 Host tests verify links/SHA and execute the actual theme JavaScript using Node.js: cycle,
 persistence, VS Code precedence and blocked storage. Visual appearance in the owner's
 specific VS Code preview still needs manual verification.
+
+KEY hold overrides measurement indication. Current button behavior and unified DDTT export task: [BUTTON](BUTTON.en.md).

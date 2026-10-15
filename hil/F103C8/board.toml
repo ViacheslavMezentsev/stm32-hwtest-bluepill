@@ -10,3 +10,7 @@ led_active_high = false
 # USART1 (PA9 — TX) выводит имя платы и итог POST.
 [uart]
 baud = 115200
+
+# Пользовательская кнопка, отдельно от RESET и BOOT.
+[button]
+present = false

@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+- Button: debounced hold forces the LED on; release restores measurement indication. Two HIL scenarios, 23/23 WeAct PASS; DDTT 74 links / 65 lines. Export rejects comments and stale source bindings, clears old LCOV on failure.
+
 - Measurement LED: pending/normal/fault with recovery; three HIL scenarios, 21/21 WeAct PASS and DDTT map 64/55. GitHub-style HTML defaults to dark with a round dark/light/auto button.
 
 - Added periodic ADC1/DMA1 capture of eight pairs, averaging and scalar Kalman filters. Three new cases, full WeAct suite 18/18, both profiles host 19/19. DDTT map: 54 links/49 lines; HTML shows scenarios, evidence and selected campaign attempts.

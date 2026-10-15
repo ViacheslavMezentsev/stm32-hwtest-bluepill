@@ -118,3 +118,5 @@ Firmware, CMSIS, linker script, submodule and Python scenario code are unchanged
 not replace GitHub's network installation or VS Code UI verification. No hardware runs at this stage.
 
 DDTT colouring and startup cases: [DDTT_STARTUP](DDTT_STARTUP.en.md).
+
+KEY hold overrides measurement indication. Current button behavior and unified DDTT export task: [BUTTON](BUTTON.en.md).

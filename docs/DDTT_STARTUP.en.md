@@ -41,60 +41,60 @@ still remain assertions in the report.
 
 | Source line | Scenario | Exact assertion name |
 | --- | --- | --- |
-| [src/app.cpp:50](../src/app.cpp#L50) | `HW_BLINK` | toggles a half period apart, ms |
-| [src/app.cpp:51](../src/app.cpp#L51) | `HW_BLINK` | LED state changed |
-| [src/app.cpp:52](../src/app.cpp#L52) | `HW_BLINK` | blink counter advanced by one |
-| [src/app.cpp:42](../src/app.cpp#L42) | `HW_POST_VDDA_LOW` | setup still finished |
-| [src/app.cpp:42](../src/app.cpp#L42) | `HW_SETUP_DONE` | setup finished |
-| [src/app.cpp:41](../src/app.cpp#L41) | `HW_TOGGLE_WRITERS` | setup() stores the start time, called from main() |
-| [src/app.cpp:50](../src/app.cpp#L50) | `HW_TOGGLE_WRITERS` | loop() stores the toggle time, called from main() |
-| [src/main.cpp:6](../src/main.cpp#L6) | `HW_STARTUP_ORDER` | setup called from main |
-| [src/main.cpp:9](../src/main.cpp#L9) | `HW_STARTUP_ORDER` | loop called from main |
-| [src/app.cpp:32](../src/app.cpp#L32) | `HW_STARTUP_ORDER` | board init called from setup |
-| [src/app.cpp:33](../src/app.cpp#L33) | `HW_STARTUP_ORDER` | UART transmitter before POST |
-| [src/app.cpp:38](../src/app.cpp#L38) | `HW_STARTUP_ORDER` | POST called from setup |
-| [src/app.cpp:42](../src/app.cpp#L42) | `HW_STARTUP_ORDER` | setup published before loop |
-| [src/board.cpp:34](../src/board.cpp#L34) | `HW_STARTUP_ORDER` | LED clock before UART |
-| [src/board.cpp:36](../src/board.cpp#L36) | `HW_STARTUP_ORDER` | LED initially off |
-| [src/board.cpp:38](../src/board.cpp#L38) | `HW_STARTUP_ORDER` | LED output before UART |
-| [src/board.cpp:52](../src/board.cpp#L52) | `HW_STARTUP_ORDER` | SysTick reload before UART |
-| [src/board.cpp:52](../src/board.cpp#L52) | `HW_STARTUP_ORDER` | SysTick enabled before UART |
-| [src/board.cpp:94](../src/board.cpp#L94) | `HW_SYSTICK_PROGRESS` | SysTick handler increments once |
-| [src/uart.cpp:9](../src/uart.cpp#L9) | `HW_STARTUP_ORDER` | UART clocks before POST |
-| [src/uart.cpp:12](../src/uart.cpp#L12) | `HW_STARTUP_ORDER` | UART pin before POST |
-| [src/uart.cpp:14](../src/uart.cpp#L14) | `HW_STARTUP_ORDER` | UART divider before POST |
-| [src/uart.cpp:15](../src/uart.cpp#L15) | `HW_STARTUP_ORDER` | UART transmitter before POST |
-| [src/post.cpp:51](../src/post.cpp#L51) | `HW_ADC_INITIALIZATION` | ADC clock divider |
-| [src/post.cpp:52](../src/post.cpp#L52) | `HW_ADC_INITIALIZATION` | ADC clock enabled before sample |
-| [src/post.cpp:56](../src/post.cpp#L56) | `HW_ADC_INITIALIZATION` | ADC independent single conversion |
-| [src/post.cpp:57](../src/post.cpp#L57) | `HW_ADC_INITIALIZATION` | ADC enabled with internal sensors |
-| [src/post.cpp:57](../src/post.cpp#L57) | `HW_ADC_INITIALIZATION` | ADC software trigger |
-| [src/post.cpp:59](../src/post.cpp#L59) | `HW_ADC_INITIALIZATION` | internal channels long sampling |
-| [src/post.cpp:60](../src/post.cpp#L60) | `HW_ADC_INITIALIZATION` | one regular conversion |
-| [src/post.cpp:100](../src/post.cpp#L100) | `HW_POST_VDDA_LOW` | VDDA computed from the substituted sample |
-| [src/post.cpp:107](../src/post.cpp#L107) | `HW_POST_VDDA_LOW` | POST reports VDDA out of range |
-| [src/post.cpp:95](../src/post.cpp#L95) | `HW_POST_ADC_CLEANUP` | ADC and internal sensors released |
-| [src/app.cpp:55](../src/app.cpp#L55) | `HW_DMA_CAPTURE` | block accepted exactly once |
-| [src/monitor.cpp:21](../src/monitor.cpp#L21) | `HW_DMA_CAPTURE` | DMA clock enabled |
-| [src/monitor.cpp:26](../src/monitor.cpp#L26) | `HW_DMA_CAPTURE` | ADC scan enabled |
-| [src/monitor.cpp:28](../src/monitor.cpp#L28) | `HW_DMA_CAPTURE` | ADC scans two channels |
-| [src/monitor.cpp:30](../src/monitor.cpp#L30) | `HW_DMA_CAPTURE` | ADC channel order |
-| [src/monitor.cpp:31](../src/monitor.cpp#L31) | `HW_DMA_CAPTURE` | DMA halfword normal mode |
-| [src/monitor.cpp:32](../src/monitor.cpp#L32) | `HW_DMA_CAPTURE` | DMA peripheral address |
-| [src/monitor.cpp:33](../src/monitor.cpp#L33) | `HW_DMA_CAPTURE` | DMA owned buffer address |
-| [src/monitor.cpp:48](../src/monitor.cpp#L48) | `HW_DMA_CAPTURE` | DMA block length |
-| [src/monitor.cpp:97](../src/monitor.cpp#L97) | `HW_DMA_CAPTURE` | DMA transfer completed |
-| [src/monitor.cpp:107](../src/monitor.cpp#L107) | `HW_DMA_CAPTURE` | one IRQ per block |
-| [src/monitor.cpp:109](../src/monitor.cpp#L109) | `HW_DMA_CAPTURE` | block accepted exactly once |
-| [src/monitor.cpp:84](../src/monitor.cpp#L84) | `HW_DMA_TIMEOUT` | missing requests timed out |
-| [src/monitor_processing.cpp:9](../src/monitor_processing.cpp#L9) | `HW_DMA_PROCESS` | first voltage seeds filter |
-| [src/monitor_processing.cpp:17](../src/monitor_processing.cpp#L17) | `HW_DMA_PROCESS` | Kalman second voltage |
-| [src/monitor_processing.cpp:50](../src/monitor_processing.cpp#L50) | `HW_DMA_PROCESS` | temperature conversion |
-| [src/monitor_processing.cpp:55](../src/monitor_processing.cpp#L55) | `HW_DMA_PROCESS` | two valid blocks accepted |
-| [src/monitor_processing.cpp:26](../src/monitor_processing.cpp#L26) | `HW_DMA_PROCESS` | two invalid blocks rejected |
-| [src/monitor_processing.cpp:38](../src/monitor_processing.cpp#L38) | `HW_DMA_PROCESS` | bad block preserves filter |
-| [src/monitor_processing.cpp:51](../src/monitor_processing.cpp#L51) | `HW_DMA_CAPTURE` | DMA voltage plausible |
-| [src/monitor_processing.cpp:52](../src/monitor_processing.cpp#L52) | `HW_DMA_CAPTURE` | DMA temperature plausible |
+| [src/app.cpp](../src/app.cpp) | `HW_BLINK` | toggles a half period apart, ms |
+| [src/app.cpp](../src/app.cpp) | `HW_BLINK` | LED state changed |
+| [src/app.cpp](../src/app.cpp) | `HW_BLINK` | blink counter advanced by one |
+| [src/app.cpp](../src/app.cpp) | `HW_POST_VDDA_LOW` | setup still finished |
+| [src/app.cpp](../src/app.cpp) | `HW_SETUP_DONE` | setup finished |
+| [src/app.cpp](../src/app.cpp) | `HW_TOGGLE_WRITERS` | setup() stores the start time, called from main() |
+| [src/app.cpp](../src/app.cpp) | `HW_TOGGLE_WRITERS` | loop() stores the toggle time, called from main() |
+| [src/main.cpp](../src/main.cpp) | `HW_STARTUP_ORDER` | setup called from main |
+| [src/main.cpp](../src/main.cpp) | `HW_STARTUP_ORDER` | loop called from main |
+| [src/app.cpp](../src/app.cpp) | `HW_STARTUP_ORDER` | board init called from setup |
+| [src/app.cpp](../src/app.cpp) | `HW_STARTUP_ORDER` | UART transmitter before POST |
+| [src/app.cpp](../src/app.cpp) | `HW_STARTUP_ORDER` | POST called from setup |
+| [src/app.cpp](../src/app.cpp) | `HW_STARTUP_ORDER` | setup published before loop |
+| [src/board.cpp](../src/board.cpp) | `HW_STARTUP_ORDER` | LED clock before UART |
+| [src/board.cpp](../src/board.cpp) | `HW_STARTUP_ORDER` | LED initially off |
+| [src/board.cpp](../src/board.cpp) | `HW_STARTUP_ORDER` | LED output before UART |
+| [src/board.cpp](../src/board.cpp) | `HW_STARTUP_ORDER` | SysTick reload before UART |
+| [src/board.cpp](../src/board.cpp) | `HW_STARTUP_ORDER` | SysTick enabled before UART |
+| [src/board.cpp](../src/board.cpp) | `HW_SYSTICK_PROGRESS` | SysTick handler increments once |
+| [src/uart.cpp](../src/uart.cpp) | `HW_STARTUP_ORDER` | UART clocks before POST |
+| [src/uart.cpp](../src/uart.cpp) | `HW_STARTUP_ORDER` | UART pin before POST |
+| [src/uart.cpp](../src/uart.cpp) | `HW_STARTUP_ORDER` | UART divider before POST |
+| [src/uart.cpp](../src/uart.cpp) | `HW_STARTUP_ORDER` | UART transmitter before POST |
+| [src/post.cpp](../src/post.cpp) | `HW_ADC_INITIALIZATION` | ADC clock divider |
+| [src/post.cpp](../src/post.cpp) | `HW_ADC_INITIALIZATION` | ADC clock enabled before sample |
+| [src/post.cpp](../src/post.cpp) | `HW_ADC_INITIALIZATION` | ADC independent single conversion |
+| [src/post.cpp](../src/post.cpp) | `HW_ADC_INITIALIZATION` | ADC enabled with internal sensors |
+| [src/post.cpp](../src/post.cpp) | `HW_ADC_INITIALIZATION` | ADC software trigger |
+| [src/post.cpp](../src/post.cpp) | `HW_ADC_INITIALIZATION` | internal channels long sampling |
+| [src/post.cpp](../src/post.cpp) | `HW_ADC_INITIALIZATION` | one regular conversion |
+| [src/post.cpp](../src/post.cpp) | `HW_POST_VDDA_LOW` | VDDA computed from the substituted sample |
+| [src/post.cpp](../src/post.cpp) | `HW_POST_VDDA_LOW` | POST reports VDDA out of range |
+| [src/post.cpp](../src/post.cpp) | `HW_POST_ADC_CLEANUP` | ADC and internal sensors released |
+| [src/app.cpp](../src/app.cpp) | `HW_DMA_CAPTURE` | block accepted exactly once |
+| [src/monitor.cpp](../src/monitor.cpp) | `HW_DMA_CAPTURE` | DMA clock enabled |
+| [src/monitor.cpp](../src/monitor.cpp) | `HW_DMA_CAPTURE` | ADC scan enabled |
+| [src/monitor.cpp](../src/monitor.cpp) | `HW_DMA_CAPTURE` | ADC scans two channels |
+| [src/monitor.cpp](../src/monitor.cpp) | `HW_DMA_CAPTURE` | ADC channel order |
+| [src/monitor.cpp](../src/monitor.cpp) | `HW_DMA_CAPTURE` | DMA halfword normal mode |
+| [src/monitor.cpp](../src/monitor.cpp) | `HW_DMA_CAPTURE` | DMA peripheral address |
+| [src/monitor.cpp](../src/monitor.cpp) | `HW_DMA_CAPTURE` | DMA owned buffer address |
+| [src/monitor.cpp](../src/monitor.cpp) | `HW_DMA_CAPTURE` | DMA block length |
+| [src/monitor.cpp](../src/monitor.cpp) | `HW_DMA_CAPTURE` | DMA transfer completed |
+| [src/monitor.cpp](../src/monitor.cpp) | `HW_DMA_CAPTURE` | one IRQ per block |
+| [src/monitor.cpp](../src/monitor.cpp) | `HW_DMA_CAPTURE` | block accepted exactly once |
+| [src/monitor.cpp](../src/monitor.cpp) | `HW_DMA_TIMEOUT` | missing requests timed out |
+| [src/monitor_processing.cpp](../src/monitor_processing.cpp) | `HW_DMA_PROCESS` | first voltage seeds filter |
+| [src/monitor_processing.cpp](../src/monitor_processing.cpp) | `HW_DMA_PROCESS` | Kalman second voltage |
+| [src/monitor_processing.cpp](../src/monitor_processing.cpp) | `HW_DMA_PROCESS` | temperature conversion |
+| [src/monitor_processing.cpp](../src/monitor_processing.cpp) | `HW_DMA_PROCESS` | two valid blocks accepted |
+| [src/monitor_processing.cpp](../src/monitor_processing.cpp) | `HW_DMA_PROCESS` | two invalid blocks rejected |
+| [src/monitor_processing.cpp](../src/monitor_processing.cpp) | `HW_DMA_PROCESS` | bad block preserves filter |
+| [src/monitor_processing.cpp](../src/monitor_processing.cpp) | `HW_DMA_CAPTURE` | DMA voltage plausible |
+| [src/monitor_processing.cpp](../src/monitor_processing.cpp) | `HW_DMA_CAPTURE` | DMA temperature plausible |
 
 ## Repeat and view in VS Code
 
@@ -128,7 +128,7 @@ foreach ($case in $cases) {
     if ($LASTEXITCODE -ne 0) { break } # Сохраняем отказ; сначала разбираем его причину.
 }
 # Выполнить и при FAIL/ERROR: неизвестное не станет зелёным или фиктивным нулём.
-python modules/stm32-gdbtest/tools/ddtt_coverage.py --project . --map "$campaign/map.json" --runs "$campaign/runs" --out build/ddtt-view
+python hil/tools/ddtt_export.py --runs "$campaign/runs"
 ```
 
 ## Limits
@@ -138,3 +138,5 @@ are not sensor accuracy; debugger stops do not measure real-time deadlines. DMA,
 the button are future work. New scenarios do not inject SRAM or modify peripheral registers.
 
 Current stage: [ADC/DMA and HTML report](ADC_DMA.en.md), 64 links on 55 lines; the acceptance above describes the original startup series.
+
+Current results and guarded export: [BUTTON](BUTTON.en.md), 74 links / 65 lines. Tables above describe earlier stages; use the fresh HTML for current line numbers.

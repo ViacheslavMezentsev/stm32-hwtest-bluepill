@@ -1,6 +1,7 @@
 #include "app.hpp"
 
 #include "board.hpp"
+#include "button.hpp"
 #include "post.hpp"
 #include "monitor.hpp"
 #include "uart.hpp"
@@ -45,9 +46,10 @@ void setup()
 void loop()
 {
     uint32_t now = board::millis();
-    // До первого блока нет основания показывать норму. Отказ горит постоянно.
+    g_button.update( board::buttonPressed(), now );
+    // Удержание KEY и отказ включают LED постоянно; отпускание возвращает индикацию измерений.
     g_app.indication = g_monitor.state;
-    if ( g_app.indication == MeasurementFault )
+    if ( g_button.stable || g_app.indication == MeasurementFault )
     {
         board::ledSet( true );
     }

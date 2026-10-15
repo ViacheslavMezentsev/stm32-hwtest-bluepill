@@ -1,4 +1,5 @@
 """HTML-пояснение к DDTT: выбранное свидетельство, сценарий и история данной кампании."""
+from ddtt_guard import validate_point
 import argparse
 import ast
 from datetime import datetime, timezone
@@ -47,6 +48,12 @@ def main():
     report = load(view / "ddtt-evidence.json")
     if report.get("status") != "EXPORTED":
         raise ValueError("Сначала выполните успешный экспорт LCOV")
+    try:
+        for point in report["points"]:
+            validate_point(root, point, bound=True)
+    except Exception:
+        (view / "lcov.info").write_text("", encoding="utf-8")
+        raise
     cases = scenarios(root)
     attempts = {}
     for path in runs.glob("*/result.json"):

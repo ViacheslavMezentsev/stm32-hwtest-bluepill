@@ -25,7 +25,10 @@ class ReportTests(unittest.TestCase):
             result.write_text(json.dumps({"id": "HW_DEMO", "mode": "hardware", "status": "PASS",
                 "started_utc": "2026-10-15T00:00:00Z", "elf_sha256": "a" * 64,
                 "checks": [{"name": check, "actual": 1, "expected": 1, "passed": True}]}))
-            point = {"scenario": "HW_DEMO", "source": "src/main.cpp", "line": 1,
+            source = root / "src/main.cpp"
+            source.parent.mkdir()
+            source.write_text("start();\n")
+            point = {"source_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),"scenario": "HW_DEMO", "source": "src/main.cpp", "line": 1,
                 "anchor": "start();", "check": check, "state": "CONFIRMED", "reason": "executed check",
                 "evidence": {"path": str(result), "sha256": hashlib.sha256(result.read_bytes()).hexdigest()}}
             (view / "ddtt-evidence.json").write_text(json.dumps({"status": "EXPORTED", "elf_sha256": "a" * 64,

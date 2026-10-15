@@ -10,3 +10,10 @@ led_active_high = true
 # USART1 (PA9 — TX) выводит имя платы и итог POST.
 [uart]
 baud = 115200
+
+# Пользовательская кнопка, отдельно от RESET и BOOT.
+[button]
+present = true
+port = "GPIOA"
+pin = 0
+active_high = true

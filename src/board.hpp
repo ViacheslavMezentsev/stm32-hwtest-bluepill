@@ -25,6 +25,9 @@ namespace board
     void ledToggle();
     bool ledIsOn();
 
+    // KEY WeAct: PA0, нажатие замыкает вход на 3,3 В; у обычной Blue Pill кнопки нет.
+    bool buttonPressed();
+
     // Миллисекунды после board::init().
     uint32_t millis();
     void delayMs( uint32_t ms );
