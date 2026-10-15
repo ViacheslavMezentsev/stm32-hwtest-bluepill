@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+- Added an isolated Renode/GDB startup CI example: emulator DDTT map, portable HTML/LCOV/Cobertura, line annotations and opt-in manual Pages deployment.
+
 - Added a portable DDTT source viewer with pinned GitHub links, allowlisted public data, relative LCOV/Cobertura and before/after campaign snapshots. No publishing workflow enabled.
 
 - Added RSTCAL/CAL/EOC POST timeout scenarios: 10/11 ms boundaries, ADC cleanup, normal reboot, ELF instruction preflight and twelve DDTT links. Firmware unchanged.

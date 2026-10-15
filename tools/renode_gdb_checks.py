@@ -14,7 +14,7 @@ def reach(symbol):
     # Временная точка: только основной поток GDB вызывает API отладчика.
     gdb.Breakpoint(symbol, temporary=True, internal=True)
     gdb.execute('continue')
-    return gdb.newest_frame().name() == symbol
+    return gdb.newest_frame().name().removesuffix('()') == symbol.removesuffix('()')
 
 try:
     gdb.execute('set pagination off')

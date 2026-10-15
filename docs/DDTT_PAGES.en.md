@@ -73,10 +73,9 @@ markers in the normal blob view. Team/Enterprise Cloud are listed:
 but are not a map of green lines. Our full source view can be hosted on
 [GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site).
 
-Renode/GDB CI can produce LCOV/Cobertura with DDTT semantics. Choose expectations supported
-by the model, capture evidence, label it emulator and do not merge it with hardware implicitly.
-The current generator accepts hardware campaigns; emulator support and GitHub upload are not
-implemented. A Renode smoke PASS alone is not a map. A first small example could check main,
-setup/loop ordering and the UART banner; ADC/DMA remain separate hardware evidence.
+The separate [Renode/GDB CI route](DDTT_RENODE.en.md) produces an emulator map and portable report.
+The hardware generator still requires hardware evidence. ADC/DMA are not modeled.
 
 Validated locally on 2026-10-15: fresh WeAct campaign 28/28 PASS; 94 confirmed links across 72 lines, pinned to 9650ec50120c1e61b778a5f1ef113c45cbaf6d12. Thirteen host tests passed, including privacy, stale inputs, HTML escaping, source navigation and theme. Public package privacy scan and LCOV/Cobertura line agreement passed. GitHub upload/Pages deployment and native GitHub rendering have not been tested or enabled.
+
+The separate emulator route is documented in [Renode/GDB CI and Pages](DDTT_RENODE.en.md). The hardware exporter retains its existing contract.
