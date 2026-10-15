@@ -21,5 +21,10 @@
     "cortex-debug.JLinkGDBServerPath.linux": "JLinkGDBServerCLExe",
     "cortex-debug.stlinkPath.windows": "ST-LINK_gdbserver.exe",
     "cortex-debug.variableUseNaturalFormat": true,
+    // Только текущая выбранная кампания DDTT; старые логи не смешиваются.
+    "coverage-gutters.coverageBaseDir": "build/ddtt-view",
+    "coverage-gutters.coverageFileNames": ["lcov.info"],
+    "coverage-gutters.manualCoverageFilePaths": [],
+    "coverage-gutters.showLineCoverage": true,
     "hil.gdbtest": "modules/stm32-gdbtest"
 }

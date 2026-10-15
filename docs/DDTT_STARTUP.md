@@ -1,0 +1,120 @@
+# Раскраска запуска WeAct BluePill-Plus
+
+[English](DDTT_STARTUP.en.md) · [Окружение](DEVELOPER_ENVIRONMENT.md)
+
+Профиль F103CB_PB2, светодиод PB2 active high. Карта —
+[hil/ddtt-f103cb.template.json](../hil/ddtt-f103cb.template.json), сценарии —
+[test_startup.py](../hil/common/tests/board/test_startup.py). Карта не предназначена для PC13:
+универсальные сценарии поддерживают C8, но привязки GPIOB относятся к WeAct.
+
+## Что добавили
+
+| Сценарий | Ожидание и смысл |
+| --- | --- |
+| HW_STARTUP_ORDER | Вход main с нулевым состоянием; setup вызван из main, board init и POST из setup. GPIO и SysTick готовы до UART, UART — до POST; loop начинается после публикации setup_done. |
+| HW_SYSTICK_PROGRESS | Два соседних входа ISR, исключение 15, приращение счётчика ровно один. Это проверка обработчика и настроек, не измерение периода по внешним часам. |
+| HW_ADC_INITIALIZATION | ADC включён, /2, программный триггер, калибровка завершена, длинная выборка внутренних каналов; VREFINT перед температурой. Проверки на границе C++ convert без повторного вызова init. |
+
+Новые комментарии на русском. Как в mcu_power_board: условия → наблюдение → records →
+таблица утверждений. Строки таблицы — выражения GDB, строки одиночного check — данные Python;
+маски сравниваются с масками, логические значения явно нормализованы. Макросы используются
+в кадрах с CMSIS. Records содержат обычные Python-числа и строковые ключи.
+Для ELF-контракта используется SysTick_Handler: закреплённый валидатор не принимает C++
+имя post::run в поле macros.context. Реальные проверки идут в convert из post.cpp.
+
+## Проверено 15.10.2026
+
+Windows, OpenOCD 0.12.0/ST-Link, WeAct F103CB, xPack 14.2.1-1.1 (GDB 15.2.90),
+модуль eb085b3 (main после v0.4.1; номер Python-пакета ещё 0.4.1, не выпущенная 0.4.2).
+Все 15 аппаратных сценариев PASS, захват SAVED, команды 0; host обоих профилей 16/16.
+Карта: 33 CONFIRMED, 28 уникальных строк, 0 FAILED/UNKNOWN. Это весь выбранный набор
+связей, а не 100% прошивки. Исходники C/C++ не менялись. C8 на железе в этой серии не проверялся.
+Предварительный ERROR контракта сохранён локально; это ошибка сценария до доступа к плате.
+Предупреждения inferred_stop из существующих watchpoint-сценариев сохранены: причина
+остановки восстановлена модулем, а не явно сообщена GDB.
+
+## Почему именно эти строки
+
+Входы функций привязаны к подтверждённому вызывающему кадру; строки настройки регистров —
+к состоянию до следующей стадии; публикации — к проверенному значению; ветви отказа —
+к уже существующим инъекциям. Не раскрашиваем весь блок по факту достижения его входа.
+Не привязываем проверку сброшенного CAL к строке, устанавливающей CAL: это не доказательство
+самого запуска калибровки. Выбор канала и калибровка остаются утверждениями в отчёте.
+
+| Строка | Сценарий | Точное имя проверки |
+| --- | --- | --- |
+| [src/app.cpp:49](../src/app.cpp#L49) | `HW_BLINK` | toggles a half period apart, ms |
+| [src/app.cpp:50](../src/app.cpp#L50) | `HW_BLINK` | LED state changed |
+| [src/app.cpp:51](../src/app.cpp#L51) | `HW_BLINK` | blink counter advanced by one |
+| [src/app.cpp:41](../src/app.cpp#L41) | `HW_POST_VDDA_LOW` | setup still finished |
+| [src/app.cpp:41](../src/app.cpp#L41) | `HW_SETUP_DONE` | setup finished |
+| [src/app.cpp:40](../src/app.cpp#L40) | `HW_TOGGLE_WRITERS` | setup() stores the start time, called from main() |
+| [src/app.cpp:49](../src/app.cpp#L49) | `HW_TOGGLE_WRITERS` | loop() stores the toggle time, called from main() |
+| [src/main.cpp:6](../src/main.cpp#L6) | `HW_STARTUP_ORDER` | setup called from main |
+| [src/main.cpp:9](../src/main.cpp#L9) | `HW_STARTUP_ORDER` | loop called from main |
+| [src/app.cpp:31](../src/app.cpp#L31) | `HW_STARTUP_ORDER` | board init called from setup |
+| [src/app.cpp:32](../src/app.cpp#L32) | `HW_STARTUP_ORDER` | UART transmitter before POST |
+| [src/app.cpp:37](../src/app.cpp#L37) | `HW_STARTUP_ORDER` | POST called from setup |
+| [src/app.cpp:41](../src/app.cpp#L41) | `HW_STARTUP_ORDER` | setup published before loop |
+| [src/board.cpp:34](../src/board.cpp#L34) | `HW_STARTUP_ORDER` | LED clock before UART |
+| [src/board.cpp:36](../src/board.cpp#L36) | `HW_STARTUP_ORDER` | LED initially off |
+| [src/board.cpp:38](../src/board.cpp#L38) | `HW_STARTUP_ORDER` | LED output before UART |
+| [src/board.cpp:52](../src/board.cpp#L52) | `HW_STARTUP_ORDER` | SysTick reload before UART |
+| [src/board.cpp:52](../src/board.cpp#L52) | `HW_STARTUP_ORDER` | SysTick enabled before UART |
+| [src/board.cpp:94](../src/board.cpp#L94) | `HW_SYSTICK_PROGRESS` | SysTick handler increments once |
+| [src/uart.cpp:9](../src/uart.cpp#L9) | `HW_STARTUP_ORDER` | UART clocks before POST |
+| [src/uart.cpp:12](../src/uart.cpp#L12) | `HW_STARTUP_ORDER` | UART pin before POST |
+| [src/uart.cpp:14](../src/uart.cpp#L14) | `HW_STARTUP_ORDER` | UART divider before POST |
+| [src/uart.cpp:15](../src/uart.cpp#L15) | `HW_STARTUP_ORDER` | UART transmitter before POST |
+| [src/post.cpp:51](../src/post.cpp#L51) | `HW_ADC_INITIALIZATION` | ADC clock divider |
+| [src/post.cpp:52](../src/post.cpp#L52) | `HW_ADC_INITIALIZATION` | ADC clock enabled before sample |
+| [src/post.cpp:56](../src/post.cpp#L56) | `HW_ADC_INITIALIZATION` | ADC independent single conversion |
+| [src/post.cpp:57](../src/post.cpp#L57) | `HW_ADC_INITIALIZATION` | ADC enabled with internal sensors |
+| [src/post.cpp:57](../src/post.cpp#L57) | `HW_ADC_INITIALIZATION` | ADC software trigger |
+| [src/post.cpp:59](../src/post.cpp#L59) | `HW_ADC_INITIALIZATION` | internal channels long sampling |
+| [src/post.cpp:60](../src/post.cpp#L60) | `HW_ADC_INITIALIZATION` | one regular conversion |
+| [src/post.cpp:100](../src/post.cpp#L100) | `HW_POST_VDDA_LOW` | VDDA computed from the substituted sample |
+| [src/post.cpp:107](../src/post.cpp#L107) | `HW_POST_VDDA_LOW` | POST reports VDDA out of range |
+| [src/post.cpp:95](../src/post.cpp#L95) | `HW_POST_ADC_CLEANUP` | ADC and internal sensors released |
+
+## Повторить и увидеть в VS Code
+
+Откройте папку проекта. Используйте Coverage Gutters → Watch; затем откройте src/main.cpp,
+board.cpp, uart.cpp или post.cpp. Workspace настроен искать только build/ddtt-view/lcov.info;
+персональный абсолютный путь не нужен. Если видны старые отметки, выполните Coverage Gutters:
+Remove Coverage, затем Watch (или Display Coverage для текущего файла).
+
+Зелёный — утверждение подтвердилось; красный — выполненное утверждение не подтвердилось;
+без отметки — нет достоверного свидетельства. Причины — build/ddtt-view/ddtt-evidence.json.
+Имена/хеши проверяются экспортёром. После изменения исходников нужны сборка и новый прогон;
+одной перепривязки карты недостаточно. Не объединяйте старые архивы с выбранной кампанией.
+
+```powershell
+# Из корня проекта; новая папка кампании при каждом повторении.
+cmake --preset f103cb-hil
+cmake --build --preset f103cb-hil
+ctest --preset f103cb-hil-host
+$campaign = "build/ddtt-$(Get-Date -Format yyyyMMdd-HHmmss)"
+New-Item -ItemType Directory -Force "$campaign/runs", build/ddtt-view | Out-Null
+# Удаляем старые цветные отметки до новой серии, включая случай её аварийного завершения.
+Set-Content build/ddtt-view/lcov.info -Value ''
+$session = Get-Content build/f103cb-hil/hwtest/session.json -Raw | ConvertFrom-Json
+$session.out = (Resolve-Path "$campaign/runs").Path
+$session | ConvertTo-Json -Depth 20 | Set-Content "$campaign/session.json" -Encoding utf8
+python modules/stm32-gdbtest/examples/ddtt-coverage/bind_map.py --project . --elf build/f103cb-hil/stm32_hwtest_bluepill.elf --template hil/ddtt-f103cb.template.json --out "$campaign/map.json"
+# Все сценарии, указанные картой; остальные аппаратные проверки — ctest --preset f103cb-hil-hw.
+$cases = (Get-Content hil/ddtt-f103cb.template.json -Raw | ConvertFrom-Json).points.scenario | Sort-Object -Unique
+foreach ($case in $cases) {
+    python modules/stm32-gdbtest/stm32_gdbtest/cli.py run --session "$campaign/session.json" --stand hil/F103CB/stands/local.toml --identity-policy strict --test $case
+    if ($LASTEXITCODE -ne 0) { break } # Сохраняем отказ; сначала разбираем его причину.
+}
+# Выполнить и при FAIL/ERROR: неизвестное не станет зелёным или фиктивным нулём.
+python modules/stm32-gdbtest/tools/ddtt_coverage.py --project . --map "$campaign/map.json" --runs "$campaign/runs" --out build/ddtt-view
+```
+
+## Границы
+
+GPIO ODR не доказывает физическое свечение. Настройки USART/TC не доказывают форму сигнала
+на выводе. ADC sampling/clock не доказывают точность температуры; прерывания под GDB не
+измеряют реальные сроки. DMA, фильтр и пользовательская кнопка — следующий этап. Ни записи
+произвольной SRAM, ни вмешательства в периферию новые сценарии не выполняют.

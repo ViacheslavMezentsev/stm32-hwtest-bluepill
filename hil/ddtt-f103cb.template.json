@@ -1,0 +1,203 @@
+{
+  "points": [
+    {
+      "source": "src/app.cpp",
+      "anchor": "g_app.last_toggle_ms = now;",
+      "scenario": "HW_BLINK",
+      "check": "toggles a half period apart, ms"
+    },
+    {
+      "source": "src/app.cpp",
+      "anchor": "board::ledToggle();",
+      "scenario": "HW_BLINK",
+      "check": "LED state changed"
+    },
+    {
+      "source": "src/app.cpp",
+      "anchor": "++g_app.blink_count;",
+      "scenario": "HW_BLINK",
+      "check": "blink counter advanced by one"
+    },
+    {
+      "source": "src/app.cpp",
+      "anchor": "g_app.setup_done     = 1;",
+      "scenario": "HW_POST_VDDA_LOW",
+      "check": "setup still finished"
+    },
+    {
+      "source": "src/app.cpp",
+      "anchor": "g_app.setup_done     = 1;",
+      "scenario": "HW_SETUP_DONE",
+      "check": "setup finished"
+    },
+    {
+      "source": "src/app.cpp",
+      "anchor": "g_app.last_toggle_ms = board::millis();",
+      "scenario": "HW_TOGGLE_WRITERS",
+      "check": "setup() stores the start time, called from main()"
+    },
+    {
+      "source": "src/app.cpp",
+      "anchor": "g_app.last_toggle_ms = now;",
+      "scenario": "HW_TOGGLE_WRITERS",
+      "check": "loop() stores the toggle time, called from main()"
+    },
+    {
+      "source": "src/main.cpp",
+      "anchor": "setup();",
+      "scenario": "HW_STARTUP_ORDER",
+      "check": "setup called from main"
+    },
+    {
+      "source": "src/main.cpp",
+      "anchor": "loop();",
+      "scenario": "HW_STARTUP_ORDER",
+      "check": "loop called from main"
+    },
+    {
+      "source": "src/app.cpp",
+      "anchor": "board::init();",
+      "scenario": "HW_STARTUP_ORDER",
+      "check": "board init called from setup"
+    },
+    {
+      "source": "src/app.cpp",
+      "anchor": "uart::init();",
+      "scenario": "HW_STARTUP_ORDER",
+      "check": "UART transmitter before POST"
+    },
+    {
+      "source": "src/app.cpp",
+      "anchor": "post::run();",
+      "scenario": "HW_STARTUP_ORDER",
+      "check": "POST called from setup"
+    },
+    {
+      "source": "src/app.cpp",
+      "anchor": "g_app.setup_done     = 1;",
+      "scenario": "HW_STARTUP_ORDER",
+      "check": "setup published before loop"
+    },
+    {
+      "source": "src/board.cpp",
+      "anchor": "RCC->APB2ENR |= RCC_APB2ENR_IOPBEN;",
+      "scenario": "HW_STARTUP_ORDER",
+      "check": "LED clock before UART"
+    },
+    {
+      "source": "src/board.cpp",
+      "anchor": "GPIOB->BRR = GPIO_BRR_BR2;",
+      "scenario": "HW_STARTUP_ORDER",
+      "check": "LED initially off"
+    },
+    {
+      "source": "src/board.cpp",
+      "anchor": "GPIOB->CRL = ( GPIOB->CRL & ~( GPIO_CRL_MODE2 | GPIO_CRL_CNF2 ) ) | GPIO_CRL_MODE2_1;",
+      "scenario": "HW_STARTUP_ORDER",
+      "check": "LED output before UART"
+    },
+    {
+      "source": "src/board.cpp",
+      "anchor": "SysTick_Config( SystemCoreClock / 1000U );",
+      "scenario": "HW_STARTUP_ORDER",
+      "check": "SysTick reload before UART"
+    },
+    {
+      "source": "src/board.cpp",
+      "anchor": "SysTick_Config( SystemCoreClock / 1000U );",
+      "scenario": "HW_STARTUP_ORDER",
+      "check": "SysTick enabled before UART"
+    },
+    {
+      "source": "src/board.cpp",
+      "anchor": "g_ticks = g_ticks + 1;",
+      "scenario": "HW_SYSTICK_PROGRESS",
+      "check": "SysTick handler increments once"
+    },
+    {
+      "source": "src/uart.cpp",
+      "anchor": "RCC->APB2ENR |= RCC_APB2ENR_IOPAEN | RCC_APB2ENR_USART1EN;",
+      "scenario": "HW_STARTUP_ORDER",
+      "check": "UART clocks before POST"
+    },
+    {
+      "source": "src/uart.cpp",
+      "anchor": "GPIOA->CRH = ( GPIOA->CRH & ~( GPIO_CRH_MODE9 | GPIO_CRH_CNF9 ) ) | GPIO_CRH_MODE9 | GPIO_CRH_CNF9_1;",
+      "scenario": "HW_STARTUP_ORDER",
+      "check": "UART pin before POST"
+    },
+    {
+      "source": "src/uart.cpp",
+      "anchor": "USART1->BRR = ( SystemCoreClock + 57600U ) / 115200U;",
+      "scenario": "HW_STARTUP_ORDER",
+      "check": "UART divider before POST"
+    },
+    {
+      "source": "src/uart.cpp",
+      "anchor": "USART1->CR1 = USART_CR1_UE | USART_CR1_TE;",
+      "scenario": "HW_STARTUP_ORDER",
+      "check": "UART transmitter before POST"
+    },
+    {
+      "source": "src/post.cpp",
+      "anchor": "RCC->CFGR     = ( RCC->CFGR & ~RCC_CFGR_ADCPRE ) | RCC_CFGR_ADCPRE_DIV2;",
+      "scenario": "HW_ADC_INITIALIZATION",
+      "check": "ADC clock divider"
+    },
+    {
+      "source": "src/post.cpp",
+      "anchor": "RCC->APB2ENR |= RCC_APB2ENR_ADC1EN;",
+      "scenario": "HW_ADC_INITIALIZATION",
+      "check": "ADC clock enabled before sample"
+    },
+    {
+      "source": "src/post.cpp",
+      "anchor": "ADC1->CR1 = 0;",
+      "scenario": "HW_ADC_INITIALIZATION",
+      "check": "ADC independent single conversion"
+    },
+    {
+      "source": "src/post.cpp",
+      "anchor": "ADC1->CR2 = ADC_CR2_TSVREFE | ADC_CR2_EXTSEL | ADC_CR2_EXTTRIG | ADC_CR2_ADON;",
+      "scenario": "HW_ADC_INITIALIZATION",
+      "check": "ADC enabled with internal sensors"
+    },
+    {
+      "source": "src/post.cpp",
+      "anchor": "ADC1->CR2 = ADC_CR2_TSVREFE | ADC_CR2_EXTSEL | ADC_CR2_EXTTRIG | ADC_CR2_ADON;",
+      "scenario": "HW_ADC_INITIALIZATION",
+      "check": "ADC software trigger"
+    },
+    {
+      "source": "src/post.cpp",
+      "anchor": "ADC1->SMPR1 = ADC_SMPR1_SMP16 | ADC_SMPR1_SMP17;",
+      "scenario": "HW_ADC_INITIALIZATION",
+      "check": "internal channels long sampling"
+    },
+    {
+      "source": "src/post.cpp",
+      "anchor": "ADC1->SQR1  = 0;",
+      "scenario": "HW_ADC_INITIALIZATION",
+      "check": "one regular conversion"
+    },
+    {
+      "source": "src/post.cpp",
+      "anchor": "g_post.vdda_mv = kVrefIntMv * 4095U / g_post.vrefint_raw;",
+      "scenario": "HW_POST_VDDA_LOW",
+      "check": "VDDA computed from the substituted sample"
+    },
+    {
+      "source": "src/post.cpp",
+      "anchor": "g_post.status = PostVddaOutOfRange;",
+      "scenario": "HW_POST_VDDA_LOW",
+      "check": "POST reports VDDA out of range"
+    },
+    {
+      "source": "src/post.cpp",
+      "anchor": "ADC1->CR2     &= ~( ADC_CR2_ADON | ADC_CR2_TSVREFE );",
+      "scenario": "HW_POST_ADC_CLEANUP",
+      "check": "ADC and internal sensors released"
+    }
+  ],
+  "schema": 1
+}

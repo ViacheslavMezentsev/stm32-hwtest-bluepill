@@ -116,3 +116,5 @@ sets VectorTableOffset; the original failed experiment is retained. GDB emitted 
 warnings, but both stops succeeded with exit 0. The emulate target prints UART and passes smoke.
 Firmware, CMSIS, linker script, submodule and Python scenario code are unchanged. These checks do
 not replace GitHub's network installation or VS Code UI verification. No hardware runs at this stage.
+
+DDTT colouring and startup cases: [DDTT_STARTUP](DDTT_STARTUP.en.md).

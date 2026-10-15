@@ -21,12 +21,12 @@ hil/
 ```
 
 The board is chosen by the build: presets `f103c8-hil` and `f103cb-hil` set `BOARD` and
-`BLUEPILL_HIL=ON`; `cmake/hil.cmake` attaches stm32-gdbtest v0.4.1 (`modules/stm32-gdbtest`) with
+`BLUEPILL_HIL=ON`; `cmake/hil.cmake` attaches stm32-gdbtest `eb085b3` (post-v0.4.1) (`modules/stm32-gdbtest`) with
 the run configuration `hil/<MCU>/session.toml` (`SESSION_CONFIG`) and the shared scenarios `hil/common/tests`.
 The configuration ties the MCU description, the shared `api.toml` and the board data file together;
 scenarios read them through `t.profile` (`t.profile.data["board"]`, `t.profile.get("user.post.vdda_mv")`),
 so one scenario serves both boards and board-specific expectations live in data, not in code.
-The scenarios use the API of module 0.4.0 and pass the module style test:
+The scenarios use the pinned module API (API_VERSION=2) and pass the module style test:
 `python modules/stm32-gdbtest/tests/host/test_scenario_style.py hil/common/tests/board/*.py`.
 
 ## Stand
@@ -57,7 +57,7 @@ python -B modules/stm32-gdbtest/stm32_gdbtest/cli.py doctor --stand hil/F103CB/s
 cmake --preset f103cb-hil
 cmake --build --preset f103cb-hil
 ctest --preset f103cb-hil-host     # no board: requirement traceability and prepare.*
-ctest --preset f103cb-hil-hw       # on the board: all hw.* (12 scenarios)
+ctest --preset f103cb-hil-hw       # on the board: all hw.* (15 scenarios)
 python hil/tools/results.py --runs build/f103cb-hil/hwtest/runs
 ```
 
@@ -67,7 +67,7 @@ description. The firmware is programmed only if the Flash image differs
 tasks (the board is picked from a list) and the Testing panel, where every scenario shows
 up as `hw.<ID>` and `prepare.<ID>`.
 
-| Scenario | Checks | Techniques ([catalogue](https://github.com/ViacheslavMezentsev/stm32-gdbtest/blob/v0.4.0/docs/en/TESTING_TECHNIQUES.md)) |
+| Scenario | Checks | Techniques ([catalogue](https://github.com/ViacheslavMezentsev/stm32-gdbtest/blob/eb085b3e69b775d27085350cb9c6892177b317f4/docs/en/TESTING_TECHNIQUES.md)) |
 | --- | --- | --- |
 | `HW_BOOT` | DEV_ID and F_SIZE at the MCU description addresses, SYSCLK from HSI, `SystemCoreClock` | `t.profile`, `evaluate`, `read` |
 | `HW_BOOT_CMSIS` | the same with CMSIS names on entry to `board::init()` | `check(rows)` table, contract, TECH-001 |
@@ -143,7 +143,7 @@ interpreter: `-DPython3_EXECUTABLE=<path>`; after a change use "Delete Cache and
 [Plan](common/plans/ddtt-feedback.en.md) and [cycle results](common/plans/ddtt-feedback-results.en.md):
 the scenario first exposes the defect in baseline firmware, then checks its fix and regression.
 Skill: `.claude/skills/stm32-gdbtest-develop/SKILL.md`; this branch includes a trial copy while
-the module gitlink remains on released 0.4.0. Other skill copies are refreshed for 0.4.0.
+the module gitlink is now eb085b3, a post-v0.4.1 main commit, not a released 0.4.2. Old local skill copies target 0.4.0; current instructions are in modules/stm32-gdbtest/skills.
 Unlike stand-loop execution, development needs a source checkout and compiler, not just a ZIP.
 Profiles use target schema 2 with `[openocd]`; sessions enable `[results] capture = true`.
 
@@ -151,3 +151,6 @@ New scenario: `HW_POST_ADC_CLEANUP` (`tests/board/test_ddtt_feedback.py`).
 
 
 [Developer environment](../docs/DEVELOPER_ENVIRONMENT.en.md).
+
+New cases: `HW_STARTUP_ORDER`, `HW_SYSTICK_PROGRESS`, `HW_ADC_INITIALIZATION`.
+WeAct PB2 map and rationale: [DDTT_STARTUP](../docs/DDTT_STARTUP.en.md).

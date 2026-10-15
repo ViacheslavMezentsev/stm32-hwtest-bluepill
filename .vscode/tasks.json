@@ -469,7 +469,10 @@
         "HW_POST_VDDA_LOW",
         "HW_SETUP_DONE",
         "HW_TOGGLE_WRITERS",
-        "HW_UART_CONFIG"
+        "HW_UART_CONFIG",
+        "HW_STARTUP_ORDER",
+        "HW_SYSTICK_PROGRESS",
+        "HW_ADC_INITIALIZATION"
       ],
       "default": "HW_BOOT"
     }

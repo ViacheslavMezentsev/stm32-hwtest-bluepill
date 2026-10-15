@@ -74,3 +74,23 @@ setup() всё равно завершается (g_app.setup_done = 1): при�
 RU: POST при недопустимом нулевом VREFINT сохраняет PostAdcTimeout, продолжает setup и сбрасывает ADON/TSVREFE до loop.
 
 EN: POST with a zero VREFINT sample retains PostAdcTimeout, continues setup and clears ADON/TSVREFE before loop.
+
+## HW_STARTUP_ORDER
+Вход в main после штатного startup: setup_done, blink_count и vrefint_raw равны нулю.
+setup вызывается из main, board::init и post::run — из setup, loop — из main.
+До uart::init светодиод настроен и выключен, SysTick включён с LOAD=7999; USART1 ещё без тактирования.
+До post::run USART1 и PA9 настроены для передачи 115200, заголовок передан, ADC ещё без тактирования.
+setup_done публикуется до первого loop; мигание к этому моменту не началось.
+Проверяется порядок достигнутых стадий, не отсутствие любых промежуточных вызовов.
+
+## HW_SYSTICK_PROGRESS
+Два соседних входа SysTick_Handler находятся в исключении 15. Между ними g_ticks увеличивается
+ровно на один (uint32). LOAD=7999, ENABLE/TICKINT/CLKSOURCE установлены. Остановки GDB
+не позволяют считать этот опыт измерением реального периода в миллисекундах.
+
+## HW_ADC_INITIALIZATION
+Перед первым convert в POST: ADC1 включён, ADCPRE=/2, независимый режим без scan,
+внутренние датчики включены, триггер программный, CAL/RSTCAL сброшены, DMA/CONT выключены,
+каналы 16/17 имеют выборку 239,5 такта, регулярная последовательность имеет длину один.
+Первый аргумент канала 17, второй 16; до второго вызова опубликован ненулевой VREFINT.
+Проверяются настройки и последовательность, не точность датчиков и не аппаратная работа DMA.

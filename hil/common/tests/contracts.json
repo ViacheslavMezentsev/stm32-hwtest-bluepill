@@ -68,6 +68,29 @@
           "USART_SR_TC"
         ]
       }
+    },
+    "cmsis_adc_init": {
+      "macros": {
+        "context": "SysTick_Handler",
+        "expressions": [
+          "ADC1",
+          "RCC",
+          "RCC_APB2ENR_ADC1EN",
+          "RCC_CFGR_ADCPRE",
+          "RCC_CFGR_ADCPRE_DIV2",
+          "ADC_CR2_ADON",
+          "ADC_CR2_TSVREFE",
+          "ADC_CR2_EXTSEL",
+          "ADC_CR2_EXTTRIG",
+          "ADC_CR2_CAL",
+          "ADC_CR2_RSTCAL",
+          "ADC_CR2_DMA",
+          "ADC_CR2_CONT",
+          "ADC_SMPR1_SMP16",
+          "ADC_SMPR1_SMP17",
+          "ADC_SQR1_L"
+        ]
+      }
     }
   }
 }
