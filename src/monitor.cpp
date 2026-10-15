@@ -82,6 +82,7 @@ namespace monitor
                 DMA1->IFCR = DMA_IFCR_CGIF1;
                 NVIC_ClearPendingIRQ( DMA1_Channel1_IRQn );
                 ++g_monitor.timeouts;
+                invalidate();
             }
             __set_PRIMASK( mask );
         }
@@ -100,6 +101,7 @@ extern "C" void DMA1_Channel1_IRQHandler()
     if ( status & DMA_ISR_TEIF1 )
     {
         ++g_monitor.dma_errors;
+        monitor::invalidate();
         return;
     }
     if ( status & DMA_ISR_TCIF1 )

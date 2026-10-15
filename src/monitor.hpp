@@ -13,6 +13,14 @@ struct ScalarFilter
     float update( float measurement );
 };
 
+// Состояние последнего результата; счётчики ошибок не блокируют восстановление.
+enum MeasurementState : uint32_t
+{
+    MeasurementPending,
+    MeasurementNormal,
+    MeasurementFault
+};
+
 struct MonitorState
 {
     volatile uint16_t raw[kMonitorWords];
@@ -28,7 +36,8 @@ struct MonitorState
     uint32_t initialized;
     float vdda_mv;
     float temp_c;
-    uint32_t normal;
+    volatile uint32_t normal;
+    volatile MeasurementState state;
     ScalarFilter voltage;
     ScalarFilter temperature;
 };
@@ -43,4 +52,6 @@ namespace monitor
     bool process( const volatile uint16_t* data, uint32_t count );
     // Запуск очередного конечного блока после завершения обработки предыдущего.
     void arm();
+    // Отказ сбора/валидации отменяет прежнюю норму, не меняя фильтры.
+    void invalidate();
 }

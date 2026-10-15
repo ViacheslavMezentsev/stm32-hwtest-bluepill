@@ -475,7 +475,10 @@
         "HW_ADC_INITIALIZATION",
         "HW_DMA_CAPTURE",
         "HW_DMA_PROCESS",
-        "HW_DMA_TIMEOUT"
+        "HW_DMA_TIMEOUT",
+        "HW_INDICATOR_NORMAL",
+        "HW_INDICATOR_INVALID",
+        "HW_INDICATOR_RANGE"
       ],
       "default": "HW_BOOT"
     }

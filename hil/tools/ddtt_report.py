@@ -98,28 +98,32 @@ def main():
         row += '<td>' + age + '<br>' + link + '<details><summary>Факт / ожидание</summary><pre>' + values + '</pre></details></td>'
         row += f'<td>{len(history)} всего / {compatible} с этим ELF<details><summary>Попытки</summary><ul>' + ''.join(hist) + '</ul></details></td></tr>'
         rows.append(row)
-    html = """<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+    html = """<!doctype html><html lang="ru" data-theme="dark"><meta charset="utf-8"><meta name="viewport" content="width=device-width">
 <title>DDTT — свидетельства проверок</title><style>
-:root {color-scheme:light dark;--bg:#f6f8fb;--panel:#fff;--ink:#203047;--line:#d7dfeb}
-@media(prefers-color-scheme:dark){:root{--bg:#131a23;--panel:#1c2633;--ink:#e4eaf3;--line:#38475c}}
-body{font:16px/1.5 system-ui;margin:0;background:var(--bg);color:var(--ink)}
-header{padding:24px 30px}h1{margin:0}p{max-width:1100px}a{color:#4d91e7}small{font-size:14px}
-nav{position:sticky;top:0;padding:14px 30px;background:var(--panel);border-block:1px solid var(--line);display:flex;gap:14px}
-input,select{font:inherit;padding:7px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink)}
-input{width:42%}main{padding:20px;overflow:auto}table{border-collapse:collapse;width:100%;background:var(--panel)}
-th,td{text-align:left;padding:14px;border-bottom:1px solid var(--line);vertical-align:top}th{white-space:nowrap}
-pre{white-space:pre-wrap;overflow-wrap:anywhere;max-width:550px;font:13px/1.5 monospace}summary{cursor:pointer}
-.CONFIRMED{color:#29936b}.FAILED{color:#e66363}.UNKNOWN{color:#cf992d}</style>
+:root{color-scheme:dark;--bg:#0d1117;--panel:#161b22;--ink:#e6edf3;--muted:#9198a1;--line:#3d444d;--link:#4493f8;--good:#3fb950;--bad:#f85149;--unknown:#d29922}
+:root[data-theme="light"]{color-scheme:light;--bg:#ffffff;--panel:#f6f8fa;--ink:#1f2328;--muted:#59636e;--line:#d1d9e0;--link:#0969da;--good:#1a7f37;--bad:#d1242f;--unknown:#9a6700}
+*{box-sizing:border-box}body{font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;margin:0;background:var(--bg);color:var(--ink)}
+header{padding:28px 32px;border-top:3px solid var(--link)}h1{margin:0;font-size:28px;letter-spacing:-.5px}p{max-width:1100px}a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline}small{font-size:14px;color:var(--muted)}
+nav{position:sticky;top:0;padding:12px 24px;background:var(--panel);border-block:1px solid var(--line);display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+input,select{font:inherit;padding:7px 12px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)}
+input{width:min(42%,550px)}main{padding:24px;overflow:auto}table{border-collapse:separate;border-spacing:0;width:100%;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--bg)}
+th,td{text-align:left;padding:14px;border-bottom:1px solid var(--line);vertical-align:top}th{white-space:nowrap;background:var(--panel);font-size:14px}tr:last-child td{border-bottom:0}tbody tr:hover{background:var(--panel)}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;max-width:550px;font:14px/1.5 ui-monospace,Consolas,monospace}summary{cursor:pointer;color:var(--muted)}
+.CONFIRMED{color:var(--good)}.FAILED{color:var(--bad)}.UNKNOWN{color:var(--unknown)}
+#theme{margin-left:auto;flex-shrink:0;width:40px;height:40px;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;background:var(--bg);color:var(--ink);font-size:25px;cursor:pointer}
+#theme:hover{border-color:var(--link)}:focus-visible{outline:2px solid var(--link);outline-offset:3px}
+</style>
 <header><h1>DDTT · свидетельства проверок</h1><p>Зелёный — подтверждено ожидание; красный — выполненная проверка не прошла;
 UNKNOWN — нет достоверного свидетельства. DA остаётся 0/1. Число попыток относится только к выбранной кампании,
 а совпадение ELF само по себе не означает PASS. Время «назад» — на момент формирования отчёта.</p>
 <p>Исходник и имя сценария открываются в VS Code. JSON — сохранённые артефакты; Preview Report может ограничивать
 переходы к локальным файлам, тогда откройте HTML в браузере.</p>"""
     html += '<p>' + escape(json.dumps(report["summary"])) + ' · ELF ' + escape(report['elf_sha256'][:16]) + '</p></header>'
-    html += '<nav><input id="query" placeholder="Файл, сценарий или проверка"><select id="state"><option value="">Все исходы</option><option>CONFIRMED</option><option>FAILED</option><option>UNKNOWN</option></select><span id="count"></span></nav>'
+    html += '<nav><input id="query" placeholder="Файл, сценарий или проверка"><select id="state"><option value="">Все исходы</option><option>CONFIRMED</option><option>FAILED</option><option>UNKNOWN</option></select><span id="count" aria-live="polite"></span><button id="theme" type="button" aria-label="Переключить тему" title="Переключить тему">☾</button></nav>'
     html += '<main><table><thead><tr><th>Исходник</th><th>Проверка / сценарий</th><th>Исход</th><th>Выбранная попытка</th><th>История</th></tr></thead><tbody>' + ''.join(rows) + '</tbody></table></main>'
     html += """<script>const q=document.querySelector('#query'),s=document.querySelector('#state');
 function filter(){let n=0;document.querySelectorAll('tbody tr').forEach(r=>{r.hidden=!(r.textContent.toLowerCase().includes(q.value.toLowerCase())&&(!s.value||r.dataset.state===s.value));if(!r.hidden)n++;});document.querySelector('#count').textContent=n+' связей';}q.oninput=filter;s.onchange=filter;filter();</script></html>"""
+    html = html.replace("</html>", "<script>" + Path(__file__).with_name("ddtt_theme.js").read_text(encoding="utf-8") + "</script></html>")
     output.write_text(html, encoding="utf-8")
     print(f"HTML: {output} ({len(rows)} links)")
 

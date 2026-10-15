@@ -28,5 +28,16 @@ int main()
     assert( !monitor::process( block, kMonitorWords ) );
     assert( g_monitor.voltage.value == previous );
     assert( g_monitor.accepted == 2 && g_monitor.rejected == 4 );
+    assert( g_monitor.normal == 0 && g_monitor.state == MeasurementFault );
+    block[14] = 1560;
+    assert( monitor::process( block, kMonitorWords ) );
+    assert( g_monitor.state == MeasurementNormal );
+    // Ошибка сбора отменяет норму, но не разрушает накопленные фильтры.
+    previous = g_monitor.voltage.value;
+    monitor::invalidate();
+    assert( g_monitor.state == MeasurementFault && g_monitor.normal == 0 );
+    assert( g_monitor.voltage.value == previous );
+    assert( monitor::process( block, kMonitorWords ) );
+    assert( g_monitor.state == MeasurementNormal );
     return 0;
 }

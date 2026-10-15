@@ -4,7 +4,7 @@
 периферия — заглушки из RAM (АЦП не моделируется, POST печатает FAIL). Проверяется:
   - UART: строка «stm32-hwtest-bluepill <BOARD>» и строка POST;
   - g_app.setup_done = 1 (setup() завершилась);
-  - g_app.blink_count >= 2 (loop() переключает светодиод раз в 500 мс).
+  - g_app.indication = 2 (нет ADC/DMA: индикация отказа), blink_count = 0.
 
   python tools/renode_smoke.py --elf build/f103c8-debug/stm32_hwtest_bluepill.elf --board F103C8_PC13
 
@@ -21,7 +21,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 MODEL = ROOT / "emu/renode/stm32f103.repl"
-# Как в stm32-cmake-yml: синхронный журнал Renode 1.16.1 не теряет записи.
+# Как в stm32-cmake-yml: синхронный журнал Renode 1.17.0 не теряет записи.
 RENODE_CONFIG = "[general]\nuse-synchronous-logging = True\ncollapse-repeated-log-entries = False\n"
 
 
@@ -34,7 +34,7 @@ def find_renode(explicit):
             return candidate
         if candidate == explicit and explicit:
             sys.exit(f"Renode not found: {explicit}")
-    sys.exit("Renode not found: install Renode 1.16.1 or set RENODE_BINARY")
+    sys.exit("Renode not found: install Renode 1.17.0 or set RENODE_BINARY")
 
 
 def find_nm(explicit):
@@ -91,6 +91,8 @@ def main():
         f"sysbus ReadDoubleWord 0x{g_app:08X}",
         'log "SMOKE_BLINK_COUNT"',
         f"sysbus ReadDoubleWord 0x{g_app + 4:08X}",
+        'log "SMOKE_INDICATION"',
+        f"sysbus ReadDoubleWord 0x{g_app + 12:08X}",
         'log "SMOKE_COMPLETED"',
         "quit",
     ]) + "\n", encoding="utf-8")
@@ -108,7 +110,7 @@ def main():
         return 2
 
     values = {}
-    for name in ("SMOKE_SETUP_DONE", "SMOKE_BLINK_COUNT"):
+    for name in ("SMOKE_SETUP_DONE", "SMOKE_BLINK_COUNT", "SMOKE_INDICATION"):
         match = re.search(re.escape(name) + r"\s*\n\s*(0x[0-9A-Fa-f]+)", log)
         values[name] = int(match.group(1), 16) if match else None
     text = uart.read_text(encoding="utf-8", errors="replace") if uart.exists() else ""
@@ -116,7 +118,8 @@ def main():
         ("UART banner", f"stm32-hwtest-bluepill {args.board}" in text),
         ("UART POST line", "POST: VDDA=" in text),
         ("g_app.setup_done == 1", values["SMOKE_SETUP_DONE"] == 1),
-        (f"g_app.blink_count >= 2 (got {values['SMOKE_BLINK_COUNT']})", (values["SMOKE_BLINK_COUNT"] or 0) >= 2),
+        ("no healthy blink without ADC/DMA", values["SMOKE_BLINK_COUNT"] == 0),
+        ("missing ADC/DMA indicates fault", values["SMOKE_INDICATION"] == 2),
     ]
     for name, ok in checks:
         print(("PASS " if ok else "FAIL ") + name)

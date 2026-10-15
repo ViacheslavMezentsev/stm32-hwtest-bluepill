@@ -21,11 +21,18 @@ float ScalarFilter::update( float measurement )
 
 namespace monitor
 {
+    void invalidate()
+    {
+        g_monitor.normal = 0;
+        g_monitor.state  = MeasurementFault;
+    }
+
     bool process( const volatile uint16_t* data, uint32_t count )
     {
         if ( data == nullptr || count != kMonitorWords )
         {
             ++g_monitor.rejected;
+            invalidate();
             return false;
         }
         uint32_t reference   = 0;
@@ -38,6 +45,7 @@ namespace monitor
             if ( r == 0 || r > 4095 || t > 4095 )
             {
                 ++g_monitor.rejected;
+                invalidate();
                 return false;
             }
             reference   += r;
@@ -52,6 +60,7 @@ namespace monitor
         g_monitor.temp_c          = g_monitor.temperature.update( temp );
         g_monitor.normal =
             g_monitor.vdda_mv >= 2900.0F && g_monitor.vdda_mv <= 3600.0F && g_monitor.temp_c >= -10.0F && g_monitor.temp_c <= 85.0F;
+        g_monitor.state = g_monitor.normal ? MeasurementNormal : MeasurementFault;
         ++g_monitor.accepted;
         return true;
     }

@@ -9,7 +9,7 @@ through GDB and an SWD debugger, written as Python scenarios — the DDTT method
 
 The firmware is deliberately simple: `setup()` runs once after reset, performs a POST
 (supply voltage and die temperature through the ADC) and prints the result to UART;
-`loop()` blinks the user LED at 1 Hz. The only library is CMSIS.
+`loop()` blinks the user LED at 1 Hz for normal measurements; faults keep it on. The only library is CMSIS.
 
 ## Boards
 
@@ -76,7 +76,7 @@ sensor and VREFINT, the calculation uses typical datasheet values.
 
 The smoke test runs the built firmware in [Renode](https://renode.io) 1.17: the model
 `emu/renode/stm32f103.repl` (Cortex-M3 core, Flash, SRAM, SysTick, USART1; other
-peripherals are stubs) and checks the UART output, `setup()` completion and the blink in
+peripherals are stubs) and checks the UART output, `setup()` completion and fault indication without ADC/DMA in
 `loop()`. The ADC is not modelled, so the POST prints `FAIL` in the emulator — this is
 expected.
 
@@ -94,7 +94,7 @@ through USART1 rather than semihosting.
 
 ## HIL tests
 
-The scenarios in `hil/common/tests/board` (stm32-gdbtest `eb085b3` (post-v0.4.1), 18 scenarios) check the firmware on the
+The scenarios in `hil/common/tests/board` (stm32-gdbtest `eb085b3` (post-v0.4.1), 21 scenarios) check the firmware on the
 board: chip, clock and run profile, LED and USART1 configuration, `setup()` completion, POST, the
 blink and who writes the toggle time (a watch point), and the firmware reaction to injections — a
 substituted function answer and a substituted ADC sample. The MCU description and the board data
@@ -131,3 +131,5 @@ MIT ([LICENSE](LICENSE)). Files in `cmsis/` are by Arm and STMicroelectronics, A
 Expanded startup map and viewing workflow: [DDTT_STARTUP](docs/DDTT_STARTUP.en.md).
 
 [ADC/DMA, фильтрация и HTML DDTT / processing and evidence report](docs/ADC_DMA.en.md).
+
+[Measurement indication and report themes](docs/MEASUREMENT_LED.en.md).

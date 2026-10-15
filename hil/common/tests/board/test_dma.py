@@ -142,7 +142,10 @@ def dma_timeout(t):
             ("missing requests timed out", "g_monitor.timeouts", 1),
             ("timeout stops DMA", "DMA1_Channel1->CCR & DMA_CCR_EN", 0),
             ("timeout stops ADC", "ADC1->CR2 & ADC_CR2_ADON", 0),
-            ("timeout publishes no block", "g_monitor.accepted", 0)
+            ("timeout publishes no block", "g_monitor.accepted", 0),
+            ("timeout cancels normal", "g_monitor.normal", 0),
+            ("timeout lights LED",
+             "((*(unsigned int *)g_led.odr_address & g_led.mask) != 0) == (g_led.active_high != 0)", 1)
         ])
         t.reach("monitor::process")
         t.finish()

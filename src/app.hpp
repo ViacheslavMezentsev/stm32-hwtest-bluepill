@@ -8,6 +8,8 @@ struct AppState
     uint32_t setup_done;     // 1 после завершения setup()
     uint32_t blink_count;    // число переключений светодиода
     uint32_t last_toggle_ms;
+    // Последнее показанное состояние измерений, доступно через GDB.
+    uint32_t indication;
 };
 
 extern AppState g_app;

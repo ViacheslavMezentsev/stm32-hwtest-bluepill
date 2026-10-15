@@ -45,12 +45,22 @@ void setup()
 void loop()
 {
     uint32_t now = board::millis();
-    if ( now - g_app.last_toggle_ms >= kBlinkHalfPeriodMs )
+    // До первого блока нет основания показывать норму. Отказ горит постоянно.
+    g_app.indication = g_monitor.state;
+    if ( g_app.indication == MeasurementFault )
+    {
+        board::ledSet( true );
+    }
+    else if ( g_app.indication == MeasurementPending )
+    {
+        board::ledSet( false );
+    }
+    else if ( now - g_app.last_toggle_ms >= kBlinkHalfPeriodMs )
     {
         g_app.last_toggle_ms = now;
         board::ledToggle();
         ++g_app.blink_count;
     }
-    // После POST, не задерживая мигание ожиданием готовности DMA.
+    // Новый результат будет показан в следующем проходе loop, без ожидания DMA.
     monitor::poll();
 }

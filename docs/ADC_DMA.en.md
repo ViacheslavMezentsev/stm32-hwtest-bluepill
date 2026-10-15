@@ -7,8 +7,7 @@ After POST, loop polls a monitor. ADC1 scans VREFINT(17)/temperature(16); DMA1 C
 CPU processes a stable block. New blocks start no faster than every 100 ms; internal sensor
 stabilization takes 2 ms. A >10 ms timeout releases resources and allows retry. TE is counted
 separately, but actual TE was not injected in this series and that branch remains uncoloured.
-POST calibration is reused; the monitor does not recalibrate. LED keeps blinking; normal does
-not drive the LED yet.
+POST calibration is reused; the monitor does not recalibrate. LED now follows measurements; see [indication](MEASUREMENT_LED.en.md).
 
 [Processing](../src/monitor_processing.cpp) has no CMSIS dependency: average 8 pairs, VDDA with
 1200 mV typical VREFINT, temperature with 1430 mV at 25 C and 4.3 mV/C. Independent scalar
@@ -19,8 +18,8 @@ filters. Normal is 2900..3600 mV and -10..85 C. This does not calibrate sensor a
 ## Verified 2026-10-15
 
 WeAct F103CB_PB2, OpenOCD 0.12.0/ST-Link, xPack 14.2.1-1.1/GDB 15.2.90. Full hardware suite
-18/18 PASS, command 0, capture SAVED; C8 and CB host/prepare 19/19. C8 hardware not run.
-CB Renode smoke PASS proves boot/blinking, not DMA modelling. CB release built. New source
+21/21 PASS, command 0, capture SAVED; C8 and CB host/prepare 22/22. C8 hardware not run.
+CB Renode smoke PASS proves boot/fault indication without ADC/DMA, not DMA modelling. CB release built. New source
 formatted with supplied clang-format 23.1.3 rules; user's .clang-format change remains uncommitted.
 
 - HW_DMA_CAPTURE: scan/DMA registers, actual TC IRQ/CNDTR=0, three blocks and publications,
@@ -42,7 +41,7 @@ No firmware test wrappers were added.
 
 ## More than green marks
 
-54 confirmed mappings on 49 lines; untested branches remain unmarked. After binding/exporting
+64 confirmed mappings on 55 lines; untested branches remain unmarked. After binding/exporting
 as described in [Startup DDTT](DDTT_STARTUP.en.md), run:
 
 ```powershell
@@ -53,7 +52,7 @@ Coverage Gutters: Watch shows marks; Preview Report opens build/ddtt-view/index.
 it in a browser; the embedded preview may restrict local file and vscode protocol links.
 HTML includes source/line, assertion, scenario-definition link, selected attempt/date/age,
 actual/expected (including repeated checks), result/records links, selected campaign attempt
-counts (total and same ELF), history, search/state filter and automatic light/dark theme.
+counts (total and same ELF), history, search/state filter and GitHub-style dark/light/auto theme.
 Age is computed at report generation. Counts are not lifetime totals; matching ELF is not PASS.
 The exporter remains responsible for evidence selection; HTML verifies the selected result hash
 and clears stale output on errors. LCOV DA stays Boolean, not an attempt counter. Coverage Gutters
@@ -69,5 +68,5 @@ ctest --preset f103cb-hil-hw
 ```
 
 For isolated campaigns/map refresh follow DDTT_STARTUP. Do not mix old ELF results. Native g++
-is needed only for numerical vectors; firmware uses Arm GCC. LED status indication, the button
-and further failure branches are future work, not claimed by this package.
+is needed only for numerical vectors; firmware uses Arm GCC. The button and further failure branches remain future work. LED indication is described
+in [Measurement indication](MEASUREMENT_LED.en.md).

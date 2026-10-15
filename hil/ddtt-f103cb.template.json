@@ -323,6 +323,66 @@
       "anchor": "g_monitor.temp_c          = g_monitor.temperature.update( temp );",
       "scenario": "HW_DMA_CAPTURE",
       "check": "DMA temperature plausible"
+    },
+    {
+      "source": "src/app.cpp",
+      "anchor": "g_app.indication = g_monitor.state;",
+      "scenario": "HW_INDICATOR_NORMAL",
+      "check": "blinking requires normal measurements"
+    },
+    {
+      "source": "src/app.cpp",
+      "anchor": "board::ledSet( false );",
+      "scenario": "HW_INDICATOR_NORMAL",
+      "check": "pending LED off"
+    },
+    {
+      "source": "src/app.cpp",
+      "anchor": "board::ledSet( true );",
+      "scenario": "HW_INDICATOR_INVALID",
+      "check": "fault lights LED"
+    },
+    {
+      "source": "src/app.cpp",
+      "anchor": "board::ledSet( true );",
+      "scenario": "HW_INDICATOR_RANGE",
+      "check": "fault stays lit"
+    },
+    {
+      "source": "src/app.cpp",
+      "anchor": "board::ledToggle();",
+      "scenario": "HW_INDICATOR_INVALID",
+      "check": "recovered LED blinks"
+    },
+    {
+      "source": "src/app.cpp",
+      "anchor": "board::ledToggle();",
+      "scenario": "HW_INDICATOR_RANGE",
+      "check": "recovered LED blinks"
+    },
+    {
+      "source": "src/monitor_processing.cpp",
+      "anchor": "g_monitor.normal = 0;",
+      "scenario": "HW_INDICATOR_INVALID",
+      "check": "fault clears old normal"
+    },
+    {
+      "source": "src/monitor_processing.cpp",
+      "anchor": "g_monitor.state  = MeasurementFault;",
+      "scenario": "HW_INDICATOR_INVALID",
+      "check": "fault lights LED"
+    },
+    {
+      "source": "src/monitor_processing.cpp",
+      "anchor": "g_monitor.state = g_monitor.normal ? MeasurementNormal : MeasurementFault;",
+      "scenario": "HW_INDICATOR_RANGE",
+      "check": "measurements recover within ten blocks"
+    },
+    {
+      "source": "src/monitor.cpp",
+      "anchor": "++g_monitor.timeouts;",
+      "scenario": "HW_DMA_TIMEOUT",
+      "check": "timeout lights LED"
     }
   ],
   "schema": 1

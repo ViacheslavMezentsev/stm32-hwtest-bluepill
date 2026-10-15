@@ -137,4 +137,4 @@ ODR does not prove physical light; UART configuration/TC do not prove pin wavefo
 are not sensor accuracy; debugger stops do not measure real-time deadlines. DMA, filtering and
 the button are future work. New scenarios do not inject SRAM or modify peripheral registers.
 
-Current stage: [ADC/DMA and HTML report](ADC_DMA.en.md), 54 links on 49 lines; the acceptance above describes the original startup series.
+Current stage: [ADC/DMA and HTML report](ADC_DMA.en.md), 64 links on 55 lines; the acceptance above describes the original startup series.
