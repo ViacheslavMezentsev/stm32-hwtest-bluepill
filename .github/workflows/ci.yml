@@ -6,6 +6,11 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+    inputs:
+      publish_pages:
+        description: Publish the emulator report to Pages (main only)
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -67,6 +72,33 @@ jobs:
       - name: Renode smoke test without a board
         if: endsWith(matrix.preset, '-debug')
         run: ctest --preset "${{ matrix.preset }}-emulator"
+      - name: Renode GDB DDTT (separate emulator evidence)
+        if: matrix.preset == 'f103cb-debug'
+        run: |
+          python3 tools/renode_ddtt.py --gdb "${ARM_TOOLCHAIN_ROOT}/bin/arm-none-eabi-gdb-py3" --revision "$(git rev-parse HEAD)" --annotations
+      - name: Upload portable emulator report
+        if: always() && matrix.preset == 'f103cb-debug'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ddtt-renode-pages
+          path: build/ddtt-renode-pages/
+          include-hidden-files: true
+          if-no-files-found: warn
+      - name: Upload local emulator diagnostics
+        if: always() && matrix.preset == 'f103cb-debug'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ddtt-renode-diagnostics
+          path: |
+            build/renode-ddtt-*/*.log
+            build/renode-ddtt-*/result.json
+            build/renode-ddtt-*/gdb-result.json
+          if-no-files-found: ignore
+      - name: Package Pages (manual opt-in only)
+        if: matrix.preset == 'f103cb-debug' && github.event_name == 'workflow_dispatch' && inputs.publish_pages && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/ddtt-renode-pages
       - name: HIL checks without a board
         if: endsWith(matrix.preset, '-hil')
         run: ctest --preset "${{ matrix.preset }}-host" --output-junit junit-host.xml
@@ -91,3 +123,21 @@ jobs:
             build/${{ matrix.preset }}/hwtest/runs/
             build/${{ matrix.preset }}/renode/
           if-no-files-found: ignore
+
+  pages:
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_pages && github.ref == 'refs/heads/main'
+    needs: [format, build]
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - name: Deploy selected emulator report
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -181,7 +181,7 @@ def render(public, sources):
             'без цвета — нет привязки. Это не процент исполнения прошивки. Нажмите строку для подробностей.</p>'
             '<p>Ревизия <a href="https://github.com/'+escape(public["repository"], quote=True)+'/tree/'+public["revision"]+'">'
             +public["revision"]+'</a> · '+escape(json.dumps(public["summary"]))+'</p>'
-            '<p>Источник: hardware · '+str(public['campaign_attempts'])+' попыток в зафиксированной кампании.</p>'
+            '<p>Источник: '+escape(public['environment'])+' · '+str(public['campaign_attempts'])+' попыток в зафиксированной кампании.</p>'
             '<p><a href="public-data.json">Публичная сводка</a> · <a href="lcov.info">LCOV</a> · '
             '<a href="coverage.xml">Cobertura</a>. Только выбранные утверждения; UNKNOWN исключён из числового покрытия.</p>'
             '<p>Сценарии и исходники сверены с ревизией до/после кампании. Полные журналы и значения остаются локально.</p></header>'

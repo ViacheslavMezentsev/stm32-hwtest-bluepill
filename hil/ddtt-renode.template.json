@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "environment": "emulator",
+  "scenario": "EMU_STARTUP",
+  "points": [
+    {"source":"src/main.cpp", "anchor":"setup();", "check":"main reached"},
+    {"source":"src/main.cpp", "anchor":"setup();", "check":"setup initially clear"},
+    {"source":"src/main.cpp", "anchor":"setup();", "check":"setup reached"},
+    {"source":"src/app.cpp", "anchor":"board::init();", "check":"board init reached"},
+    {"source":"src/app.cpp", "anchor":"uart::init();", "check":"uart init reached"},
+    {"source":"src/app.cpp", "anchor":"post::run();", "check":"post reached"},
+    {"source":"src/main.cpp", "anchor":"loop();", "check":"loop reached"},
+    {"source":"src/app.cpp", "anchor":"g_app.setup_done     = 1;", "check":"setup complete"},
+    {"source":"src/app.cpp", "anchor":"post::run();", "check":"model ADC timeout"},
+    {"source":"src/app.cpp", "anchor":"uart::write( board::name() );", "check":"UART banner"}
+  ]
+}
