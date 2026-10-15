@@ -30,7 +30,7 @@ MCU clones (CKS32, GD32, APM32 and others) are not supported: their DEV_ID and A
 - CMake ≥ 3.25 and Ninja on `PATH`;
 - for HIL tests, Python ≥ 3.11 and one of the debuggers: ST-Link (STM32CubeCLT or OpenOCD)
   or J-Link (SEGGER J-Link Software);
-- optionally [Renode 1.16.1](https://github.com/renode/renode/releases/tag/v1.16.1) for the emulator smoke test;
+- optionally [Renode 1.17.0](https://github.com/renode/renode/releases/tag/v1.17.0) for the emulator smoke test;
 - optionally VS Code with CMake Tools, C/C++ and Cortex-Debug.
 
 ## Getting and building
@@ -38,19 +38,19 @@ MCU clones (CKS32, GD32, APM32 and others) are not supported: their DEV_ID and A
 ```powershell
 git clone --recursive https://github.com/ViacheslavMezentsev/stm32-hwtest-bluepill.git
 cd stm32-hwtest-bluepill
-cmake --preset Debug_F103C8
-cmake --build --preset Debug_F103C8
+cmake --preset f103c8-debug
+cmake --build --preset f103c8-debug
 ```
 
 If the repository was cloned without `--recursive`: `git submodule update --init`.
 
 | Preset | Purpose |
 | --- | --- |
-| `Debug_F103C8`, `Release_F103C8` | build for the Blue Pill (`build/<preset>`) |
-| `Debug_F103CB`, `Release_F103CB` | build for the BluePill-Plus |
-| `HIL_F103C8`, `HIL_F103CB` | Debug build with stm32-gdbtest HIL tests |
+| `f103c8-debug`, `f103c8-release` | build for the Blue Pill (`build/<preset>`) |
+| `f103cb-debug`, `f103cb-release` | build for the BluePill-Plus |
+| `f103c8-hil`, `f103cb-hil` | Debug build with stm32-gdbtest HIL tests |
 
-Test presets: `Debug_F103C8-emu`, `Debug_F103CB-emu` (Renode), `HIL_*-host` and `HIL_*-hw`.
+Test presets: `f103c8-debug-emulator`, `f103cb-debug-emulator` (Renode), `*-hil-host` and `*-hil-hw`.
 
 Output: `build/<preset>/stm32_hwtest_bluepill.elf`, `.hex`, `.bin`, `.map`. In VS Code the
 preset is selected in the CMake Tools status bar; flashing and debugging use the
@@ -74,14 +74,14 @@ sensor and VREFINT, the calculation uses typical datasheet values.
 
 ## Renode emulator (no board)
 
-The smoke test runs the built firmware in [Renode](https://renode.io) 1.16: the model
+The smoke test runs the built firmware in [Renode](https://renode.io) 1.17: the model
 `emu/renode/stm32f103.repl` (Cortex-M3 core, Flash, SRAM, SysTick, USART1; other
 peripherals are stubs) and checks the UART output, `setup()` completion and the blink in
 `loop()`. The ADC is not modelled, so the POST prints `FAIL` in the emulator — this is
 expected.
 
 ```powershell
-ctest --preset Debug_F103C8-emu          # or the VS Code task "Эмулятор: дымовой тест (Renode)"
+ctest --preset f103c8-debug-emulator          # or the VS Code task "Эмуляция: стартовый лог (Renode)"
 ```
 
 The test exists only when CMake finds Renode: `RENODE_BINARY`, `PATH` or `%ProgramFiles%\Renode`;
@@ -94,13 +94,13 @@ through USART1 rather than semihosting.
 
 ## HIL tests
 
-The scenarios in `hil/tests/board` (stm32-gdbtest v0.4.0, 12 scenarios) check the firmware on the
+The scenarios in `hil/common/tests/board` (stm32-gdbtest v0.4.1, 12 scenarios) check the firmware on the
 board: chip, clock and run profile, LED and USART1 configuration, `setup()` completion, POST, the
 blink and who writes the toggle time (a watch point), and the firmware reaction to injections — a
 substituted function answer and a substituted ADC sample. The MCU description and the board data
 file, shared by all scenarios, describe the board. Without a board the requirement
-traceability and run preparation are checked (`ctest --preset HIL_F103C8-host`); on the
-board run `ctest --preset HIL_F103C8-hw` after setting up a stand. Details:
+traceability and run preparation are checked (`ctest --preset f103c8-hil-host`); on the
+board run `ctest --preset f103c8-hil-hw` after setting up a stand. Details:
 [hil/README.en.md](hil/README.en.md).
 
 ## Layout
@@ -124,3 +124,6 @@ Development rules — [AGENTS.md](AGENTS.md), changes — [CHANGELOG.en.md](CHAN
 
 MIT ([LICENSE](LICENSE)). Files in `cmsis/` are by Arm and STMicroelectronics, Apache-2.0
 ([cmsis/README.md](cmsis/README.md)).
+
+
+[Developer environment and VS Code workflows](hil/DEVELOPER_ENVIRONMENT.en.md).

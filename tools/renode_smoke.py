@@ -6,7 +6,7 @@
   - g_app.setup_done = 1 (setup() завершилась);
   - g_app.blink_count >= 2 (loop() переключает светодиод раз в 500 мс).
 
-  python tools/renode_smoke.py --elf build/Debug_F103C8/stm32_hwtest_bluepill.elf --board F103C8_PC13
+  python tools/renode_smoke.py --elf build/f103c8-debug/stm32_hwtest_bluepill.elf --board F103C8_PC13
 
 Renode: --renode, иначе RENODE_BINARY, PATH, %ProgramFiles%/Renode/renode.exe.
 nm: --nm, иначе ARM_TOOLCHAIN_ROOT/bin, PATH. Код возврата 0 — PASS, 1 — FAIL, 2 — ошибка запуска.

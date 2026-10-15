@@ -5,7 +5,7 @@
   python hil/tools/results.py                  последний запуск каждого сценария
   python hil/tools/results.py --all            все запуски, новые сверху
   python hil/tools/results.py HW_BOOT          подробно о последнем запуске сценария
-  python hil/tools/results.py --runs build/HIL_F103CB/hwtest/runs ...
+  python hil/tools/results.py --runs build/f103cb-hil/hwtest/runs ...
 
 Код возврата 1, если в выводе есть FAIL или ERROR.
 """
@@ -78,7 +78,7 @@ def details(result):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("test", nargs="?", help="ID сценария для подробного вывода")
-    parser.add_argument("--runs", type=Path, default=Path("build/HIL_F103C8/hwtest/runs"))
+    parser.add_argument("--runs", type=Path, default=Path("build/f103c8-hil/hwtest/runs"))
     parser.add_argument("--all", action="store_true", help="все запуски, а не последний каждого сценария")
     parser.add_argument("--prepare", action="store_true", help="включить запуски prepare (без платы)")
     args = parser.parse_args()

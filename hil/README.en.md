@@ -11,29 +11,23 @@ No test code is added to the firmware.
 
 ```text
 hil/
-  sessions/<BOARD>.toml        board run configuration: MCU description, api.toml, board data file
-  profiles/F103C8_PC13.toml    MCU description: Flash 64 KiB, DEV_ID 0x410, 6 breakpoints
-  profiles/F103CB_PB2.toml     the same, Flash 128 KiB
-  boards/<BOARD>.toml          board data file: name, LED pin and active level, UART speed
-  api.toml                     scenario parameters: blink half period, POST limits, injection value
-  tests/requirements.md        HW_* requirements (shared by both boards)
-  tests/contracts.json         contracts: CMSIS macros in the ELF debug info
-  tests/board/test_boot.py     HW_BOOT, HW_BOOT_CMSIS, HW_BOARD_PROFILE — chip, clock, profile
-  tests/board/test_board.py    HW_GPIO_CONFIG, HW_UART_CONFIG — LED pin and USART1
-  tests/board/test_app.py      HW_SETUP_DONE, HW_POST, HW_BLINK, HW_TOGGLE_WRITERS
-  tests/board/test_injection.py  HW_LED_FORCED_STATE, HW_POST_VDDA_LOW — injections
-  stands/*.example.toml        stand examples: ST-LINK GDB Server, OpenOCD, J-Link
-  tools/results.py             run results summary
+  common/tests/       board/test_*.py, requirements.md, contracts.json
+  common/plans/       DDTT
+  F103C8/             session.toml, target.toml, board.toml, stands/
+  F103CB/             session.toml, target.toml, board.toml, stands/
+  templates/          *.example.toml
+  tools/              results.py
+  api.toml
 ```
 
-The board is chosen by the build: presets `HIL_F103C8` and `HIL_F103CB` set `BOARD` and
-`BLUEPILL_HIL=ON`; `cmake/hil.cmake` attaches stm32-gdbtest v0.4.0 (`modules/stm32-gdbtest`) with
-the run configuration `hil/sessions/<BOARD>.toml` (`SESSION_CONFIG`) and the shared scenarios `hil/tests`.
+The board is chosen by the build: presets `f103c8-hil` and `f103cb-hil` set `BOARD` and
+`BLUEPILL_HIL=ON`; `cmake/hil.cmake` attaches stm32-gdbtest v0.4.1 (`modules/stm32-gdbtest`) with
+the run configuration `hil/<MCU>/session.toml` (`SESSION_CONFIG`) and the shared scenarios `hil/common/tests`.
 The configuration ties the MCU description, the shared `api.toml` and the board data file together;
 scenarios read them through `t.profile` (`t.profile.data["board"]`, `t.profile.get("user.post.vdda_mv")`),
 so one scenario serves both boards and board-specific expectations live in data, not in code.
 The scenarios use the API of module 0.4.0 and pass the module style test:
-`python modules/stm32-gdbtest/tests/host/test_scenario_style.py hil/tests/board/*.py`.
+`python modules/stm32-gdbtest/tests/host/test_scenario_style.py hil/common/tests/board/*.py`.
 
 ## Stand
 
@@ -42,8 +36,8 @@ debugger serial number (`*.local.toml` files are not committed):
 
 | Board | Stand file | Presets |
 | --- | --- | --- |
-| Blue Pill (F103C8_PC13) | `hil/stands/F103C8.local.toml` | `HIL_F103C8`, `HIL_F103C8-host`, `HIL_F103C8-hw` |
-| BluePill-Plus (F103CB_PB2) | `hil/stands/F103CB.local.toml` | `HIL_F103CB`, `HIL_F103CB-host`, `HIL_F103CB-hw` |
+| Blue Pill (F103C8_PC13) | `hil/F103C8/stands/local.toml` | `f103c8-hil`, `f103c8-hil-host`, `f103c8-hil-hw` |
+| BluePill-Plus (F103CB_PB2) | `hil/F103CB/stands/local.toml` | `f103cb-hil`, `f103cb-hil-host`, `f103cb-hil-hw` |
 
 | Debugger | Example | Serial number |
 | --- | --- | --- |
@@ -54,17 +48,17 @@ debugger serial number (`*.local.toml` files are not committed):
 Environment check without accessing the board:
 
 ```powershell
-python -B modules/stm32-gdbtest/stm32_gdbtest/cli.py doctor --stand hil/stands/F103CB.local.toml
+python -B modules/stm32-gdbtest/stm32_gdbtest/cli.py doctor --stand hil/F103CB/stands/local.toml
 ```
 
 ## Running
 
 ```powershell
-cmake --preset HIL_F103CB
-cmake --build --preset HIL_F103CB
-ctest --preset HIL_F103CB-host     # no board: requirement traceability and prepare.*
-ctest --preset HIL_F103CB-hw       # on the board: all hw.* (12 scenarios)
-python hil/tools/results.py --runs build/HIL_F103CB/hwtest/runs
+cmake --preset f103cb-hil
+cmake --build --preset f103cb-hil
+ctest --preset f103cb-hil-host     # no board: requirement traceability and prepare.*
+ctest --preset f103cb-hil-hw       # on the board: all hw.* (12 scenarios)
+python hil/tools/results.py --runs build/f103cb-hil/hwtest/runs
 ```
 
 The test presets use the `strict` identity policy: the chip DEV_ID must match the MCU
@@ -141,12 +135,12 @@ this project: the `strict` DEV_ID check still reports ERROR for them.
 registry (`Python3_FIND_REGISTRY=LAST`), so a Visual Studio Python does not interfere. Another
 interpreter: `-DPython3_EXECUTABLE=<path>`; after a change use "Delete Cache and Reconfigure".
 
-**Results.** A run directory `build/HIL_<board>/hwtest/runs/<time>-<ID>-<pid>/` contains
+**Results.** A run directory `build/<mcu>-hil/hwtest/runs/<time>-<ID>-<pid>/` contains
 `result.json`, GDB and server logs, the ELF snapshot and the build manifest.
 
 ## Development through DDTT
 
-[Plan](plans/ddtt-feedback.en.md) and [cycle results](plans/ddtt-feedback-results.en.md):
+[Plan](common/plans/ddtt-feedback.en.md) and [cycle results](common/plans/ddtt-feedback-results.en.md):
 the scenario first exposes the defect in baseline firmware, then checks its fix and regression.
 Skill: `.claude/skills/stm32-gdbtest-develop/SKILL.md`; this branch includes a trial copy while
 the module gitlink remains on released 0.4.0. Other skill copies are refreshed for 0.4.0.
@@ -154,3 +148,6 @@ Unlike stand-loop execution, development needs a source checkout and compiler, n
 Profiles use target schema 2 with `[openocd]`; sessions enable `[results] capture = true`.
 
 New scenario: `HW_POST_ADC_CLEANUP` (`tests/board/test_ddtt_feedback.py`).
+
+
+[Developer environment](DEVELOPER_ENVIRONMENT.en.md).

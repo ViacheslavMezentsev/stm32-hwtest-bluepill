@@ -10,3 +10,7 @@ __pycache__/
 *.swp
 Thumbs.db
 .DS_Store
+
+# Per-profile private stands. Templates live in hil/templates.
+hil/*/stands/local.toml
+hil/*/stands/remote.toml

@@ -30,7 +30,7 @@ MCU (CKS32, GD32, APM32 и др.) не поддерживаются: у них �
 - CMake ≥ 3.25 и Ninja в `PATH`;
 - для HIL-тестов — Python ≥ 3.11 и один из отладчиков: ST-Link (STM32CubeCLT или OpenOCD)
   либо J-Link (SEGGER J-Link Software);
-- для дымового теста в эмуляторе — [Renode 1.16.1](https://github.com/renode/renode/releases/tag/v1.16.1) (необязательно);
+- для дымового теста в эмуляторе — [Renode 1.17.0](https://github.com/renode/renode/releases/tag/v1.17.0) (необязательно);
 - VS Code с расширениями CMake Tools, C/C++ и Cortex-Debug (необязательно).
 
 ## Получение и сборка
@@ -38,23 +38,23 @@ MCU (CKS32, GD32, APM32 и др.) не поддерживаются: у них �
 ```powershell
 git clone --recursive https://github.com/ViacheslavMezentsev/stm32-hwtest-bluepill.git
 cd stm32-hwtest-bluepill
-cmake --preset Debug_F103C8
-cmake --build --preset Debug_F103C8
+cmake --preset f103c8-debug
+cmake --build --preset f103c8-debug
 ```
 
 Если репозиторий клонирован без `--recursive`: `git submodule update --init`.
 
 | Пресет | Назначение |
 | --- | --- |
-| `Debug_F103C8`, `Release_F103C8` | сборка для Blue Pill (`build/<пресет>`) |
-| `Debug_F103CB`, `Release_F103CB` | сборка для BluePill-Plus |
-| `HIL_F103C8`, `HIL_F103CB` | Debug-сборка с HIL-тестами stm32-gdbtest |
+| `f103c8-debug`, `f103c8-release` | сборка для Blue Pill (`build/<пресет>`) |
+| `f103cb-debug`, `f103cb-release` | сборка для BluePill-Plus |
+| `f103c8-hil`, `f103cb-hil` | Debug-сборка с HIL-тестами stm32-gdbtest |
 
-Тестовые пресеты: `Debug_F103C8-emu`, `Debug_F103CB-emu` (Renode), `HIL_*-host` и `HIL_*-hw`.
+Тестовые пресеты: `f103c8-debug-emulator`, `f103cb-debug-emulator` (Renode), `*-hil-host` и `*-hil-hw`.
 
 Результат: `build/<пресет>/stm32_hwtest_bluepill.elf`, `.hex`, `.bin`, `.map`. В VS Code
 пресет выбирается в строке состояния CMake Tools; прошивка и отладка — задачи
-«Прошить (…)» и конфигурации запуска для ST-Link, OpenOCD и J-Link.
+«Прошивка: …» и конфигурации запуска для ST-Link, OpenOCD и J-Link.
 
 ## Вывод UART
 
@@ -73,13 +73,13 @@ PA9 платы с выводом RX (VCP_RX) отладчика и GND — вы�
 
 ## Эмулятор Renode (без платы)
 
-Дымовой тест запускает собранную прошивку в [Renode](https://renode.io) 1.16: модель
+Дымовой тест запускает собранную прошивку в [Renode](https://renode.io) 1.17: модель
 `emu/renode/stm32f103.repl` (ядро Cortex-M3, Flash, SRAM, SysTick, USART1; остальная
 периферия — заглушки) и проверяет вывод UART, завершение `setup()` и мигание в `loop()`.
 АЦП не моделируется, поэтому POST в эмуляторе печатает `FAIL` — это ожидаемо.
 
 ```powershell
-ctest --preset Debug_F103C8-emu          # или задача VS Code «Эмулятор: дымовой тест (Renode)»
+ctest --preset f103c8-debug-emulator          # или задача VS Code «Эмуляция: стартовый лог (Renode)»
 ```
 
 Тест появляется, только если CMake нашёл Renode: `RENODE_BINARY`, `PATH` или
@@ -91,13 +91,13 @@ ctest --preset Debug_F103C8-emu          # или задача VS Code «Эму�
 
 ## HIL-тесты
 
-Сценарии в `hil/tests/board` (stm32-gdbtest v0.4.0, 12 сценариев) проверяют прошивку на плате:
+Сценарии в `hil/common/tests/board` (stm32-gdbtest v0.4.1, 12 сценариев) проверяют прошивку на плате:
 кристалл, тактирование и профиль прогона, конфигурацию светодиода и USART1, завершение `setup()`,
 POST, мигание и кто пишет время переключения (точка наблюдения), а также реакцию прошивки на
 инъекции — подменённый ответ функции и подменённый отсчёт АЦП. Плату описывают описание MCU и
 файл данных платы, общие для всех сценариев. Без платы проверяются
-трассировка требований и подготовка запуска (`ctest --preset HIL_F103C8-host`); на плате —
-`ctest --preset HIL_F103C8-hw` после настройки стенда. Подробно: [hil/README.md](hil/README.md).
+трассировка требований и подготовка запуска (`ctest --preset f103c8-hil-host`); на плате —
+`ctest --preset f103c8-hil-hw` после настройки стенда. Подробно: [hil/README.md](hil/README.md).
 
 ## Структура
 
@@ -120,3 +120,6 @@ modules/        stm32-gdbtest (Git-подмодуль)
 
 MIT ([LICENSE](LICENSE)). Файлы `cmsis/` — Arm и STMicroelectronics, Apache-2.0
 ([cmsis/README.md](cmsis/README.md)).
+
+
+[Окружение разработчика и маршруты VS Code](hil/DEVELOPER_ENVIRONMENT.md).

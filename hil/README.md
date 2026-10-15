@@ -11,29 +11,23 @@ JUnit. В прошивку тестовый код не добавляется.
 
 ```text
 hil/
-  sessions/<BOARD>.toml        конфигурация прогона платы: описание MCU, api.toml, файл данных платы
-  profiles/F103C8_PC13.toml    описание MCU: Flash 64 КиБ, DEV_ID 0x410, 6 точек останова
-  profiles/F103CB_PB2.toml     то же, Flash 128 КиБ
-  boards/<BOARD>.toml          файл данных платы: имя, вывод и активный уровень светодиода, скорость UART
-  api.toml                     параметры сценариев: полупериод мигания, пределы POST, значение инъекции
-  tests/requirements.md        требования HW_* (общие для обеих плат)
-  tests/contracts.json         контракты: макросы CMSIS в отладочной информации ELF
-  tests/board/test_boot.py     HW_BOOT, HW_BOOT_CMSIS, HW_BOARD_PROFILE — кристалл, тактирование, профиль
-  tests/board/test_board.py    HW_GPIO_CONFIG, HW_UART_CONFIG — вывод светодиода и USART1
-  tests/board/test_app.py      HW_SETUP_DONE, HW_POST, HW_BLINK, HW_TOGGLE_WRITERS
-  tests/board/test_injection.py  HW_LED_FORCED_STATE, HW_POST_VDDA_LOW — инъекции
-  stands/*.example.toml        примеры стендов: ST-LINK GDB Server, OpenOCD, J-Link
-  tools/results.py             сводка результатов запусков
+  common/tests/       board/test_*.py, requirements.md, contracts.json
+  common/plans/       DDTT
+  F103C8/             session.toml, target.toml, board.toml, stands/
+  F103CB/             session.toml, target.toml, board.toml, stands/
+  templates/          *.example.toml
+  tools/              results.py
+  api.toml
 ```
 
-Плата выбирается сборкой: пресеты `HIL_F103C8` и `HIL_F103CB` задают `BOARD` и
-`BLUEPILL_HIL=ON`, `cmake/hil.cmake` подключает stm32-gdbtest v0.4.0 (`modules/stm32-gdbtest`) с
-конфигурацией прогона `hil/sessions/<BOARD>.toml` (`SESSION_CONFIG`) и общими сценариями `hil/tests`.
+Плата выбирается сборкой: пресеты `f103c8-hil` и `f103cb-hil` задают `BOARD` и
+`BLUEPILL_HIL=ON`, `cmake/hil.cmake` подключает stm32-gdbtest v0.4.1 (`modules/stm32-gdbtest`) с
+конфигурацией прогона `hil/<MCU>/session.toml` (`SESSION_CONFIG`) и общими сценариями `hil/common/tests`.
 Конфигурация связывает описание MCU, общий `api.toml` и файл данных платы: сценарии читают их
 через `t.profile` (`t.profile.data["board"]`, `t.profile.get("user.post.vdda_mv")`), поэтому один
 сценарий обслуживает обе платы, а ожидания, зависящие от платы, лежат в данных, а не в коде.
 Сценарии написаны на API модуля 0.4.0 и проверяются тестом стиля модуля:
-`python modules/stm32-gdbtest/tests/host/test_scenario_style.py hil/tests/board/*.py`.
+`python modules/stm32-gdbtest/tests/host/test_scenario_style.py hil/common/tests/board/*.py`.
 
 ## Стенд
 
@@ -42,8 +36,8 @@ hil/
 
 | Плата | Файл стенда | Пресеты |
 | --- | --- | --- |
-| Blue Pill (F103C8_PC13) | `hil/stands/F103C8.local.toml` | `HIL_F103C8`, `HIL_F103C8-host`, `HIL_F103C8-hw` |
-| BluePill-Plus (F103CB_PB2) | `hil/stands/F103CB.local.toml` | `HIL_F103CB`, `HIL_F103CB-host`, `HIL_F103CB-hw` |
+| Blue Pill (F103C8_PC13) | `hil/F103C8/stands/local.toml` | `f103c8-hil`, `f103c8-hil-host`, `f103c8-hil-hw` |
+| BluePill-Plus (F103CB_PB2) | `hil/F103CB/stands/local.toml` | `f103cb-hil`, `f103cb-hil-host`, `f103cb-hil-hw` |
 
 | Отладчик | Пример | Серийный номер |
 | --- | --- | --- |
@@ -54,17 +48,17 @@ hil/
 Проверка окружения без обращения к плате:
 
 ```powershell
-python -B modules/stm32-gdbtest/stm32_gdbtest/cli.py doctor --stand hil/stands/F103CB.local.toml
+python -B modules/stm32-gdbtest/stm32_gdbtest/cli.py doctor --stand hil/F103CB/stands/local.toml
 ```
 
 ## Запуск
 
 ```powershell
-cmake --preset HIL_F103CB
-cmake --build --preset HIL_F103CB
-ctest --preset HIL_F103CB-host     # без платы: трассировка требований и prepare.*
-ctest --preset HIL_F103CB-hw       # на плате: все hw.* (12 сценариев)
-python hil/tools/results.py --runs build/HIL_F103CB/hwtest/runs
+cmake --preset f103cb-hil
+cmake --build --preset f103cb-hil
+ctest --preset f103cb-hil-host     # без платы: трассировка требований и prepare.*
+ctest --preset f103cb-hil-hw       # на плате: все hw.* (12 сценариев)
+python hil/tools/results.py --runs build/f103cb-hil/hwtest/runs
 ```
 
 Тестовые пресеты задают политику идентичности `strict`: DEV_ID кристалла должен совпасть с
@@ -142,12 +136,12 @@ source [find target/stm32f1x.cfg]
 (`Python3_FIND_REGISTRY=LAST`), поэтому Python из Visual Studio не мешает. Другой интерпретатор:
 `-DPython3_EXECUTABLE=<путь>`; после смены — «Delete Cache and Reconfigure».
 
-**Результаты.** Каталог запуска `build/HIL_<плата>/hwtest/runs/<время>-<ID>-<pid>/`
+**Результаты.** Каталог запуска `build/<mcu>-hil/hwtest/runs/<время>-<ID>-<pid>/`
 содержит `result.json`, журналы GDB и сервера, снимок ELF и build manifest.
 
 ## Разработка через DDTT
 
-[План](plans/ddtt-feedback.md) и [результат цикла](plans/ddtt-feedback-results.md):
+[План](common/plans/ddtt-feedback.md) и [результат цикла](common/plans/ddtt-feedback-results.md):
 сначала сценарий выявляет дефект на исходной прошивке, затем проверяет исправление и регрессию.
 Навык — `.claude/skills/stm32-gdbtest-develop/SKILL.md`; его опытная копия сопровождает эту ветку,
 а gitlink модуля остаётся на опубликованной 0.4.0. Остальные копии навыков обновлены для 0.4.0.
@@ -155,3 +149,6 @@ source [find target/stm32f1x.cfg]
 Профили используют target schema 2 с `[openocd]`; сессии включают `[results] capture = true`.
 
 Новый сценарий: `HW_POST_ADC_CLEANUP` (`tests/board/test_ddtt_feedback.py`).
+
+
+[Окружение разработчика](DEVELOPER_ENVIRONMENT.md).

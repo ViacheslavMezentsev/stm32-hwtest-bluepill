@@ -24,8 +24,8 @@ Debugger stops and injections do not establish natural physical failures or real
 The local stand file must match the connected board.
 
 ```powershell
-cmake --preset HIL_F103CB -B build/ddtt-candidate-f103cb
+cmake --preset f103cb-hil -B build/ddtt-candidate-f103cb
 cmake --build build/ddtt-candidate-f103cb
 ctest --test-dir build/ddtt-candidate-f103cb -L host -j 1 --output-on-failure
-python modules/stm32-gdbtest/stm32_gdbtest/cli.py run --session build/ddtt-candidate-f103cb/hwtest/session.json --test HW_POST_ADC_CLEANUP --stand hil/stands/F103CB-openocd.local.toml --identity-policy strict
+python modules/stm32-gdbtest/stm32_gdbtest/cli.py run --session build/ddtt-candidate-f103cb/hwtest/session.json --test HW_POST_ADC_CLEANUP --stand hil/F103CB/stands/F103CB-openocd.local.toml --identity-policy strict
 ```

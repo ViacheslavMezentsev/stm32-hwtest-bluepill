@@ -14,8 +14,8 @@ env:
   XPACK_VERSION: "14.2.1-1.1"
   XPACK_SHA256: "ed8c7d207a85d00da22b90cf80ab3b0b2c7600509afadf6b7149644e9d4790a6"
   ARM_TOOLCHAIN_ROOT: "/opt/xpack-arm-none-eabi-gcc-14.2.1-1.1"
-  RENODE_VERSION: "1.16.1"
-  RENODE_SHA256: "00e113cdbd0f5354cf2f64bbe3f5a070d8958409542fca66e45ac97d982938c0"
+  RENODE_VERSION: "1.17.0"
+  RENODE_SHA256: "4ba7c68b59e2447f188ef4b4b112fcccd2802582c460beedceb63b84e5605a5f"
 
 jobs:
   format:
@@ -30,7 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        preset: [Debug_F103C8, Release_F103C8, Debug_F103CB, Release_F103CB, HIL_F103C8, HIL_F103CB]
+        preset: [f103c8-debug, f103c8-release, f103cb-debug, f103cb-release, f103c8-hil, f103cb-hil]
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
@@ -51,9 +51,9 @@ jobs:
       - name: Install Ninja
         run: sudo apt-get update -qq && sudo apt-get install -y -qq ninja-build
       - name: Install Renode (SHA-256 verified)
-        if: startsWith(matrix.preset, 'Debug_')
+        if: endsWith(matrix.preset, '-debug')
         run: |
-          url="https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/renode-${RENODE_VERSION}.linux-portable-dotnet.tar.gz"
+          url="https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/renode-${RENODE_VERSION}.linux-portable.tar.gz"
           curl -fsSL --retry 3 -o /tmp/renode.tar.gz "$url"
           echo "${RENODE_SHA256}  /tmp/renode.tar.gz" | sha256sum -c -
           sudo mkdir -p /opt/renode && sudo tar -xzf /tmp/renode.tar.gz -C /opt/renode --strip-components=1
@@ -65,10 +65,10 @@ jobs:
           cmake --preset "${{ matrix.preset }}"
           cmake --build --preset "${{ matrix.preset }}"
       - name: Renode smoke test without a board
-        if: startsWith(matrix.preset, 'Debug_')
-        run: ctest --preset "${{ matrix.preset }}-emu"
+        if: endsWith(matrix.preset, '-debug')
+        run: ctest --preset "${{ matrix.preset }}-emulator"
       - name: HIL checks without a board
-        if: startsWith(matrix.preset, 'HIL_')
+        if: endsWith(matrix.preset, '-hil')
         run: ctest --preset "${{ matrix.preset }}-host" --output-junit junit-host.xml
       - name: Upload firmware and reports
         if: always()

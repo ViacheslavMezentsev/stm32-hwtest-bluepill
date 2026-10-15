@@ -86,29 +86,8 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND "${CMAKE_SIZE}" "$<TARGET_FILE:${PROJECT_NAME}>"
     VERBATIM)
 
-# =============================================================================
-# Дымовой тест в эмуляторе Renode (без платы): ctest -L emu. Нужны Renode 1.16+ и Python 3.
-# Путь к Renode: -DRENODE_EXECUTABLE=..., переменная RENODE_BINARY или PATH.
-# =============================================================================
-option(BLUEPILL_RENODE_TEST "Renode smoke test (ctest -L emu) when Renode is found" ON)
-if(BLUEPILL_RENODE_TEST)
-    if(DEFINED ENV{RENODE_BINARY} AND NOT RENODE_EXECUTABLE)
-        set(RENODE_EXECUTABLE "$ENV{RENODE_BINARY}" CACHE FILEPATH "Renode executable")
-    endif()
-    find_program(RENODE_EXECUTABLE NAMES renode Renode PATHS "$ENV{ProgramFiles}/Renode")
-endif()
-if(BLUEPILL_RENODE_TEST AND RENODE_EXECUTABLE)
-    find_package(Python3 3.11 COMPONENTS Interpreter QUIET)
-endif()
-if(BLUEPILL_RENODE_TEST AND RENODE_EXECUTABLE AND Python3_Interpreter_FOUND)
-    enable_testing()
-    add_test(NAME emu.renode_smoke
-        COMMAND "${Python3_EXECUTABLE}" -B "${CMAKE_SOURCE_DIR}/tools/renode_smoke.py"
-            --elf "$<TARGET_FILE:${PROJECT_NAME}>" --board "${BOARD}"
-            --renode "${RENODE_EXECUTABLE}" --nm "${ARM_TOOLCHAIN_BIN}arm-none-eabi-nm${ARM_TOOLCHAIN_EXT}")
-    set_tests_properties(emu.renode_smoke PROPERTIES LABELS emu TIMEOUT 180)
-    message(STATUS "Renode smoke test: ${RENODE_EXECUTABLE}")
-endif()
+# Эмуляция и ручной GDB-сервер используют ту же модель STM32F103.
+include(cmake/emulation.cmake)
 
 # =============================================================================
 # HIL-тесты stm32-gdbtest (выключены по умолчанию): cmake/hil.cmake.

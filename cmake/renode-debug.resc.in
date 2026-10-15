@@ -1,0 +1,10 @@
+mach create "bluepill"
+machine LoadPlatformDescription @@RENODE_MODEL@
+sysbus.usart1 CreateFileBackend @@RENODE_LOG@ true
+macro reset
+"""
+    sysbus LoadELF @@RENODE_ELF@
+    sysbus.cpu VectorTableOffset 0x08000000
+"""
+runMacro $reset
+machine StartGdbServer 3334

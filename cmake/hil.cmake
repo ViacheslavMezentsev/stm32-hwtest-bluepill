@@ -1,13 +1,14 @@
 # =============================================================================
 # HIL-тесты stm32-gdbtest (метод DDTT), выключены по умолчанию.
-# Включение: пресеты HIL_F103C8 и HIL_F103CB (-DBLUEPILL_HIL=ON, генератор Ninja).
-# Сценарии и требования общие (hil/tests). Плату описывает конфигурация прогона
-# hil/sessions/<BOARD>.toml: описание MCU (hil/profiles), общий hil/api.toml и файл данных платы (hil/boards).
+# Включение: пресеты f103c8-hil и f103cb-hil (-DBLUEPILL_HIL=ON, генератор Ninja).
+# Сценарии и требования общие (hil/common/tests). Плату описывает конфигурация прогона
+# hil/<MCU>/session.toml: описание MCU (hil/<MCU>/target.toml), общий hil/api.toml и файл данных платы (hil/<MCU>/board.toml).
 # =============================================================================
 option(BLUEPILL_HIL "Hardware tests via stm32-gdbtest" OFF)
 
 if(BLUEPILL_HIL)
-    set(HIL_SESSION "${CMAKE_SOURCE_DIR}/hil/sessions/${BOARD}.toml")
+    string(REGEX REPLACE "_.*$" "" HIL_PROFILE "${BOARD}")
+    set(HIL_SESSION "${CMAKE_SOURCE_DIR}/hil/${HIL_PROFILE}/session.toml")
     if(NOT EXISTS "${HIL_SESSION}")
         message(FATAL_ERROR "No HIL run configuration for BOARD=${BOARD}: ${HIL_SESSION}")
     endif()
@@ -37,7 +38,7 @@ if(BLUEPILL_HIL)
     include(CTest)
     include("${STM32_GDBTEST_SOURCE_DIR}/stm32_gdbtest/cmake/STM32GDBTest.cmake")
     stm32_gdbtest_attach(${PROJECT_NAME}
-        PROFILE_DIR "${CMAKE_SOURCE_DIR}/hil"
+        PROFILE_DIR "${CMAKE_SOURCE_DIR}/hil/common"
         SESSION_CONFIG "${HIL_SESSION}"
         MANIFEST_INPUTS
             "${CMAKE_SOURCE_DIR}/ld/stm32f103.ld.in"

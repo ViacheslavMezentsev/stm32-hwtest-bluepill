@@ -1,0 +1,7 @@
+if(NOT DEFINED ELF OR NOT DEFINED DEVICE)
+    message(FATAL_ERROR "ELF and DEVICE are required")
+endif()
+find_program(JLINK NAMES JLink.exe JLinkExe REQUIRED)
+get_filename_component(out "${ELF}" DIRECTORY)
+file(WRITE "${out}/flash.jlink" "r\nh\nloadfile \"${ELF}\"\nr\ng\nq\n")
+execute_process(COMMAND "${JLINK}" -device "${DEVICE}" -if swd -speed 1000 -autoconnect 1 -nogui 1 -ExitOnError 1 -CommandFile "${out}/flash.jlink" COMMAND_ERROR_IS_FATAL ANY)

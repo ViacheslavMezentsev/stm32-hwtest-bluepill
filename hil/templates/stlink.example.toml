@@ -1,5 +1,5 @@
 # ST-Link через ST-LINK GDB Server (STM32CubeCLT), Windows.
-# Скопировать в hil/stands/F103C8.local.toml или F103CB.local.toml
+# Скопировать в hil/F103C8/stands/local.toml или F103CB.local.toml
 # (*.local.toml не коммитится) и заменить значения. %USERPROFILE% и ~ раскрываются.
 [probe]
 backend = "stlink"
