@@ -23,15 +23,25 @@ namespace
     constexpr int32_t kTempMinC10 = -400;
     constexpr int32_t kTempMaxC10 = 1250;
 
+    /**
+     * @brief Выполнить преобразование АЦП на указанном канале.
+     *
+     * @param channel Канал АЦП (16 или 17).
+     * @param result Результат преобразования (0..4095).
+     * @return true, если преобразование выполнено успешно, false при таймауте.
+     */
     bool convert( uint32_t channel, uint32_t& result )
     {
         uint32_t sum = 0;
         ADC1->SQR3   = channel;
+
         for ( uint32_t i = 0; i < kSamples; ++i )
         {
-            ADC1->SR        = 0;
-            ADC1->CR2      |= ADC_CR2_SWSTART;
-            uint32_t start  = board::millis();
+            ADC1->SR   = 0;
+            ADC1->CR2 |= ADC_CR2_SWSTART;
+
+            uint32_t start = board::millis();
+
             while ( ( ADC1->SR & ADC_SR_EOC ) == 0 )
             {
                 if ( board::millis() - start > kTimeoutMs )
@@ -39,12 +49,18 @@ namespace
                     return false;
                 }
             }
+
             sum += ADC1->DR & 0x0FFFU;
         }
+
         result = sum / kSamples;
         return true;
     }
 
+    /**
+     * @brief Инициализировать АЦП.
+     * @return true, если инициализация выполнена успешно, false в противном случае.
+     */
     bool adcInit()
     {
         // ADCCLK = PCLK2 / 2 = 4 МГц (не более 14 МГц).
@@ -58,11 +74,13 @@ namespace
         // Каналы 16 и 17: 239,5 такта (60 мкс при 4 МГц, требуется не менее 17,1 мкс).
         ADC1->SMPR1 = ADC_SMPR1_SMP16 | ADC_SMPR1_SMP17;
         ADC1->SQR1  = 0;
+
         // Стабилизация АЦП и запуск датчика температуры (не более 10 мкс).
         board::delayMs( 2 );
 
         ADC1->CR2      |= ADC_CR2_RSTCAL;
         uint32_t start  = board::millis();
+
         while ( ( ADC1->CR2 & ADC_CR2_RSTCAL ) != 0 )
         {
             if ( board::millis() - start > kTimeoutMs )
@@ -70,8 +88,10 @@ namespace
                 return false;
             }
         }
+
         ADC1->CR2 |= ADC_CR2_CAL;
         start      = board::millis();
+
         while ( ( ADC1->CR2 & ADC_CR2_CAL ) != 0 )
         {
             if ( board::millis() - start > kTimeoutMs )
@@ -79,15 +99,22 @@ namespace
                 return false;
             }
         }
+
         return true;
     }
 }
 
 namespace post
 {
+    /**
+     * @brief Выполнить POST.
+     *
+     * @return true, если POST выполнен успешно, false в противном случае.
+     */
     bool run()
     {
         g_post = {};
+
         if ( !adcInit() || !convert( kChannelVrefInt, g_post.vrefint_raw ) || !convert( kChannelTemp, g_post.temp_raw ) ||
              g_post.vrefint_raw == 0 )
         {

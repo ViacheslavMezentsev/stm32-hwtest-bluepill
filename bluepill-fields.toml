@@ -1,0 +1,22 @@
+# Поля hwtest-bluepill (F103CB/C8) для stm32-diag-record --backend rtt-timer.
+# Символы прошивки, без svd:. Адреса считаются по ELF (GDB), менять выражения не нужно.
+# Метку времени задавайте ключом --tick-address 0x20000030 (g_ticks во внутреннем namespace;
+# адрес из вывода nm/доктора вашей сборки).
+
+[[field]]
+topic = "/bp/blink_count"
+message = "std_msgs/UInt32"
+kind = "uint32"
+expr = "&g_app.blink_count"
+
+[[field]]
+topic = "/bp/last_toggle_ms"
+message = "std_msgs/UInt32"
+kind = "uint32"
+expr = "&g_app.last_toggle_ms"
+
+[[field]]
+topic = "/bp/presses"
+message = "std_msgs/UInt32"
+kind = "uint32"
+expr = "&g_button.presses"

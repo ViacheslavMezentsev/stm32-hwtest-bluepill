@@ -1,8 +1,6 @@
-#include "board.hpp"
-
 #include <cstddef>
-
 #include "stm32f1xx.h"
+#include "board.hpp"
 
 namespace
 {
@@ -15,6 +13,10 @@ namespace
 // Обычная Blue Pill: светодиод на PC13, горит при низком уровне.
 const volatile LedInfo g_led = { GPIOC_BASE + offsetof( GPIO_TypeDef, ODR ), GPIO_ODR_ODR13, 0 };
 
+/**
+ * @brief Инициализировать пин светодиода.
+ *
+ */
 static void ledPinInit()
 {
     RCC->APB2ENR |= RCC_APB2ENR_IOPCEN;
@@ -29,6 +31,10 @@ const char g_board_name[] = "F103C8_PC13";
 // WeAct BluePill-Plus v1.1: светодиод на PB2, горит при высоком уровне.
 const volatile LedInfo g_led = { GPIOB_BASE + offsetof( GPIO_TypeDef, ODR ), GPIO_ODR_ODR2, 1 };
 
+/**
+ * @brief Инициализировать пин светодиода.
+ *
+ */
 static void ledPinInit()
 {
     RCC->APB2ENR |= RCC_APB2ENR_IOPBEN;
@@ -45,9 +51,15 @@ const char g_board_name[] = "F103CB_PB2";
 
 namespace board
 {
+    /**
+     * @brief Настроить периферию.
+     *
+     * Настроить тактирование, SysTick, светодиод и кнопку.
+     */
     void init()
     {
         ledPinInit();
+
 #if defined( BOARD_F103CB_PB2 )
         // SW2 через 330 Ом соединяет PA0 с 3,3 В. Без pull-down отпущенный вход плавает.
         RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;
@@ -55,10 +67,16 @@ namespace board
         GPIOA->BRR = GPIO_BRR_BR0;
         GPIOA->CRL = ( GPIOA->CRL & ~( GPIO_CRL_MODE0 | GPIO_CRL_CNF0 ) ) | GPIO_CRL_CNF0_1;
 #endif
+
         SystemCoreClockUpdate();
         SysTick_Config( SystemCoreClock / 1000U );
     }
 
+    /**
+     * @brief Проверить, нажата ли кнопка.
+     *
+     * @return true, если кнопка нажата, false в противном случае.
+     */
     bool buttonPressed()
     {
 #if defined( BOARD_F103CB_PB2 )
@@ -68,6 +86,11 @@ namespace board
 #endif
     }
 
+    /**
+     * @brief Включить или выключить светодиод.
+     *
+     * @param on true, если светодиод включён, false в противном случае.
+     */
     void ledSet( bool on )
     {
         auto* gpio = reinterpret_cast<GPIO_TypeDef*>( g_led.odr_address - offsetof( GPIO_TypeDef, ODR ) );
@@ -75,36 +98,67 @@ namespace board
         gpio->BSRR = high ? g_led.mask : ( g_led.mask << 16 );
     }
 
+    /**
+     * @brief Проверить, включён ли светодиод.
+     *
+     * @return true, если светодиод включён, false в противном случае.
+     */
     bool ledIsOn()
     {
         bool high = ( *reinterpret_cast<volatile uint32_t*>( g_led.odr_address ) & g_led.mask ) != 0;
+
         return high == ( g_led.active_high != 0 );
     }
 
+    /**
+     * @brief Переключить светодиод.
+     *
+     */
     void ledToggle()
     {
         ledSet( !ledIsOn() );
     }
 
+    /**
+     * @brief Получить количество миллисекунд, прошедших с момента запуска.
+     *
+     * @return Количество миллисекунд.
+     */
     uint32_t millis()
     {
         return g_ticks;
     }
 
+    /**
+     * @brief Задержка на указанное количество миллисекунд.
+     *
+     * @param ms Количество миллисекунд.
+     */
     void delayMs( uint32_t ms )
     {
         uint32_t start = g_ticks;
+
         while ( ( g_ticks - start ) < ms )
         {
         }
     }
 
+    /**
+     * @brief Получить имя платы.
+     *
+     * @return Имя платы.
+     */
     const char* name()
     {
         return g_board_name;
     }
 }
 
+/**
+ * @brief Обработчик прерывания SysTick.
+ *
+ * Увеличивает счётчик миллисекунд.
+ */
 extern "C" void SysTick_Handler()
 {
     g_ticks = g_ticks + 1;

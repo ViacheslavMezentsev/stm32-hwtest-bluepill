@@ -1,6 +1,12 @@
 // Обработчики отказов Cortex-M3. Отдельные функции (а не общий Default_Handler), чтобы
 // отладчик и stm32-gdbtest различали причину остановки.
 extern "C" {
+
+/**
+ * @brief Обработчик прерывания HardFault.
+ *
+ * В случае отказа процессор останавливается в бесконечном цикле.
+ */
 void HardFault_Handler()
 {
     for ( ;; )
@@ -8,6 +14,11 @@ void HardFault_Handler()
     }
 }
 
+/**
+ * @brief Обработчик прерывания MemManage.
+ *
+ * В случае отказа процессор останавливается в бесконечном цикле.
+ */
 void MemManage_Handler()
 {
     for ( ;; )
@@ -15,6 +26,11 @@ void MemManage_Handler()
     }
 }
 
+/**
+ * @brief Обработчик прерывания BusFault.
+ *
+ * В случае отказа процессор останавливается в бесконечном цикле.
+ */
 void BusFault_Handler()
 {
     for ( ;; )
@@ -22,6 +38,11 @@ void BusFault_Handler()
     }
 }
 
+/**
+ * @brief Обработчик прерывания UsageFault.
+ *
+ * В случае отказа процессор останавливается в бесконечном цикле.
+ */
 void UsageFault_Handler()
 {
     for ( ;; )
