@@ -51,7 +51,6 @@ def timeout(t, kind, anchor, mask_name, offset, exit_branch, busy):
     try:
         t.reach("post::run")
         mask = t.evaluate(mask_name)
-        adc = t.evaluate("(unsigned int)&ADC1->CR2")
         enables = t.evaluate("ADC_CR2_ADON | ADC_CR2_TSVREFE")
         address, register, asm = wait_point(anchor, mask, offset, exit_branch)
         t.record("post.timeout.preflight", {"kind": kind, "address": address, "register": register, "asm": asm})
@@ -82,7 +81,7 @@ def timeout(t, kind, anchor, mask_name, offset, exit_branch, busy):
         cleanup.remove()
         cleanup = None
         t.reach("loop")
-        cr2 = t.evaluate(f"*(unsigned int *){adc}")
+        cr2 = t.mmio.read("ADC1.CR2")
         t.record("post.timeout.result", {"kind": kind, "status": t.read("g_post.status"), "cr2": cr2})
 
         # Отказ не выдаёт ложных измерений и не блокирует запуск приложения.

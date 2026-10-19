@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+- Migrate 28 HIL scenarios to API 3 of the 0.5.0 candidate (cb03e86): explicit MMIO, project F103C8/CB SVD, SysTick/USART/ADC effect consent, offline policy/cleanup tests and 35-register ELF comparison. Refresh skill copies and the DDTT fixture. Firmware unchanged; hardware acceptance of this migration is pending.
+
 - Added an isolated Renode/GDB startup CI example: emulator DDTT map, portable HTML/LCOV/Cobertura, line annotations and opt-in manual Pages deployment.
 
 - Added a portable DDTT source viewer with pinned GitHub links, allowlisted public data, relative LCOV/Cobertura and before/after campaign snapshots. No publishing workflow enabled.

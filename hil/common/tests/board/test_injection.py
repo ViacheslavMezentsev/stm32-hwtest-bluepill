@@ -5,8 +5,11 @@ EN: Injections: a substituted ledIsOn() answer and VREFINT sample; the firmware 
 from stm32_gdbtest import case
 
 
-# LED level for both boards: g_led names the ODR address, the pin mask and the active level.
-LED_ON = "((*(unsigned int *)g_led.odr_address & g_led.mask) != 0) == (g_led.active_high != 0)"
+# ODR читаем через SVD выбранной платы; маска и активный уровень остаются в RAM.
+def led_on(t):
+    port = t.profile.data["board"]["board"]["led_port"]
+    return bool(t.mmio.read(f"{port}.ODR") & t.read("g_led.mask")) == bool(t.read("g_led.active_high"))
+
 
 # POST arithmetic (src/post.cpp): VREFINT is 1200 mV typical, the ADC is 12-bit.
 VREFINT_MV = 1200
@@ -23,7 +26,7 @@ def led_forced_state(t):
         t.check(f"ledIsOn() answered {reported} to its caller", (result["caller"], result["applied"]),
                 ("board::ledToggle", reported))
         t.check("ledToggle() returns to loop()", t.finish()["function"], "loop")
-        t.check(f"LED level is the opposite of {reported}", t.evaluate(LED_ON), 1 - reported)
+        t.check(f"LED level is the opposite of {reported}", led_on(t), 1 - reported)
 
 
 # Verify that POST reports a low VDDA and the application still starts when VREFINT reads high.

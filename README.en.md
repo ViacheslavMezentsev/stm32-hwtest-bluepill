@@ -94,7 +94,7 @@ through USART1 rather than semihosting.
 
 ## HIL tests
 
-The scenarios in `hil/common/tests/board` (stm32-gdbtest `eb085b3` (post-v0.4.1), 28 scenarios) check the firmware on the
+The scenarios in `hil/common/tests/board` (stm32-gdbtest `cb03e86` (API 3, 0.5.0 candidate), 28 scenarios) check the firmware on the
 board: chip, clock and run profile, LED and USART1 configuration, `setup()` completion, POST, the
 blink and who writes the toggle time (a watch point), and the firmware reaction to injections — a
 substituted function answer and a substituted ADC sample. The MCU description and the board data

@@ -1,6 +1,6 @@
 ---
 name: stm32-gdbtest-scenarios
-description: Техника написания тестовых сценариев stm32-gdbtest на API кандидата 0.4.0 — требование и контракт, выбор места остановки, таблицы check(rows) и write(rows), подмена возврата ret, инъекции, refused, watch/frames, профиль прогона, стиль сценариев и каталог техник TECH-001…019. Используй, когда просят «написать сценарий/тест для платы», «проверить регистр/периферию/callback через GDB», «добавить HW_-кейс», «перевести сценарии с value/set_value/force_return на новый API», «сделать ревью сценария»; по-английски — write a stm32-gdbtest scenario, hardware test case, migrate scenarios to API 0.4.0.
+description: Техника написания тестовых сценариев stm32-gdbtest на API_VERSION=3 кандидата 0.5.0 — требование и контракт, выбор места остановки, таблицы check(rows) и write(rows), подмена возврата ret, инъекции, refused, watch/frames, профиль прогона, стиль сценариев и каталог техник TECH-001…019. Используй, когда просят «написать сценарий/тест для платы», «проверить регистр/периферию/callback через GDB», «добавить HW_-кейс», «перевести сценарии с value/set_value/force_return на новый API», «сделать ревью сценария»; по-английски — write a stm32-gdbtest scenario, hardware test case, migrate scenarios to API 3.
 ---
 
 # Сценарии stm32-gdbtest
@@ -51,13 +51,12 @@ def tim2_init(t):
     # CMSIS macros are visible in board.c, the translation unit that includes the device header.
     t.reach("board_led_toggle")
 
-    # Check the prescaler, the period and the enabled update interrupt.
-    t.check([
-        ("prescaler", "TIM2->PSC", f"SystemCoreClock / {TIMER_TICK_HZ} - 1"),
-        ("period", "TIM2->ARR", TIMER_PERIOD_TICKS - 1),
-        ("update interrupt", "TIM2->DIER & TIM_DIER_UIE"),
-        ("counter enabled", "TIM2->CR1 & TIM_CR1_CEN")
-    ])
+    # SVD must define TIM2 registers; check ready Python values individually.
+    prescaler = t.read("SystemCoreClock") // TIMER_TICK_HZ - 1
+    t.check("prescaler", t.mmio.read("TIM2.PSC"), prescaler)
+    t.check("period", t.mmio.read("TIM2.ARR"), TIMER_PERIOD_TICKS - 1)
+    t.check("update interrupt", bool(t.mmio.read("TIM2.DIER") & t.evaluate("TIM_DIER_UIE")), True)
+    t.check("counter enabled", bool(t.mmio.read("TIM2.CR1") & t.evaluate("TIM_CR1_CEN")), True)
 
 
 # Verify that the handler publishes one period to the application.
@@ -69,7 +68,7 @@ def tim2_publication(t):
     # TECH-003: the result is checked after the handler returns, where the application sees it.
     t.finish()
     t.check("one period published", t.read("app_state.periods") - before, 1)
-    t.check("counter wrapped", t.evaluate("TIM2->CNT"), within(0, TIMER_PERIOD_TICKS - 1))
+    t.check("counter wrapped", t.mmio.read("TIM2.CNT"), within(0, TIMER_PERIOD_TICKS - 1))
 ```
 
 ## Что чем проверять
@@ -83,7 +82,7 @@ def tim2_publication(t):
 | Нужный вызов из многих | `reach(loc, condition="…")`, `breakpoint(…, ignore_count=N)` | TECH-015 |
 | Отказ вызванной функции | на входе `t.ret("HAL_ERROR")`, затем состояние вызывающего | TECH-004 |
 | Неверный аргумент | `t.write("arg", значение)` на входе функции | TECH-005 |
-| Управляемое состояние периферии | `t.write(path, "REG | BIT")`, серия — `t.write(rows)` | TECH-006 |
+| Управляемое состояние периферии | `t.mmio.write("GPIOA.BSRR", mask)` по SVD, без скрытого чтения | TECH-006, [MMIO](../../docs/ru/api/mmio.md) |
 | Результат callback/IRQ | остановка в публикации или `finish()` из обработчика | TECH-003 |
 | Кто пишет объект | `with t.watch(path): t.resume()`, затем `t.frames()` | TECH-013 |
 | Функция прошивки как проверка | `t.call(...)` с сохранением и восстановлением `t.memory` | TECH-014 |
@@ -110,10 +109,11 @@ def tim2_publication(t):
 
 **Безопасность чтения.** Не читать регистры с побочным эффектом (read-to-clear, FIFO, SR→DR) без
 нужды и не сравнивать зарезервированные биты MMIO — маскировать. Не выдавать setter-макрос HAL за
-чтение. Регистры «только запись» (RM: `wo`) читаются нулём — проверять через читаемые (у AT32F403A
+чтение. Регистры «только запись» (RM: `wo`) не читать; ноль не гарантирован — проверять через читаемые (у AT32F403A
 `RTC_DIV`/`RTC_TA` — через `RTC_DIVCNT`/`RTC_CNT`). Для МК не от ST выражения могут читать битовые поля SDK
-производителя (`GPIOC->odt_bit.odt13`), значение регистра целиком — сравнивать с константой из позиций битов RM. После инъекции (`ret`, `write` в периферию) состояние платы восстанавливается сбросом
-следующего сценария; для положительной проверки — отдельный кейс.
+производителя (`GPIOC->odt_bit.odt13`), значение регистра целиком — сравнивать с константой из позиций битов RM. Восстановление после инъекции планируется отдельно: сброс следующего сценария
+не гарантирует возврат памяти, периферии и внешних нагрузок. Для положительной
+проверки — отдельный кейс с подтверждённым начальным состоянием.
 
 **Чего не доказывает.** Значение регистра GPIO — не напряжение на выводе; `uwTick` — не точное
 внешнее время; остановки отладчика меняют время исполнения; Sleep под SWD — не ток потребления.
@@ -150,7 +150,7 @@ def tim2_publication(t):
 | `def f(target)`, `target.…` | `def f(t)` |
 | `t.reach("main.c:120")` | `t.reach("функция")` / `t.finish()` |
 
-Старые `value`, `fields`, `set_value`, `force_return` удалены из API кандидата 0.4.0 (`API_VERSION=2`).
+Старые `value`, `fields`, `set_value`, `force_return` удалены из API 0.4.0/0.4.1 (`API_VERSION=2`).
 Таблица выше служит только для переноса прежних сценариев; новые сценарии используют правую колонку.
 
 ## Перед сдачей
@@ -171,6 +171,35 @@ def tim2_publication(t):
 skip завершает весь сценарий, finally выполняется; для необязательного блока нужен if.
 Неприменимость отделяй от обнаруженной неисправности: последняя не становится SKIP ради зелёного отчёта.
 Для bit-полей и коллекций используй принятые bits/each/predicate по [справочнику](../../docs/ru/api/index.md),
-не заменяя проверку маски равенством всего регистра. Примеры пакета: test_release040_*.py в общих сценариях.
+не заменяя проверку маски равенством всего регистра. Примеры пакета: test_records.py, test_skip.py, test_skip_validation.py, test_string_views.py в общих сценариях.
 После прогона сопоставь выполненные ветви и checks с журналом по
 [навыку результатов](../stm32-gdbtest-results/SKILL.md); наличие record само по себе не является check.
+
+## Осмотр перед длительным опытом
+
+Перед аппаратной серией прочитай [шпаргалку сценариста](../../docs/ru/SCENARIO_CHECKLIST.md)
+([English](../../docs/en/SCENARIO_CHECKLIST.md)). Проверь предпосылки обвязки отдельно от
+поведения приложения; prepare не исполняет тело аппаратного сценария. Для анализа по records
+заранее определи обязательные записи и проверь захват. После неожиданного исхода различи
+ошибку приложения, сценария, обвязки, API и исходного предположения; не ослабляй ожидание
+до установления причины. Эвристическое замечание не объявляй нарушением контракта.
+
+Для периферии используй SVD и [mmio.read/write](../../docs/ru/api/mmio.md).
+Обычный write даже с verify=False может читать before и не является MMIO-контрактом.
+mmio.write принимает целое Python, не выражение; ACK не означает проверку состояния.
+Эффекты требуют allow_effects=True. Override требует причину и не снимает транспортные
+проверки. Ошибка после отправки означает неизвестный эффект: не повторяй автоматически.
+Включи capture для журнала, проверь модель в Renode и затем согласованный стенд.
+
+
+## Исполнение API 3
+
+В обычном def навигация и call блокируют до результата. В async def используй await
+для reach/step/until/finish/reset/resume(sync=True)/call с первого вызова, включая
+помощники. resume(sync=False), данные, точки, record/check и ret остаются немедленными.
+wait и halt требуют await и конечного timeout; timeout wait не останавливает цель.
+Доступ к цели возможен только после подтверждённой остановки. finally с await halt
+не заменяет восстановление памяти/регистров и не завершает прерванный call.
+Не используй execute в async и скрытые inferior calls в выражениях данных; вынеси
+их в явный call. Обычный def не нужно превращать в async без живого окна.
+[Контракт и миграция](../../docs/ru/LIVE_EXECUTION.md) описывают отказные пути.

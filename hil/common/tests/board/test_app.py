@@ -9,8 +9,12 @@ from stm32_gdbtest import case, within
 HSI_HZ = 8_000_000
 SYSTICK_LOAD_1MS = HSI_HZ // 1000 - 1
 
-# LED level for both boards: g_led names the ODR address, the pin mask and the active level.
-LED_ON = "((*(unsigned int *)g_led.odr_address & g_led.mask) != 0) == (g_led.active_high != 0)"
+
+# ODR читаем через SVD выбранной платы; маска и активный уровень остаются в RAM.
+def led_on(t):
+    port = t.profile.data["board"]["board"]["led_port"]
+    return bool(t.mmio.read(f"{port}.ODR") & t.read("g_led.mask")) == bool(t.read("g_led.active_high"))
+
 
 # Polling in loop() sees every millisecond tick, so toggles are one half period apart, give or take a tick.
 TICK_SLACK_MS = 1
@@ -27,12 +31,11 @@ def setup_done(t):
     t.reach("board::millis")
 
     # Reading CTRL clears COUNTFLAG, which the firmware does not use: it counts SysTick interrupts.
-    t.check([
-        ("SysTick enabled", "SysTick->CTRL & SysTick_CTRL_ENABLE_Msk"),
-        ("SysTick interrupt enabled", "SysTick->CTRL & SysTick_CTRL_TICKINT_Msk"),
-        ("SysTick runs from the core clock", "SysTick->CTRL & SysTick_CTRL_CLKSOURCE_Msk"),
-        ("SysTick period 1 ms", "SysTick->LOAD", SYSTICK_LOAD_1MS)
-    ])
+    control = t.mmio.read("SysTick.CTRL", allow_effects=True)
+    t.check("SysTick enabled", control & t.evaluate('SysTick_CTRL_ENABLE_Msk'))
+    t.check("SysTick interrupt enabled", control & t.evaluate('SysTick_CTRL_TICKINT_Msk'))
+    t.check("SysTick runs from the core clock", control & t.evaluate('SysTick_CTRL_CLKSOURCE_Msk'))
+    t.check("SysTick period 1 ms", t.mmio.read('SysTick.LOAD'), SYSTICK_LOAD_1MS)
 
 
 # Verify the power-on self test: VDDA and chip temperature in the room range, ADC off afterwards.
@@ -53,7 +56,7 @@ def post(t):
 
     # POST switches the ADC and the internal channels off after measuring.
     t.reach("board::millis")
-    t.check("ADC switched off after POST", t.evaluate("ADC1->CR2 & (ADC_CR2_ADON | ADC_CR2_TSVREFE)"), 0)
+    t.check("ADC switched off after POST", t.mmio.read('ADC1.CR2') & (t.evaluate("ADC_CR2_ADON | ADC_CR2_TSVREFE")), 0)
 
 
 # Verify that loop() toggles the LED once per half period and counts the toggles.
@@ -63,12 +66,12 @@ def blink(t):
 
     # Two consecutive toggles: loop() has stored the toggle time and not yet counted the toggle.
     t.reach("board::ledToggle")
-    before, led_before = t.read("g_app"), t.evaluate(LED_ON)
+    before, led_before = t.read("g_app"), led_on(t)
     t.reach("board::ledToggle")
     after = t.read("g_app")
 
     # The LED level flipped, the counter advanced by one, the toggle times are a half period apart.
-    t.check("LED state changed", t.evaluate(LED_ON) != led_before)
+    t.check("LED state changed", led_on(t) != led_before)
     t.check("blink counter advanced by one", after["blink_count"] - before["blink_count"], 1)
     t.check("toggles a half period apart, ms", after["last_toggle_ms"] - before["last_toggle_ms"],
             within(half_period, half_period + TICK_SLACK_MS))

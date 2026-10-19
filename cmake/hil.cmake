@@ -30,8 +30,8 @@ if(BLUEPILL_HIL)
     endif()
 
     # Типы CMSIS (DBGMCU_TypeDef и др.), которые прошивка не использует, GCC не пишет в
-    # отладочную информацию. Сценарии обращаются к регистрам по именам CMSIS
-    # (DBGMCU->IDCODE), поэтому в HIL-сборке типы сохраняются; код не меняется.
+    # отладочную информацию. Типы нужны для офлайн-сверки SVD с адресами CMSIS;
+    # аппаратные чтения сценариев идут через MMIO, код прошивки не меняется.
     target_compile_options(${PROJECT_NAME} PRIVATE -fno-eliminate-unused-debug-types)
 
     message(STATUS "HIL: run configuration ${HIL_SESSION}")
@@ -45,4 +45,13 @@ if(BLUEPILL_HIL)
             "${CMAKE_SOURCE_DIR}/CMakeLists.txt"
             "${CMAKE_SOURCE_DIR}/cmake/arm-gcc.cmake"
             "${CMAKE_CURRENT_LIST_FILE}")
+    # Чисто офлайн: контракт сценариев и соответствие SVD текущему ELF.
+    find_package(Python3 REQUIRED COMPONENTS Interpreter)
+    add_test(NAME host.mmio
+        COMMAND "${Python3_EXECUTABLE}" -m unittest discover
+                -s "${CMAKE_SOURCE_DIR}/hil/tools" -p "test_mmio_*.py")
+    add_test(NAME host.svd_elf
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_SOURCE_DIR}/hil/tools/check_mmio_elf.py"
+                --elf "$<TARGET_FILE:${PROJECT_NAME}>" --gdb "${STM32_GDBTEST_GDB}")
+    set_tests_properties(host.mmio host.svd_elf PROPERTIES LABELS host TIMEOUT 45)
 endif()

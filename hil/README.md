@@ -21,12 +21,12 @@ hil/
 ```
 
 Плата выбирается сборкой: пресеты `f103c8-hil` и `f103cb-hil` задают `BOARD` и
-`BLUEPILL_HIL=ON`, `cmake/hil.cmake` подключает stm32-gdbtest `eb085b3` (post-v0.4.1) (`modules/stm32-gdbtest`) с
+`BLUEPILL_HIL=ON`, `cmake/hil.cmake` подключает stm32-gdbtest `cb03e86` (API 3, 0.5.0 candidate) (`modules/stm32-gdbtest`) с
 конфигурацией прогона `hil/<MCU>/session.toml` (`SESSION_CONFIG`) и общими сценариями `hil/common/tests`.
 Конфигурация связывает описание MCU, общий `api.toml` и файл данных платы: сценарии читают их
 через `t.profile` (`t.profile.data["board"]`, `t.profile.get("user.post.vdda_mv")`), поэтому один
 сценарий обслуживает обе платы, а ожидания, зависящие от платы, лежат в данных, а не в коде.
-Сценарии используют API закреплённого модуля (API_VERSION=2) и проверяются тестом стиля модуля:
+Сценарии используют API закреплённого модуля (API_VERSION=3) и проверяются тестом стиля модуля:
 `python modules/stm32-gdbtest/tests/host/test_scenario_style.py hil/common/tests/board/*.py`.
 
 ## Стенд
@@ -67,7 +67,7 @@ python hil/tools/results.py --runs build/f103cb-hil/hwtest/runs
 выбирается из списка) и панель «Testing», где каждый сценарий виден как `hw.<ID>` и
 `prepare.<ID>`.
 
-| Сценарий | Что проверяет | Приёмы ([техники](https://github.com/ViacheslavMezentsev/stm32-gdbtest/blob/eb085b3e69b775d27085350cb9c6892177b317f4/docs/ru/TESTING_TECHNIQUES.md)) |
+| Сценарий | Что проверяет | Приёмы ([техники](https://github.com/ViacheslavMezentsev/stm32-gdbtest/blob/cb03e86616417a7f0f24202137fe751624cf043e/docs/ru/TESTING_TECHNIQUES.md)) |
 | --- | --- | --- |
 | `HW_BOOT` | DEV_ID и F_SIZE по адресам из описания MCU, SYSCLK от HSI, `SystemCoreClock` | `t.profile`, `evaluate`, `read` |
 | `HW_BOOT_CMSIS` | то же именами CMSIS при входе в `board::init()` | таблица `check(rows)`, контракт, TECH-001 |
@@ -144,7 +144,7 @@ source [find target/stm32f1x.cfg]
 [План](common/plans/ddtt-feedback.md) и [результат цикла](common/plans/ddtt-feedback-results.md):
 сначала сценарий выявляет дефект на исходной прошивке, затем проверяет исправление и регрессию.
 Навык — `.claude/skills/stm32-gdbtest-develop/SKILL.md`; его опытная копия сопровождает эту ветку,
-Подмодуль закреплён на eb085b3 (main после v0.4.1). Старые локальные копии навыков относятся к 0.4.0; актуальные инструкции — в modules/stm32-gdbtest/skills.
+Подмодуль закреплён на cb03e86 (main после v0.4.1). Локальные копии шести навыков обновлены вместе с подмодулем; исходные инструкции — в modules/stm32-gdbtest/skills.
 В отличие от stand-loop, разработке нужен checkout исходников и компилятор, а не только ZIP.
 Профили используют target schema 2 с `[openocd]`; сессии включают `[results] capture = true`.
 
@@ -167,3 +167,5 @@ source [find target/stm32f1x.cfg]
 [Таймауты POST](../docs/POST_TIMEOUT.md).
 
 [Переносимая раскраска исходников для Pages (пока локально)](../docs/DDTT_PAGES.md).
+
+[MMIO/SVD: область, эффекты и офлайн-проверки](../docs/MMIO_SVD.md).

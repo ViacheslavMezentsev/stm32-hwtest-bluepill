@@ -48,7 +48,7 @@ def at_revision(root, sha, name):
 def snapshot(root, sha):
     names = git(root, "ls-tree", "-r", "--name-only", sha, "src", "hil/common/tests", "hil/api.toml",
                 "hil/F103CB/board.toml", "hil/F103CB/target.toml", "hil/F103CB/session.toml",
-                "hil/ddtt-f103cb.template.json").decode().splitlines()
+                "hil/common/stm32f103-test.svd", "hil/ddtt-f103cb.template.json").decode().splitlines()
     return {name: digest(at_revision(root, sha, name)) for name in names}
 
 

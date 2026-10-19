@@ -36,11 +36,13 @@ def inject_error(t, completed):
         # Проверяем контекст и освобождение периферии до изменения локального status.
         t.check([
             ("injection in DMA IRQ", "$xPSR & 511", "DMA1_Channel1_IRQn + 16"),
-            ("real TC before injection", "(status & DMA_ISR_TCIF1) != 0", 1),
-            ("injection DMA stopped", "DMA1_Channel1->CCR & DMA_CCR_EN", 0),
-            ("injection ADC stopped", "ADC1->CR2 & ADC_CR2_ADON", 0),
-            ("no pending publication", "g_monitor.ready", 0)
+            ("real TC before injection", "(status & DMA_ISR_TCIF1) != 0", 1)
         ])
+        t.check("injection DMA stopped", t.mmio.read('DMA1_Channel1.CCR') & t.evaluate('DMA_CCR_EN'), 0)
+        t.check("injection ADC stopped", t.mmio.read('ADC1.CR2') & t.evaluate('ADC_CR2_ADON'), 0)
+
+        # Проверяем опубликованное состояние отдельно от MMIO-снимка.
+        t.check([ ("no pending publication", "g_monitor.ready", 0) ])
         injected = t.evaluate("DMA_ISR_TEIF1 | DMA_ISR_TCIF1" if completed else "DMA_ISR_TEIF1")
         t.write("status", injected)
         t.record("dma.error.injection", {"status": t.evaluate("status"), "with_tc": completed})
@@ -59,14 +61,18 @@ def inject_error(t, completed):
             ("error block not processed", "g_monitor.accepted", 1),
             ("TE takes priority over TC", "g_monitor.irq_count", 1),
             ("error cancels normal", "g_monitor.normal", 0),
-            ("error state fault", "g_monitor.state", "MeasurementFault"),
-            ("error stops DMA", "DMA1_Channel1->CCR & DMA_CCR_EN", 0),
-            ("error stops ADC",
-             "ADC1->CR2 & (ADC_CR2_ADON | ADC_CR2_DMA | ADC_CR2_CONT | ADC_CR2_TSVREFE)", 0),
-            ("error clears channel flags",
-             "DMA1->ISR & (DMA_ISR_GIF1 | DMA_ISR_TCIF1 | DMA_ISR_HTIF1 | DMA_ISR_TEIF1)", 0),
-            ("error is not timeout", "g_monitor.timeouts", 0)
+            ("error state fault", "g_monitor.state", "MeasurementFault")
         ])
+        t.check("error stops DMA", t.mmio.read('DMA1_Channel1.CCR') & t.evaluate('DMA_CCR_EN'), 0)
+        t.check("error stops ADC",
+                t.mmio.read('ADC1.CR2') & (t.evaluate("ADC_CR2_ADON | ADC_CR2_DMA | ADC_CR2_CONT | ADC_CR2_TSVREFE")),
+                0)
+        t.check("error clears channel flags",
+                t.mmio.read('DMA1.ISR') & (t.evaluate("DMA_ISR_GIF1 | DMA_ISR_TCIF1 | DMA_ISR_HTIF1 | DMA_ISR_TEIF1")),
+                0)
+
+        # Проверяем опубликованное состояние отдельно от MMIO-снимка.
+        t.check([ ("error is not timeout", "g_monitor.timeouts", 0) ])
 
         # Две последующие реальные передачи: нет повторного отказа и двойного принятия.
         for count in (2, 3):

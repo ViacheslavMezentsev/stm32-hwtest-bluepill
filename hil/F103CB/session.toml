@@ -11,3 +11,7 @@ board = "board.toml"
 # Preserve immutable evidence for each DDTT attempt.
 [results]
 capture = true
+
+# Проектное описание только регистров, используемых сценариями.
+[mmio]
+svd = "../common/stm32f103-test.svd"

@@ -26,6 +26,7 @@ description: Запуск сценариев stm32-gdbtest и разбор ре�
 
 | Ступень | Команда | Что доказывает |
 | --- | --- | --- |
+| 0. Связи | `cli.py inspect --session <build>/hwtest/session.json` | структура HIL/backend/SVD; без запуска инструментов |
 | 1. Окружение | `cli.py doctor --stand <стенд>` | GDB-Python, binutils, сервер, USB, каталог блокировок; без платы |
 | 2. Host | `ctest --preset <…>-host` | трассировка требований, `prepare.<ID>`: ELF, manifest, контракты, образ |
 | 3. Один сценарий | `cli.py run --session <build>/hwtest/session.json --test HW_X --stand <стенд>` | сценарий на плате |
@@ -45,6 +46,7 @@ description: Запуск сценариев stm32-gdbtest и разбор ре�
 | Linux-стенд, всё на нём | `[probe]`, окружение `tools/linux_stand.py` (`. ~/.local/stm32-gdbtest/env.sh`) | на стенде |
 | Runner на Windows/WSL2, сервер на Linux-стенде | `[probe]` + `[remote]` (host, user, identity_file), файл `<board>-<backend>.remote.toml` | у разработчика; сервер по SSH |
 | Пакет подготовленного запуска | `[probe]` на стенде | сборка и подготовка — в другом месте |
+| Renode/QEMU локально | `[emulator]` и таблица backend, target schema 3 | свежий собственный процесс на каждый сценарий, без платы |
 | Аппаратный CI | стенды раннера `~/.config/stm32-gdbtest/stands/` | self-hosted раннер |
 
 Пакет: `cli.py pack --session <…>/session.json --output build/packages/<имя>.zip [--test ID] [--include helpers]`,
@@ -70,7 +72,8 @@ description: Запуск сценариев stm32-gdbtest и разбор ре�
 **FAIL** — проверка не сошлась: сравнить `actual` и `expected` в `checks`, проверить место
 остановки (`stops`), требование и прошивку. **ERROR** — сценарий не выполнился: причина в
 `result.json` (`error`), затем `gdb.log`; ошибка подготовки (контракт, manifest, образ) видна уже на
-ступени 2. Ожидаемый отказ остаётся ERROR и PASS не становится.
+ступени 2. Отказ API без обработки даёт ERROR; ожидаемый отказ внутри t.refused проверяется
+самим сценарием и может завершиться PASS.
 
 Для разбора артефактов без нового запуска используй
 [stm32-gdbtest-results](../stm32-gdbtest-results/SKILL.md): связь с кодом сценария, хеши,

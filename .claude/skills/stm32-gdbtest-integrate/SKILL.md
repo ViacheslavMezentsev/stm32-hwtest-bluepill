@@ -1,6 +1,6 @@
 ---
 name: stm32-gdbtest-integrate
-description: Подключение stm32-gdbtest к существующему проекту прошивки STM32 (CMake + Ninja) — Git-подмодуль, каталог hil/ с описанием MCU, session.toml и api.toml, вызов stm32_gdbtest_attach, пресеты CTest host/hw, файл стенда, первый сценарий и первый прогон. Используй, когда просят «подключить stm32-gdbtest», «добавить HIL/DDTT-тесты в проект», «настроить аппаратные тесты через GDB», «обновить версию модуля у потребителя», «перевести hwtest-проект на 0.4.0»; по-английски — integrate stm32-gdbtest, add hardware-in-the-loop tests, attach the module to a firmware project, bump the submodule.
+description: Подключение stm32-gdbtest к существующему проекту прошивки STM32 (CMake + Ninja) — Git-подмодуль, каталог hil/ с описанием MCU, session.toml и api.toml, вызов stm32_gdbtest_attach, пресеты CTest host/hw, файл стенда, первый сценарий и первый прогон. Используй, когда просят «подключить stm32-gdbtest», «добавить HIL/DDTT-тесты в проект», «настроить аппаратные тесты через GDB», «обновить версию модуля у потребителя», «перевести hwtest-проект на API 3»; по-английски — integrate stm32-gdbtest, add hardware-in-the-loop tests, attach the module to a firmware project, bump the submodule.
 ---
 
 # Подключение stm32-gdbtest к проекту прошивки
@@ -37,7 +37,8 @@ git -C modules/stm32-gdbtest checkout <agreed-tag-or-commit>
 git add .gitmodules modules/stm32-gdbtest
 ```
 
-Выбери согласованный тег/коммит: опубликован v0.4.0. Проверь тег в репозитории и закрепи gitlink.
+Выбери согласованный тег/коммит и закрепи gitlink. Для кандидата 0.5.0 проверяй API_VERSION=3;
+не выдавай рабочую ветку за опубликованный выпуск.
 Gitlink фиксирует проверенный коммит; configure его не обновляет. Обновление версии — отдельный
 коммит: новый gitlink, чтение раздела CHANGELOG модуля (миграция), прогон host и hw.
 
@@ -57,6 +58,11 @@ hil/
 ```
 
 В `.gitignore` проекта — `*.local.toml`, `*.remote.toml` и `build/`. Стенды с серийными номерами не коммитятся.
+
+Компактный вариант равноправен: `hil/common/tests`, `hil/<MCU>/session.toml`,
+`target.toml`, `board.toml`, `stands/` и общие `hil/api.toml`, `hil/templates/`.
+В CMake укажи PROFILE_DIR=hil/common, SESSION_CONFIG=hil/<MCU>/session.toml.
+Не выводи пути из имени каталога: проверь их через [inspect](../../docs/ru/HIL_INSPECT.md).
 
 ### 3. Описание MCU
 
@@ -96,7 +102,9 @@ board = "board.toml"
 `t.profile.get("user.measurement.count")`). Таблица значений и максимумов — [API](../../docs/ru/API.md).
 Несколько вариантов MCU — по `session.toml` на вариант или параметр `PROFILE` (не вместе с `SESSION_CONFIG`).
 
-Для 0.4.0 используй target schema 2 из актуального профиля, включая backend-specific
+Для аппаратной цели допустимы schema 1/2 и schema 3 с environment="hardware".
+Для Renode/QEMU нужна schema 3 с environment="emulator" и architecture="cortex-m".
+Бери профиль соответствующего backend из текущего примера, включая backend-specific
 команды reset/setup; не переноси monitor-команды OpenOCD в st-util или ST-LINK GDB Server.
 [Страницы backend](../../docs/ru/BACKENDS.md) описывают различия и установку st-util на Ubuntu 20.04.
 Если нужны записи после запуска, добавь в session.toml:
@@ -194,7 +202,7 @@ ctest --preset HIL_F411CE-hw -R HW_BOOT
 - в коммите нет `*.local.toml`, `*.remote.toml`, серийных номеров, ELF и каталогов `build/`;
 - README проекта называет пресеты, файл стенда и версию модуля.
 
-## Перевод старого потребителя на 0.4.0
+## Миграция прежних сценариев
 
 На опубликованной 0.3.0 проекты с `t.value`, `t.fields`, `t.set_value`, `t.force_return`
 получают предупреждения `deprecated`. В 0.4.0 эти четыре метода удалены;
@@ -202,3 +210,23 @@ ctest --preset HIL_F411CE-hw -R HW_BOOT
 поднять gitlink до выбранного опубликованного тега, добавить `session.toml`/`api.toml`, если нужны
 лимиты и параметры, переписать сценарии по таблице миграции из [API](../../docs/ru/API.md) и навыку
 `stm32-gdbtest-scenarios`, прогнать host и hw.
+
+
+## Перед первым запуском API 3
+
+Из корня потребителя (подставь выбранный профиль):
+
+```sh
+python modules/stm32-gdbtest/stm32_gdbtest/cli.py inspect --config hil/F103CB/session.toml --profile-dir hil/common --project-root .
+```
+
+Затем проверь созданный CMake `session.json` через inspect --session и prepare.
+inspect не запускает инструменты и не проверяет тело сценария. WARN без выбранного
+стенда допустим для проверки структуры; перед run выбери стенд явно.
+Для MMIO добавь `[mmio] svd="device.svd"` в session.toml: путь от этого файла,
+описание захватывается в пакет. Получатель должен поддерживать капсулу schema 2.
+Без MMIO SVD не обязателен. Читай [SVD](../../docs/ru/SVD.md).
+Для эмулятора используй [Renode](../../docs/ru/RENODE.md) или [QEMU](../../docs/ru/QEMU.md):
+новый собственный процесс на сценарий, без keep/attach/SSH и аппаратной identity.
+Синхронные def сохраняются; async-помощники и скрытые вызовы функций мигрируются
+по [контракту API 3](../../docs/ru/LIVE_EXECUTION.md). prepare не доказывает эту миграцию.

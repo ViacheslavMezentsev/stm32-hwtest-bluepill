@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 import xml.etree.ElementTree as ET
@@ -27,6 +28,8 @@ class PortableTests(unittest.TestCase):
                      self.root / "modules/stm32-gdbtest/tools"):
             path.mkdir(parents=True, exist_ok=True)
         (self.root / "src/main.cpp").write_text('start(); // <script>alert(1)</script>\n', encoding="utf-8")
+        self.svd = self.root / "hil/common/stm32f103-test.svd"
+        self.svd.write_text("<device/>", encoding="utf-8")
         self.scenario = self.root / "hil/common/tests/board/test_demo.py"
         self.scenario.write_text('@case("HW_DEMO")\ndef demo(t): pass\n', encoding="utf-8")
         template = dict(schema=1, points=[dict(source="src/main.cpp",
@@ -37,7 +40,10 @@ class PortableTests(unittest.TestCase):
             subprocess.run(["git", "-C", str(self.root), *args], check=True, capture_output=True)
         self.sha = subprocess.check_output(["git", "-C", str(self.root), "rev-parse", "HEAD"], text=True).strip()
         module_path = self.root / "modules/stm32-gdbtest/tools/ddtt_coverage.py"
-        shutil.copyfile(ROOT / "modules/stm32-gdbtest/tools/ddtt_coverage.py", module_path)
+        for name in ("ddtt_coverage.py", "ddtt_guard.py", "ddtt_qualification.py"):
+            shutil.copyfile(ROOT / "modules/stm32-gdbtest/tools" / name, module_path.parent / name)
+        sys.path.insert(0, str(module_path.parent))
+        self.addCleanup(sys.path.remove, str(module_path.parent))
         spec = importlib.util.spec_from_file_location("portable_fixture_core", module_path)
         self.core = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(self.core)
@@ -92,6 +98,11 @@ class PortableTests(unittest.TestCase):
 
     def test_changed_scenario_rejected(self):
         self.scenario.write_text(self.scenario.read_text() + "# changed\n")
+        with self.assertRaisesRegex(ValueError, "differs from revision"):
+            self.generate()
+
+    def test_changed_svd_rejected(self):
+        self.svd.write_text("<device><changed/></device>", encoding="utf-8")
         with self.assertRaisesRegex(ValueError, "differs from revision"):
             self.generate()
 

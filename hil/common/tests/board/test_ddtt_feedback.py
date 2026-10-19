@@ -13,7 +13,6 @@ def post_adc_cleanup(t):
     t.check("sensor initialization is inside POST", "post::run" in [f["name"] for f in t.frames(4)["frames"]])
 
     # Expand CMSIS macros in board.cpp; loop() belongs to a translation unit without those macros.
-    adc_cr2 = t.evaluate("(unsigned int)&ADC1->CR2")
     enable_mask = t.evaluate("ADC_CR2_ADON | ADC_CR2_TSVREFE")
 
     # Stop after the real conversion stores its average, then inject an invalid reference.
@@ -24,7 +23,7 @@ def post_adc_cleanup(t):
 
     # Observe the early failure path at the application entry, retaining evidence before assertions.
     t.reach("loop")
-    cr2 = t.evaluate(f"*(volatile unsigned int *){adc_cr2}")
+    cr2 = t.mmio.read("ADC1.CR2")
     t.record("post.failure", {"status": t.read("g_post.status"), "cr2": cr2, "enable_mask": enable_mask})
 
     # Validate the failure path and application progress before checking resource cleanup.

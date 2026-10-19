@@ -6,7 +6,9 @@ from stm32_gdbtest import case
 
 
 # Уровень LED нормализован по описанию платы, регистр IDR сценарий не изменяет.
-LED_ON = "((*(unsigned int *)g_led.odr_address & g_led.mask) != 0) == (g_led.active_high != 0)"
+def led_on(t):
+    port = t.profile.data["board"]["board"]["led_port"]
+    return bool(t.mmio.read(f"{port}.ODR") & t.read("g_led.mask")) == bool(t.read("g_led.active_high"))
 
 
 # У обычной Blue Pill пользовательская KEY отсутствует; это не отказ платы.
@@ -25,8 +27,7 @@ def sample(t, pressed, tick):
     t.check("injected timestamp readback", t.evaluate("now"), tick)
     t.finish()
     t.finish()
-    t.record("button.sample", {"pressed": pressed, "tick": tick, "state": t.read("g_button"),
-                               "led": t.evaluate(LED_ON)})
+    t.record("button.sample", {"pressed": pressed, "tick": tick, "state": t.read("g_button"), "led": led_on(t)})
 
 
 # Аппаратные настройки и настоящий отпущенный вход, отдельно от подмены функции.
@@ -36,12 +37,12 @@ def config(t):
     t.reach("board::buttonPressed")
 
     # Проверяем подтяжку и настоящий IDR до любой подмены чтения.
-    t.check([
-        ("KEY clock enabled", "(RCC->APB2ENR & RCC_APB2ENR_IOPAEN) != 0", 1),
-        ("KEY input with pull", "GPIOA->CRL & (GPIO_CRL_MODE0 | GPIO_CRL_CNF0)", "GPIO_CRL_CNF0_1"),
-        ("KEY pull down", "GPIOA->ODR & GPIO_ODR_ODR0", 0),
-        ("KEY physically released", "GPIOA->IDR & GPIO_IDR_IDR0", 0)
-    ])
+    t.check("KEY clock enabled", t.mmio.read('RCC.APB2ENR') & t.evaluate('RCC_APB2ENR_IOPAEN') != 0, 1)
+    t.check("KEY input with pull",
+            t.mmio.read('GPIOA.CRL') & (t.evaluate("GPIO_CRL_MODE0 | GPIO_CRL_CNF0")),
+            t.evaluate("GPIO_CRL_CNF0_1"))
+    t.check("KEY pull down", t.mmio.read('GPIOA.ODR') & t.evaluate('GPIO_ODR_ODR0'), 0)
+    t.check("KEY physically released", t.mmio.read('GPIOA.IDR') & t.evaluate('GPIO_IDR_IDR0'), 0)
     t.finish()
 
 
@@ -59,7 +60,7 @@ def virtual(t):
         t.check("bounce restarts debounce", t.read("g_button.presses"), 0)
         sample(t, True, 60)
         t.check("stable press counted", t.read("g_button.presses"), 1)
-        t.check("held KEY lights LED", t.evaluate(LED_ON), 1)
+        t.check("held KEY lights LED", led_on(t), 1)
 
         # Даже просроченное мигание не гасит LED при удержании.
         before = t.read("g_app.blink_count")
@@ -67,7 +68,7 @@ def virtual(t):
         sample(t, True, 1000)
         t.check("hold does not repeat press", t.read("g_button.presses"), 1)
         t.check("hold suppresses blinking", t.read("g_app.blink_count"), before)
-        t.check("held LED stays on", t.evaluate(LED_ON), 1)
+        t.check("held LED stays on", led_on(t), 1)
         sample(t, False, 1001)
         sample(t, False, 1030)
         t.check("short release ignored", t.read("g_button.stable"), True)
@@ -76,9 +77,9 @@ def virtual(t):
 
         # После отпускания реальные измерения и обычный loop вновь управляют LED.
         t.reach("board::ledToggle")
-        previous = t.evaluate(LED_ON)
+        previous = led_on(t)
         t.reach("board::ledToggle")
-        t.check("release restores blinking", t.evaluate(LED_ON) != previous)
+        t.check("release restores blinking", led_on(t) != previous)
     finally:
         t.reset()
         t.reach("loop")

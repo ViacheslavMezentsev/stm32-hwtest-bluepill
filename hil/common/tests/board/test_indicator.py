@@ -8,7 +8,9 @@ from stm32_gdbtest import case
 
 
 # Нормализованное состояние вывода с учётом активного уровня платы.
-LED_ON = "((*(unsigned int *)g_led.odr_address & g_led.mask) != 0) == (g_led.active_high != 0)"
+def led_on(t):
+    port = t.profile.data["board"]["board"]["led_port"]
+    return bool(t.mmio.read(f"{port}.ODR") & t.read("g_led.mask")) == bool(t.read("g_led.active_high"))
 
 
 # Отказ вводим после настоящего нормального блока, чтобы поймать устаревшую «норму».
@@ -34,15 +36,15 @@ def fault_and_recovery(t, reference):
         t.check("sample buffer restored", t.memory(raw, 32), saved)
         t.reach("loop")
         t.finish()
-        t.record("indicator.fault", {"led": t.evaluate(LED_ON), "normal": t.read("g_monitor.normal")})
-        t.check("fault lights LED", t.evaluate(LED_ON), 1)
+        t.record("indicator.fault", {"led": led_on(t), "normal": t.read("g_monitor.normal")})
+        t.check("fault lights LED", led_on(t), 1)
         t.check("fault clears old normal", t.read("g_monitor.normal"), 0)
 
         # Следующий loop не должен погасить аварийную индикацию.
         count = t.read("g_app.blink_count")
         t.reach("loop")
         t.finish()
-        t.check("fault stays lit", t.evaluate(LED_ON), 1)
+        t.check("fault stays lit", led_on(t), 1)
         t.check("fault does not count toggles", t.read("g_app.blink_count"), count)
 
         # После низкого напряжения фильтр восстанавливается постепенно, не сбрасываем его.
@@ -55,9 +57,9 @@ def fault_and_recovery(t, reference):
                 break
         t.check("measurements recover within ten blocks", t.read("g_monitor.normal"), 1)
         t.reach("board::ledToggle")
-        before = t.evaluate(LED_ON)
+        before = led_on(t)
         t.reach("board::ledToggle")
-        t.check("recovered LED blinks", t.evaluate(LED_ON) != before)
+        t.check("recovered LED blinks", led_on(t) != before)
     finally:
         # Сброс безопасно удаляет также последствия инъекции в фильтре и счётчиках.
         t.reset()
@@ -83,9 +85,9 @@ def out_of_range(t):
 def normal(t):
     t.reach("loop")
     t.finish()
-    t.check("pending LED off", t.evaluate(LED_ON), 0)
+    t.check("pending LED off", led_on(t), 0)
     t.reach("board::ledToggle")
     t.check("blinking requires normal measurements", t.read("g_monitor.normal"), 1)
-    before = t.evaluate(LED_ON)
+    before = led_on(t)
     t.reach("board::ledToggle")
-    t.check("normal LED blinks", t.evaluate(LED_ON) != before)
+    t.check("normal LED blinks", led_on(t) != before)

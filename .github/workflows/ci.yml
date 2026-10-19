@@ -109,6 +109,8 @@ jobs:
           python3 hil/tools/check_button.py
           python3 -m unittest discover -s hil/tools -p 'test_ddtt_*.py'
           python3 -m unittest discover -s hil/tools -p 'test_post_timeout_*.py'
+          python3 -m unittest discover -s hil/tools -p 'test_mmio_*.py'
+          python3 modules/stm32-gdbtest/tests/host/test_scenario_style.py hil/common/tests/board/*.py
       - name: Upload firmware and reports
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

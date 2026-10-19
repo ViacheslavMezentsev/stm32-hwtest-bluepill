@@ -22,10 +22,13 @@ def gpio_config(t):
     t.reach("board::ledToggle")
 
     # The pin expectations are built from the board data, so one scenario serves both boards.
+    t.check(f"{port} clock enabled", t.mmio.read("RCC.APB2ENR") & t.evaluate(f"RCC_APB2ENR_IOP{port[-1]}EN"))
+    t.check(f"P{port[-1]}{pin} 2 MHz push-pull output",
+            t.mmio.read(f"{port}.{cr}") & t.evaluate(f"GPIO_{cr}_MODE{pin} | GPIO_{cr}_CNF{pin}"),
+            t.evaluate(f"GPIO_{cr}_MODE{pin}_1"))
+
+    # Проверяем опубликованное состояние отдельно от MMIO-снимка.
     t.check([
-        (f"{port} clock enabled", f"RCC->APB2ENR & RCC_APB2ENR_IOP{port[-1]}EN"),
-        (f"P{port[-1]}{pin} 2 MHz push-pull output", f"{port}->{cr} & (GPIO_{cr}_MODE{pin} | GPIO_{cr}_CNF{pin})",
-         f"GPIO_{cr}_MODE{pin}_1"),
         ("g_led ODR address", "g_led.odr_address", f"(unsigned int)&{port}->ODR"),
         ("g_led pin mask", "g_led.mask", f"GPIO_ODR_ODR{pin}"),
         ("g_led active level", "g_led.active_high", int(board["led_active_high"]))
@@ -39,14 +42,17 @@ def uart_config(t):
     divider = (PCLK2_HZ + baud // 2) // baud
     t.reach("board::ledToggle")
 
+    # SR может начать последовательность сброса флагов SR→DR; DR сценарий не читает.
     # setup() has printed its banner: the transmitter is idle with the last frame complete.
-    t.check([
-        ("USART1 and GPIOA clocks", "RCC->APB2ENR & (RCC_APB2ENR_USART1EN | RCC_APB2ENR_IOPAEN)",
-         "RCC_APB2ENR_USART1EN | RCC_APB2ENR_IOPAEN"),
-        ("PA9 alternate push-pull 50 MHz", "GPIOA->CRH & (GPIO_CRH_MODE9 | GPIO_CRH_CNF9)",
-         "GPIO_CRH_MODE9 | GPIO_CRH_CNF9_1"),
-        (f"baud divider for {baud}", "USART1->BRR", divider),
-        ("USART and transmitter enabled", "USART1->CR1 & (USART_CR1_UE | USART_CR1_TE)", "USART_CR1_UE | USART_CR1_TE"),
-        ("receiver disabled", "USART1->CR1 & USART_CR1_RE", 0),
-        ("last frame complete", "USART1->SR & USART_SR_TC")
-    ])
+    t.check("USART1 and GPIOA clocks",
+            t.mmio.read('RCC.APB2ENR') & (t.evaluate("RCC_APB2ENR_USART1EN | RCC_APB2ENR_IOPAEN")),
+            t.evaluate("RCC_APB2ENR_USART1EN | RCC_APB2ENR_IOPAEN"))
+    t.check("PA9 alternate push-pull 50 MHz",
+            t.mmio.read('GPIOA.CRH') & (t.evaluate("GPIO_CRH_MODE9 | GPIO_CRH_CNF9")),
+            t.evaluate("GPIO_CRH_MODE9 | GPIO_CRH_CNF9_1"))
+    t.check(f"baud divider for {baud}", t.mmio.read('USART1.BRR'), divider)
+    t.check("USART and transmitter enabled",
+            t.mmio.read('USART1.CR1') & (t.evaluate("USART_CR1_UE | USART_CR1_TE")),
+            t.evaluate("USART_CR1_UE | USART_CR1_TE"))
+    t.check("receiver disabled", t.mmio.read('USART1.CR1') & t.evaluate('USART_CR1_RE'), 0)
+    t.check("last frame complete", t.mmio.read('USART1.SR', allow_effects=True) & t.evaluate('USART_SR_TC'))

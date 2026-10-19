@@ -12,6 +12,12 @@ import gdb
 from stm32_gdbtest import case, within
 
 
+# Состояние LED читаем одним MMIO-запросом, полярность и маску — из RAM.
+def led_on(t):
+    port = t.profile.data["board"]["board"]["led_port"]
+    return bool(t.mmio.read(f"{port}.ODR") & t.read("g_led.mask")) == bool(t.read("g_led.active_high"))
+
+
 # Восемь пар halfword: VREFINT, температура. Точность сравнения учитывает float32.
 WORDS = 16
 PAIRS = 8
@@ -30,32 +36,29 @@ def process_block(t, count):
 def dma_capture(t):
     t.reach("monitor::arm")
     t.reach("board::delayMs")
-    t.record("dma.config", {"ccr": t.evaluate("DMA1_Channel1->CCR"), "cr2": t.evaluate("ADC1->CR2")})
+    t.record("dma.config", {"ccr": t.mmio.read('DMA1_Channel1.CCR'), "cr2": t.mmio.read('ADC1.CR2')})
 
     # В момент стабилизации датчика DMA ещё выключен, CNDTR уже установлен.
-    t.check([
-        ("DMA clock enabled", "(RCC->AHBENR & RCC_AHBENR_DMA1EN) != 0", 1),
-        ("DMA block length", "DMA1_Channel1->CNDTR", WORDS),
-        ("DMA halfword normal mode", "DMA1_Channel1->CCR",
-         "DMA_CCR_MINC | DMA_CCR_PSIZE_0 | DMA_CCR_MSIZE_0 | DMA_CCR_TCIE | DMA_CCR_TEIE"),
-        ("DMA peripheral address", "DMA1_Channel1->CPAR", "(unsigned int)&ADC1->DR"),
-        ("DMA owned buffer address", "DMA1_Channel1->CMAR", "(unsigned int)&g_monitor.raw[0]"),
-        ("ADC scans two channels", "ADC1->SQR1 & ADC_SQR1_L", "ADC_SQR1_L_0"),
-        ("ADC channel order", "ADC1->SQR3", 17 | (16 << 5)),
-        ("ADC scan enabled", "ADC1->CR1 & ADC_CR1_SCAN", "ADC_CR1_SCAN"),
-        ("ADC requests enabled", "ADC1->CR2 & ADC_CR2_DMA", "ADC_CR2_DMA")
-    ])
-    ccr = t.evaluate("(unsigned int)&DMA1_Channel1->CCR")
-    cr2 = t.evaluate("(unsigned int)&ADC1->CR2")
+    t.check("DMA clock enabled", t.mmio.read('RCC.AHBENR') & t.evaluate('RCC_AHBENR_DMA1EN') != 0, 1)
+    t.check("DMA block length", t.mmio.read('DMA1_Channel1.CNDTR'), WORDS)
+    t.check("DMA halfword normal mode",
+            t.mmio.read('DMA1_Channel1.CCR'),
+            t.evaluate("DMA_CCR_MINC | DMA_CCR_PSIZE_0 | DMA_CCR_MSIZE_0 | DMA_CCR_TCIE | DMA_CCR_TEIE"))
+    t.check("DMA peripheral address", t.mmio.read('DMA1_Channel1.CPAR'), t.evaluate("(unsigned int)&ADC1->DR"))
+    t.check("DMA owned buffer address",
+            t.mmio.read('DMA1_Channel1.CMAR'),
+            t.evaluate("(unsigned int)&g_monitor.raw[0]"))
+    t.check("ADC scans two channels", t.mmio.read('ADC1.SQR1') & t.evaluate('ADC_SQR1_L'), t.evaluate("ADC_SQR1_L_0"))
+    t.check("ADC channel order", t.mmio.read('ADC1.SQR3'), 17 | (16 << 5))
+    t.check("ADC scan enabled", t.mmio.read('ADC1.CR1') & t.evaluate('ADC_CR1_SCAN'), t.evaluate("ADC_CR1_SCAN"))
+    t.check("ADC requests enabled", t.mmio.read('ADC1.CR2') & t.evaluate('ADC_CR2_DMA'), t.evaluate("ADC_CR2_DMA"))
     adc_mask = t.evaluate("ADC_CR2_ADON | ADC_CR2_DMA")
     t.reach("DMA1_Channel1_IRQHandler")
 
     # TC выставлен аппаратурой; чтение DR здесь не делаем, чтобы не менять состояние ADC.
-    t.check([
-        ("DMA IRQ context", "$xPSR & 511", "DMA1_Channel1_IRQn + 16"),
-        ("DMA transfer completed", "(DMA1->ISR & DMA_ISR_TCIF1) != 0", 1),
-        ("DMA count exhausted", "DMA1_Channel1->CNDTR", 0)
-    ])
+    t.check([ ("DMA IRQ context", "$xPSR & 511", "DMA1_Channel1_IRQn + 16") ])
+    t.check("DMA transfer completed", t.mmio.read('DMA1.ISR') & t.evaluate('DMA_ISR_TCIF1') != 0, 1)
+    t.check("DMA count exhausted", t.mmio.read('DMA1_Channel1.CNDTR'), 0)
 
     # Пока процессор стоит в process, DMA остановлен и не меняет блок за спиной сценария.
     for number in range(1, 4):
@@ -65,8 +68,8 @@ def dma_capture(t):
         t.check("DMA snapshot complete", len(data), WORDS * 2)
         samples = list(struct.unpack("<16H", data))
         t.record("dma.block", {"number": number, "samples": samples, "irq": t.read("g_monitor.irq_count")})
-        t.check("DMA disabled during processing", t.evaluate(f"*(unsigned int *){ccr}") & 1, 0)
-        t.check("ADC stopped during processing", t.evaluate(f"*(unsigned int *){cr2}") & adc_mask, 0)
+        t.check("DMA disabled during processing", t.mmio.read("DMA1_Channel1.CCR") & 1, 0)
+        t.check("ADC stopped during processing", t.mmio.read("ADC1.CR2") & adc_mask, 0)
         t.check("all ADC samples are 12 bit", all(0 < value <= 4095 for value in samples))
         t.check("one IRQ per block", t.read("g_monitor.irq_count"), number)
         t.finish()
@@ -127,30 +130,34 @@ def dma_process(t):
 def dma_timeout(t):
     t.reach("monitor::arm")
     t.reach("board::delayMs")
-    saved = t.evaluate("ADC1->CR2")
+    saved = t.mmio.read('ADC1.CR2')
     mask = t.evaluate("ADC_CR2_DMA")
-    address = t.evaluate("(unsigned int)&ADC1->CR2")
 
     # Следующий arm сам вернёт штатную конфигурацию; finally возвращает бит и при исключении.
     try:
-        t.write("ADC1->CR2", "ADC1->CR2 & ~ADC_CR2_DMA")
+        t.mmio.write("ADC1.CR2", saved & ~mask, allow_effects=True)
         t.reach("monitor::arm")
         t.record("dma.timeout", {"timeouts": t.read("g_monitor.timeouts"), "accepted": t.read("g_monitor.accepted")})
 
         # Таймаут освобождает оба устройства, но не выдаёт фиктивный результат.
+        t.check([ ("missing requests timed out", "g_monitor.timeouts", 1) ])
+        t.check("timeout stops DMA", t.mmio.read('DMA1_Channel1.CCR') & t.evaluate('DMA_CCR_EN'), 0)
+        t.check("timeout stops ADC", t.mmio.read('ADC1.CR2') & t.evaluate('ADC_CR2_ADON'), 0)
+
+        # Проверяем опубликованное состояние отдельно от MMIO-снимка.
         t.check([
-            ("missing requests timed out", "g_monitor.timeouts", 1),
-            ("timeout stops DMA", "DMA1_Channel1->CCR & DMA_CCR_EN", 0),
-            ("timeout stops ADC", "ADC1->CR2 & ADC_CR2_ADON", 0),
             ("timeout publishes no block", "g_monitor.accepted", 0),
-            ("timeout cancels normal", "g_monitor.normal", 0),
-            ("timeout lights LED",
-             "((*(unsigned int *)g_led.odr_address & g_led.mask) != 0) == (g_led.active_high != 0)", 1)
+            ("timeout cancels normal", "g_monitor.normal", 0)
         ])
+        t.check("timeout lights LED", led_on(t), 1)
         t.reach("monitor::process")
         t.finish()
         t.check("next block recovers", t.read("g_monitor.accepted"), 1)
     finally:
         # Не запускаем ADC прежним CR2: возвращаем только изменённый бит в текущем состоянии.
-        current = t.evaluate(f"*(unsigned int *){address}")
-        t.write(f"*(unsigned int *){address}", (current & ~mask) | (saved & mask))
+        current = t.mmio.read("ADC1.CR2")
+        restored = (current & ~mask) | (saved & mask)
+
+        # Повторная запись ADON может запустить ADC; неизменённый CR2 не пишем.
+        if restored != current:
+            t.mmio.write("ADC1.CR2", restored, allow_effects=True)
