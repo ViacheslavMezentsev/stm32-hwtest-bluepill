@@ -1,6 +1,13 @@
 ---
 name: stm32-gdbtest-run
 description: Запуск сценариев stm32-gdbtest и разбор результатов — doctor, prepare-only, CTest host/hw, один сценарий через CLI, удалённый GDB-сервер по SSH, пакет подготовленного запуска (pack/run --package), аппаратный CI, чтение result.json и журналов при FAIL/ERROR, уборка после аварии. Используй, когда просят «прогнать тесты на плате», «запустить сценарий», «почему ERROR/FAIL», «GDB server startup timed out», «отладчик занят», «собрать пакет для стенда», «запустить на Orange Pi/Linux-стенде»; по-английски — run stm32-gdbtest scenarios, debug a failed hardware run, prepared run package, remote GDB server.
+license: MIT
+compatibility: stm32-gdbtest 0.5.0 (API_VERSION 3); Python 3.11+, GDB с Python 3.11+ (arm-none-eabi-gdb-py3), CMake 3.25+ и Ninja; GDB-сервер (OpenOCD, J-Link, ST-LINK GDB Server, st-util) и SWD-отладчик; для удалённого стенда — SSH-ключ
+metadata:
+  author: Viacheslav Mezentsev
+  version: "0.5.0"
+  module: stm32-gdbtest
+  api_version: "3"
 ---
 
 # Запуск сценариев и разбор результатов

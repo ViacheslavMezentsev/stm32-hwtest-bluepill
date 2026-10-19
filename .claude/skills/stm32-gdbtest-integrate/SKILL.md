@@ -1,6 +1,13 @@
 ---
 name: stm32-gdbtest-integrate
 description: Подключение stm32-gdbtest к существующему проекту прошивки STM32 (CMake + Ninja) — Git-подмодуль, каталог hil/ с описанием MCU, session.toml и api.toml, вызов stm32_gdbtest_attach, пресеты CTest host/hw, файл стенда, первый сценарий и первый прогон. Используй, когда просят «подключить stm32-gdbtest», «добавить HIL/DDTT-тесты в проект», «настроить аппаратные тесты через GDB», «обновить версию модуля у потребителя», «перевести hwtest-проект на API 3»; по-английски — integrate stm32-gdbtest, add hardware-in-the-loop tests, attach the module to a firmware project, bump the submodule.
+license: MIT
+compatibility: stm32-gdbtest 0.5.0 (API_VERSION 3); Python 3.11+, GDB с Python 3.11+ (arm-none-eabi-gdb-py3), CMake 3.25+ и Ninja; проект прошивки STM32 или совместимого Cortex-M на CMake
+metadata:
+  author: Viacheslav Mezentsev
+  version: "0.5.0"
+  module: stm32-gdbtest
+  api_version: "3"
 ---
 
 # Подключение stm32-gdbtest к проекту прошивки

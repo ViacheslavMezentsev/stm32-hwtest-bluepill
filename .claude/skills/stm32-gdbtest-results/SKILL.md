@@ -1,6 +1,13 @@
 ---
 name: stm32-gdbtest-results
 description: Разбор сохранённых результатов stm32-gdbtest — связать result.json, records, JUnit, логи, пакет и исходник сценария; проверить целостность, объяснить PASS/FAIL/ERROR/SKIP и границы выводов. Используй для аудита протокола или архива, отчёта кампании и анализа на OrangePi, включая агента pi; interpret hardware test artifacts, audit evidence, analyze scenario results. Сам по себе разбор не запускает плату повторно.
+license: MIT
+compatibility: stm32-gdbtest 0.5.0 (API_VERSION 3); Python 3.11+; плата, GDB и сервер не нужны
+metadata:
+  author: Viacheslav Mezentsev
+  version: "0.5.0"
+  module: stm32-gdbtest
+  api_version: "3"
 ---
 
 # Интерпретация результатов stm32-gdbtest

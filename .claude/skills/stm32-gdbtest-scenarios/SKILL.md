@@ -1,6 +1,13 @@
 ---
 name: stm32-gdbtest-scenarios
 description: Техника написания тестовых сценариев stm32-gdbtest на API_VERSION=3 кандидата 0.5.0 — требование и контракт, выбор места остановки, таблицы check(rows) и write(rows), подмена возврата ret, инъекции, refused, watch/frames, профиль прогона, стиль сценариев и каталог техник TECH-001…019. Используй, когда просят «написать сценарий/тест для платы», «проверить регистр/периферию/callback через GDB», «добавить HW_-кейс», «перевести сценарии с value/set_value/force_return на новый API», «сделать ревью сценария»; по-английски — write a stm32-gdbtest scenario, hardware test case, migrate scenarios to API 3.
+license: MIT
+compatibility: stm32-gdbtest 0.5.0 (API_VERSION 3); Python 3.11+, GDB с Python 3.11+ (arm-none-eabi-gdb-py3); плата нужна только для прогона, prepare выполняется без неё
+metadata:
+  author: Viacheslav Mezentsev
+  version: "0.5.0"
+  module: stm32-gdbtest
+  api_version: "3"
 ---
 
 # Сценарии stm32-gdbtest

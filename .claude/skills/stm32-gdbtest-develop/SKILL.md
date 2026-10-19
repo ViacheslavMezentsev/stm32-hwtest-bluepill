@@ -1,6 +1,13 @@
 ---
 name: stm32-gdbtest-develop
 description: Разработать или изменить прошивку через цикл DDTT с обратной связью от платы — план, сценарий, сборка, инъекция через GDB, анализ свидетельств и исправление. Применять при совместном изменении кода приложения и проверок; для повторения готового комплекта использовать stm32-gdbtest-stand-loop.
+license: MIT
+compatibility: stm32-gdbtest 0.5.0 (API_VERSION 3); Python 3.11+, GDB с Python 3.11+ (arm-none-eabi-gdb-py3), CMake 3.25+ и Ninja; SWD-отладчик и плата с разрешёнными воздействиями
+metadata:
+  author: Viacheslav Mezentsev
+  version: "0.5.0"
+  module: stm32-gdbtest
+  api_version: "3"
 ---
 
 # Разработка через DDTT
