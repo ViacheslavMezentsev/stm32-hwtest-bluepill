@@ -21,7 +21,7 @@ hil/
 ```
 
 The board is chosen by the build: presets `f103c8-hil` and `f103cb-hil` set `BOARD` and
-`BLUEPILL_HIL=ON`; `cmake/hil.cmake` attaches stm32-gdbtest `8fdbb58` (API 3, 0.5.0 final candidate) (`modules/stm32-gdbtest`) with
+`BLUEPILL_HIL=ON`; `cmake/hil.cmake` attaches stm32-gdbtest `a7b0951` (API 3, 0.5.0 final candidate) (`modules/stm32-gdbtest`) with
 the run configuration `hil/<MCU>/session.toml` (`SESSION_CONFIG`) and the shared scenarios `hil/common/tests`.
 The configuration ties the MCU description, the shared `api.toml` and the board data file together;
 scenarios read them through `t.profile` (`t.profile.data["board"]`, `t.profile.get("user.post.vdda_mv")`),
@@ -67,7 +67,7 @@ description. The firmware is programmed only if the Flash image differs
 tasks (the board is picked from a list) and the Testing panel, where every scenario shows
 up as `hw.<ID>` and `prepare.<ID>`.
 
-| Scenario | Checks | Techniques ([catalogue](https://github.com/ViacheslavMezentsev/stm32-gdbtest/blob/8fdbb58be35689376a70eb1973bea7096de6f45d/docs/en/TESTING_TECHNIQUES.md)) |
+| Scenario | Checks | Techniques ([catalogue](https://github.com/ViacheslavMezentsev/stm32-gdbtest/blob/a7b09516abac467839ee9efc8ee286835c6001e0/docs/en/TESTING_TECHNIQUES.md)) |
 | --- | --- | --- |
 | `HW_BOOT` | DEV_ID and F_SIZE at the MCU description addresses, SYSCLK from HSI, `SystemCoreClock` | `t.profile`, `evaluate`, `read` |
 | `HW_BOOT_CMSIS` | the same with CMSIS names on entry to `board::init()` | `check(rows)` table, contract, TECH-001 |
@@ -143,7 +143,7 @@ interpreter: `-DPython3_EXECUTABLE=<path>`; after a change use "Delete Cache and
 [Plan](common/plans/ddtt-feedback.en.md) and [cycle results](common/plans/ddtt-feedback-results.en.md):
 the scenario first exposes the defect in baseline firmware, then checks its fix and regression.
 Skill: `.claude/skills/stm32-gdbtest-develop/SKILL.md`; this branch includes a trial copy while
-the module gitlink is now 8fdbb58, the final 0.5.0 candidate (version 0.5.0), not yet tagged. The six local skill copies are refreshed from modules/stm32-gdbtest/skills.
+the module gitlink is now a7b0951, the final 0.5.0 candidate (version 0.5.0), not yet tagged. The six local skill copies are refreshed from modules/stm32-gdbtest/skills.
 Unlike stand-loop execution, development needs a source checkout and compiler, not just a ZIP.
 Profiles use target schema 2 with `[openocd]`; sessions enable `[results] capture = true`.
 

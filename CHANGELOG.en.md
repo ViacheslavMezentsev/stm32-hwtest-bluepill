@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+- The stm32-gdbtest submodule moves to a7b0951, the final 0.5.0 candidate after the live-observer example's hardware assessment fix (core and API unchanged, version 0.5.0). Skill copies are unchanged.
 - Final 0.5.0 candidate acceptance: the stm32-gdbtest submodule moves to 8fdbb58 (version 0.5.0, API_VERSION=3) and the skill copies are refreshed (Agent Skills format, TTDD). Scenarios and SVD are unchanged; host checks run on this gitlink, hardware checks in the P5b campaign.
 - Migrate 28 HIL scenarios to API 3 of the 0.5.0 candidate (cb03e86): explicit MMIO, project F103C8/CB SVD, SysTick/USART/ADC effect consent, offline policy/cleanup tests and 35-register ELF comparison. Refresh skill copies and the DDTT fixture. Firmware unchanged; hardware acceptance of this migration is pending.
 
