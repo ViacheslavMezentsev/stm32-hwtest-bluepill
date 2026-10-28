@@ -2,10 +2,10 @@
 name: stm32-gdbtest-integrate
 description: Подключение stm32-gdbtest к существующему проекту прошивки STM32 (CMake + Ninja) — Git-подмодуль, каталог hil/ с описанием MCU, session.toml и api.toml, вызов stm32_gdbtest_attach, пресеты CTest host/hw, файл стенда, первый сценарий и первый прогон. Используй, когда просят «подключить stm32-gdbtest», «добавить HIL/DDTT-тесты в проект», «настроить аппаратные тесты через GDB», «обновить версию модуля у потребителя», «перевести hwtest-проект на API 3»; по-английски — integrate stm32-gdbtest, add hardware-in-the-loop tests, attach the module to a firmware project, bump the submodule.
 license: MIT
-compatibility: stm32-gdbtest 0.5.0 (API_VERSION 3); Python 3.11+, GDB с Python 3.11+ (arm-none-eabi-gdb-py3), CMake 3.25+ и Ninja; проект прошивки STM32 или совместимого Cortex-M на CMake
+compatibility: stm32-gdbtest 0.6.0 (API_VERSION 3); Python 3.11+, GDB с Python 3.11+ (arm-none-eabi-gdb-py3), CMake 3.25+ и Ninja; проект прошивки STM32 или совместимого Cortex-M на CMake
 metadata:
   author: Viacheslav Mezentsev
-  version: "0.5.0"
+  version: "0.6.0"
   module: stm32-gdbtest
   api_version: "3"
 ---
@@ -44,7 +44,7 @@ git -C modules/stm32-gdbtest checkout <agreed-tag-or-commit>
 git add .gitmodules modules/stm32-gdbtest
 ```
 
-Выбери согласованный тег/коммит и закрепи gitlink. Для кандидата 0.5.0 проверяй API_VERSION=3;
+Выбери согласованный тег/коммит и закрепи gitlink. Для линий 0.5.x и 0.6.x проверяй API_VERSION=3;
 не выдавай рабочую ветку за опубликованный выпуск.
 Gitlink фиксирует проверенный коммит; configure его не обновляет. Обновление версии — отдельный
 коммит: новый gitlink, чтение раздела CHANGELOG модуля (миграция), прогон host и hw.
@@ -215,7 +215,7 @@ ctest --preset HIL_F411CE-hw -R HW_BOOT
 получают предупреждения `deprecated`. В 0.4.0 эти четыре метода удалены;
 `config`/`config_props`/`settings`/`sources` ранее заменены `t.profile`. Порядок:
 поднять gitlink до выбранного опубликованного тега, добавить `session.toml`/`api.toml`, если нужны
-лимиты и параметры, переписать сценарии по таблице миграции из [API](../../docs/ru/API.md) и навыку
+лимиты и параметры, переписать сценарии по [руководству миграции](../../docs/ru/MIGRATION_050.md) и навыку
 `stm32-gdbtest-scenarios`, прогнать host и hw.
 
 

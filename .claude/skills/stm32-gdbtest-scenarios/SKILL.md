@@ -1,11 +1,11 @@
 ---
 name: stm32-gdbtest-scenarios
-description: Техника написания тестовых сценариев stm32-gdbtest на API_VERSION=3 кандидата 0.5.0 — требование и контракт, выбор места остановки, таблицы check(rows) и write(rows), подмена возврата ret, инъекции, refused, watch/frames, профиль прогона, стиль сценариев и каталог техник TECH-001…019. Используй, когда просят «написать сценарий/тест для платы», «проверить регистр/периферию/callback через GDB», «добавить HW_-кейс», «перевести сценарии с value/set_value/force_return на новый API», «сделать ревью сценария»; по-английски — write a stm32-gdbtest scenario, hardware test case, migrate scenarios to API 3.
+description: Техника написания тестовых сценариев stm32-gdbtest на API_VERSION=3 (линии 0.5.x и 0.6.x) — требование и контракт, выбор места остановки, таблицы check(rows) и write(rows), подмена возврата ret, инъекции, refused, watch/frames, профиль прогона, стиль сценариев и каталог техник TECH-001…026. Используй, когда просят «написать сценарий/тест для платы», «проверить регистр/периферию/callback через GDB», «добавить HW_-кейс», «перевести сценарии с value/set_value/force_return на новый API», «сделать ревью сценария»; по-английски — write a stm32-gdbtest scenario, hardware test case, migrate scenarios to API 3.
 license: MIT
-compatibility: stm32-gdbtest 0.5.0 (API_VERSION 3); Python 3.11+, GDB с Python 3.11+ (arm-none-eabi-gdb-py3); плата нужна только для прогона, prepare выполняется без неё
+compatibility: stm32-gdbtest 0.6.0 (API_VERSION 3); Python 3.11+, GDB с Python 3.11+ (arm-none-eabi-gdb-py3); плата нужна только для прогона, prepare выполняется без неё
 metadata:
   author: Viacheslav Mezentsev
-  version: "0.5.0"
+  version: "0.6.0"
   module: stm32-gdbtest
   api_version: "3"
 ---
@@ -210,3 +210,23 @@ wait и halt требуют await и конечного timeout; timeout wait н
 Не используй execute в async и скрытые inferior calls в выражениях данных; вынеси
 их в явный call. Обычный def не нужно превращать в async без живого окна.
 [Контракт и миграция](../../docs/ru/LIVE_EXECUTION.md) описывают отказные пути.
+
+## Практика состояния и порядка событий
+
+Примени [приёмы и нейтральный пример](../stm32-gdbtest-scenarios/references/stateful-evidence.md):
+следующая операция без reset, wrap и busy/complete, исходный FAIL, исправление,
+повтор и полное восстановление объекта. Ресурс также задаёт границы переноса
+на DMA, логическое время и внешние свидетели. Renode подтверждает модель, не плату.
+
+## Нейтральные примеры (0.5.0 и новее)
+
+Для порогов и retry используй logical-time; для wrap счётчика и baseline — counter-cost;
+для записи другого источника — external-capture. [Нейтральные маршруты](references/neutral-workflows.md)
+дают команды и точные отрицательные контроли. Сохраняй факт до check; call возвращает
+словарь, а отказ приложения не является refused API. Ожидания проекта задай независимо.
+
+## Маршруты 0.6.0
+
+Карта пакетов A1–A6 с командами, критерием приёмки и парами «правильно/неправильно» — [release-060-routes](references/release-060-routes.md).
+Пошаговый проход сценария в VS Code при его написании — `run --interactive`
+([ручная отладка](../../docs/ru/MANUAL_DEBUG.md)); результат такого прогона не является свидетельством приёмки.

@@ -2,10 +2,10 @@
 name: stm32-gdbtest-stand-loop
 description: Подготовка и выполнение конечной автономной кампании stm32-gdbtest на OrangePi или другом локальном стенде через tools/stand_loop.py; пакеты, TOML-план, STOP, review.json и передача на анализ pi/Qwen. Используй для «гонять сценарии по кругу», «развернуть комплект тестирования», «запустить стендовую автоматизацию»; bounded stand campaign, prepared-package soak loop. Для одного запуска — stm32-gdbtest-run, для чтения готового протокола — stm32-gdbtest-results.
 license: MIT
-compatibility: stm32-gdbtest 0.5.0 (API_VERSION 3); Python 3.11+, GDB с Python 3.11+ (arm-none-eabi-gdb-py3); Linux-стенд (OrangePi и т. п.) с окружением tools/linux_stand.py, GDB-сервером и SWD-отладчиком
+compatibility: stm32-gdbtest 0.6.0 (API_VERSION 3); Python 3.11+, GDB с Python 3.11+ (arm-none-eabi-gdb-py3); Linux-стенд (OrangePi и т. п.) с окружением tools/linux_stand.py, GDB-сервером и SWD-отладчиком
 metadata:
   author: Viacheslav Mezentsev
-  version: "0.5.0"
+  version: "0.6.0"
   module: stm32-gdbtest
   api_version: "3"
 ---
@@ -94,7 +94,7 @@ summary/review и оставшиеся ограничения. Различай 
 systemd/pi/Qwen; никаких автоматических публикаций персональных файлов стенда.
 
 
-## Совместимость кандидата 0.5.0
+## Совместимость линий 0.5.x и 0.6.x
 
 Проверь одним выбранным SHA подготовку и исполнение пакета. SVD захватывается в
 капсулу schema 2; принимающий модуль должен её поддерживать. Цикл не мигрирует

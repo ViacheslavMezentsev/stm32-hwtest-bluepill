@@ -2,10 +2,10 @@
 name: stm32-gdbtest-run
 description: Запуск сценариев stm32-gdbtest и разбор результатов — doctor, prepare-only, CTest host/hw, один сценарий через CLI, удалённый GDB-сервер по SSH, пакет подготовленного запуска (pack/run --package), аппаратный CI, чтение result.json и журналов при FAIL/ERROR, уборка после аварии. Используй, когда просят «прогнать тесты на плате», «запустить сценарий», «почему ERROR/FAIL», «GDB server startup timed out», «отладчик занят», «собрать пакет для стенда», «запустить на Orange Pi/Linux-стенде»; по-английски — run stm32-gdbtest scenarios, debug a failed hardware run, prepared run package, remote GDB server.
 license: MIT
-compatibility: stm32-gdbtest 0.5.0 (API_VERSION 3); Python 3.11+, GDB с Python 3.11+ (arm-none-eabi-gdb-py3), CMake 3.25+ и Ninja; GDB-сервер (OpenOCD, J-Link, ST-LINK GDB Server, st-util) и SWD-отладчик; для удалённого стенда — SSH-ключ
+compatibility: stm32-gdbtest 0.6.0 (API_VERSION 3); Python 3.11+, GDB с Python 3.11+ (arm-none-eabi-gdb-py3), CMake 3.25+ и Ninja; GDB-сервер (OpenOCD, J-Link, ST-LINK GDB Server, st-util) и SWD-отладчик; для удалённого стенда — SSH-ключ
 metadata:
   author: Viacheslav Mezentsev
-  version: "0.5.0"
+  version: "0.6.0"
   module: stm32-gdbtest
   api_version: "3"
 ---
@@ -93,8 +93,8 @@ metadata:
 Создавай новый каталог для каждой попытки. На Windows выбирай короткий --workdir/--output:
 встроенный Python GDB может не открыть пути длиннее 260 символов (см. HOWTO).
 Штатный SKIP завершается code77; CTest использует SKIP_RETURN_CODE=77. Не превращай неожиданный
-пропуск в PASS. Для согласованного выборочного прогона 0.4.0 есть tests/firmware/api040.py;
-он не заменяет проверки приложения и полного набора.
+пропуск в PASS. Выбранные сценарии и полный набор сверяй с текущим реестром проекта;
+выборочный прогон не заменяет приёмку приложения.
 
 ## Частые отказы
 
@@ -119,3 +119,7 @@ metadata:
 Коммит модуля и проекта, MCU и стенд (без серийного номера), схема, версия GDB, команда, итог
 (PASS/FAIL/ERROR/SKIP по сценариям), для не-PASS — проверка, фактическое и ожидаемое значение и вывод.
 Что изменилось на плате (записанный образ, инъекции) и как восстановлено.
+
+## Маршруты 0.6.0
+
+Карта пакетов A1–A6 с командами, критерием приёмки и парами «правильно/неправильно» — [release-060-routes](../stm32-gdbtest-scenarios/references/release-060-routes.md).

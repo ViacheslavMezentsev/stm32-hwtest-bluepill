@@ -2,10 +2,10 @@
 name: stm32-gdbtest-results
 description: Разбор сохранённых результатов stm32-gdbtest — связать result.json, records, JUnit, логи, пакет и исходник сценария; проверить целостность, объяснить PASS/FAIL/ERROR/SKIP и границы выводов. Используй для аудита протокола или архива, отчёта кампании и анализа на OrangePi, включая агента pi; interpret hardware test artifacts, audit evidence, analyze scenario results. Сам по себе разбор не запускает плату повторно.
 license: MIT
-compatibility: stm32-gdbtest 0.5.0 (API_VERSION 3); Python 3.11+; плата, GDB и сервер не нужны
+compatibility: stm32-gdbtest 0.6.0 (API_VERSION 3); Python 3.11+; плата, GDB и сервер не нужны
 metadata:
   author: Viacheslav Mezentsev
-  version: "0.5.0"
+  version: "0.6.0"
   module: stm32-gdbtest
   api_version: "3"
 ---
@@ -18,7 +18,7 @@ metadata:
 GitHub-коннектора или доступа к USB: агент pi на OrangePi может читать файлы и выполнять host CLI.
 
 Источники: [результаты](../../docs/ru/RESULTS.md), [захват и CLI](../../docs/ru/API.md),
-[контракт SKIP](../../docs/ru/api/skip.md), [сценарии 0.4.0](../../docs/ru/API040_SCENARIOS.md).
+[контракт SKIP](../../docs/ru/api/skip.md).
 Подробная карта файлов и примеры выводов — [artifacts.md](references/artifacts.md).
 
 ## Порядок разбора
@@ -107,3 +107,23 @@ shutdown_wait.ready нужен для соответствующего lifecycle
 При `[data]` используй квитанцию из records для связи с конкретной попыткой;
 отсутствие обязательной записи — отказ анализа, не пустое измерение. Успешный
 экспорт старого измерения не квалифицирует текущее состояние платы.
+
+## Стандартные отчёты
+
+После проверки источников используй [stm32-gdbtest-report](../stm32-gdbtest-report/SKILL.md)
+для компактного обзора или технического PDF с цепочкой DDTT. Форму заказчика можно
+строить непосредственно на этом навыке результатов. Сохрани разные исходы сценария,
+анализа, применимости и восстановления; ожидаемые FAIL примера
+[stateful-buffer](../../tests/stateful-buffer/README.md) не перекрашиваются в PASS.
+
+## Нейтральные примеры (0.5.0 и новее)
+
+При разборе новых примеров читай [маршруты и критерии](../stm32-gdbtest-scenarios/references/neutral-workflows.md):
+сначала valid/эпоха/полнота, затем значения. Counter-cost требует исходных выборок и
+пересчёта статистик; external-capture позволяет повторный анализ без нового опыта.
+Разделяй сценарий, транспорт, анализ и cleanup; UNKNOWN не превращай в ноль, а FAIL
+анализа не переписывай в исходный result. Учебные JSON не являются схемами модуля.
+
+## Маршруты 0.6.0
+
+Карта пакетов A1–A6 с командами, критерием приёмки и парами «правильно/неправильно» — [release-060-routes](../stm32-gdbtest-scenarios/references/release-060-routes.md).
