@@ -22,8 +22,10 @@ Renode 1.17.0 is selected through RENODE_BINARY, RENODE_EXECUTABLE or PATH/Progr
 
 ## Visual VS Code workflow
 
-1. Open the project folder and install recommended CMake Tools, Microsoft C/C++ and Cortex-Debug.
-   clangd is not required.
+1. Open the project folder and install recommended CMake Tools, Microsoft C/C++, Cortex-Debug and
+   Python (Pylance and debugpy). clangd is not required. Pylance finds `stm32_gdbtest` in the
+   submodule through `python.analysis.extraPaths`; the `gdb` module exists only inside GDB, so the
+   warning about its missing source is turned off.
 2. CMake: Select Configure Preset, e.g. f103cb-debug; Configure, select the matching Build Preset,
    then Build. cmake.useVsDeveloperEnvironment=never prevents automatic MSVC activation.
 3. IntelliSense uses CMake Tools. The active compile database is copied to build/compile_commands.json.
@@ -38,6 +40,14 @@ Renode 1.17.0 is selected through RENODE_BINARY, RENODE_EXECUTABLE or PATH/Progr
    If nested config substitutions do not expand, set gdbPath explicitly. On Linux replace USERPROFILE
    with HOME in the custom toolchain setting. With multiple probes, explicitly select serial in your
    OpenOCD configuration. Manual debugging does not automatically use the HIL stand or lock.
+7. Stepping through a scenario: set a breakpoint in `hil/common/tests/board/*.py`, run the task
+   "HIL: F103C8 — пошаговый проход сценария (VS Code)…" and pick a scenario, then F5 —
+   "Сценарий: подключиться (debugpy)". Stepping, Variables and the Debug Console (`t.read(...)`)
+   work, there is no time limit and Ctrl+C cancels the run. The result goes to
+   `build/<preset>/hwtest/interactive-runs`, separate from automated runs; the scenario and its
+   `timeout_s` do not change. The `ms-python.debugpy` extension is required. With module 0.5.x the
+   run is limited to 300 s and the result goes to `manual-runs`. Details:
+   [stepping through a scenario](https://github.com/ViacheslavMezentsev/stm32-gdbtest/blob/main/docs/en/MANUAL_DEBUG.md).
 
 ## Terminal without a board
 

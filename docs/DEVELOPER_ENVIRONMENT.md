@@ -25,7 +25,9 @@ Renode 1.17.0: RENODE_BINARY, CMake RENODE_EXECUTABLE или PATH/ProgramFiles.
 ## Визуальная работа в VS Code
 
 1. Откройте папку проекта. Установите рекомендации из .vscode/extensions.json: CMake Tools,
-   Microsoft C/C++, Cortex-Debug. clangd не требуется.
+   Microsoft C/C++, Cortex-Debug, Python (Pylance и debugpy). clangd не требуется.
+   Pylance находит `stm32_gdbtest` в подмодуле по `python.analysis.extraPaths`; модуль `gdb`
+   существует только внутри GDB, поэтому предупреждение об отсутствии его исходника отключено.
 2. Через CMake: Select Configure Preset выберите, например, f103cb-debug, выполните Configure.
    Затем выберите одноимённый Build Preset и Build. Окружение Visual Studio отключено настройкой
    cmake.useVsDeveloperEnvironment=never.
@@ -44,6 +46,13 @@ Renode 1.17.0: RENODE_BINARY, CMake RENODE_EXECUTABLE или PATH/ProgramFiles.
    задайте gdbPath явно. На Linux замените USERPROFILE на HOME в пользовательском toolchain.
    Несколько отладчиков требуют явного выбора serial в собственной конфигурации OpenOCD;
    ручная отладка не использует автоматически HIL stand и его блокировку.
+7. Пошаговый проход сценария: поставьте точку останова в `hil/common/tests/board/*.py`, запустите
+   задачу «HIL: F103C8 — пошаговый проход сценария (VS Code)…» и выберите сценарий, затем F5 —
+   «Сценарий: подключиться (debugpy)». Работают шаги, Variables и Debug Console (`t.read(...)`),
+   ограничения по времени нет, Ctrl+C отменяет запуск. Итог пишется в
+   `build/<пресет>/hwtest/interactive-runs`, отдельно от автоматических прогонов; сценарий и его
+   `timeout_s` не меняются. Нужно расширение `ms-python.debugpy`. С модулем 0.5.x запуск ограничен
+   300 с, итог — в `manual-runs`. Подробно — [пошаговый проход сценария](https://github.com/ViacheslavMezentsev/stm32-gdbtest/blob/main/docs/ru/MANUAL_DEBUG.md).
 
 ## Терминал, без платы
 

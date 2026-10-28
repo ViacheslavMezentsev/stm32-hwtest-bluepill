@@ -27,5 +27,9 @@
     "coverage-gutters.manualCoverageFilePaths": [],
     "coverage-gutters.showLineCoverage": true,
     "coverage-gutters.coverageReportFileName": "build/ddtt-view/index.html",
+    // Pylance: stm32_gdbtest lives in the submodule; gdb exists only inside GDB, its types
+    // come from the stubs bundled with Pylance (no source, so that warning is silenced).
+    "python.analysis.extraPaths": ["${workspaceFolder}/modules/stm32-gdbtest"],
+    "python.analysis.diagnosticSeverityOverrides": { "reportMissingModuleSource": "none" },
     "hil.gdbtest": "modules/stm32-gdbtest"
 }

@@ -3,6 +3,8 @@
         "ms-vscode.cmake-tools",
         "ms-vscode.cpptools",
         "marus25.cortex-debug",
+        "ms-python.python",
+        "ms-python.debugpy",
         "xaver.clang-format"
     ]
 }

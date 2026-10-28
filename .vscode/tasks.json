@@ -276,6 +276,38 @@
       "dependsOn": "HIL: F103C8 — собрать"
     },
     {
+      "label": "HIL: F103C8 — пошаговый проход сценария (VS Code)…",
+      "detail": "Сценарий ждёт отладчик без ограничения по времени: затем F5 «Сценарий: подключиться (debugpy)». Итог в hwtest/interactive-runs.",
+      "type": "process",
+      "command": "python",
+      "args": [
+        "-B",
+        "hil/tools/debug_scenario.py",
+        "--gdbtest",
+        "${config:hil.gdbtest}",
+        "--build",
+        "build/f103c8-hil",
+        "--test",
+        "${input:test}",
+        "--stand",
+        "hil/F103C8/stands/local.toml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "stm32-gdbtest-manual",
+        "pattern": { "regexp": "^__never_matches__$" },
+        "background": {
+          "activatesByDefault": true,
+          "beginsPattern": "^(Interactive run|Модуль без)",
+          "endsPattern": "^Interactive: attach the debugger"
+        }
+      },
+      "dependsOn": "HIL: F103C8 — собрать"
+    },
+    {
       "label": "HIL: F103C8 — результаты",
       "type": "process",
       "command": "python",
@@ -409,6 +441,38 @@
         "cwd": "${workspaceFolder}"
       },
       "problemMatcher": [],
+      "dependsOn": "HIL: F103CB — собрать"
+    },
+    {
+      "label": "HIL: F103CB — пошаговый проход сценария (VS Code)…",
+      "detail": "Сценарий ждёт отладчик без ограничения по времени: затем F5 «Сценарий: подключиться (debugpy)». Итог в hwtest/interactive-runs.",
+      "type": "process",
+      "command": "python",
+      "args": [
+        "-B",
+        "hil/tools/debug_scenario.py",
+        "--gdbtest",
+        "${config:hil.gdbtest}",
+        "--build",
+        "build/f103cb-hil",
+        "--test",
+        "${input:test}",
+        "--stand",
+        "hil/F103CB/stands/local.toml"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "stm32-gdbtest-manual",
+        "pattern": { "regexp": "^__never_matches__$" },
+        "background": {
+          "activatesByDefault": true,
+          "beginsPattern": "^(Interactive run|Модуль без)",
+          "endsPattern": "^Interactive: attach the debugger"
+        }
+      },
       "dependsOn": "HIL: F103CB — собрать"
     },
     {
