@@ -42,8 +42,11 @@ class PortableTests(unittest.TestCase):
         module_path = self.root / "modules/stm32-gdbtest/tools/ddtt_coverage.py"
         for name in ("ddtt_coverage.py", "ddtt_guard.py", "ddtt_qualification.py"):
             shutil.copyfile(ROOT / "modules/stm32-gdbtest/tools" / name, module_path.parent / name)
-        sys.path.insert(0, str(module_path.parent))
-        self.addCleanup(sys.path.remove, str(module_path.parent))
+        # Копия ddtt_coverage читает отчёты через пакет stm32_gdbtest (0.6.0): берём его из подмодуля.
+        package = str(ROOT / "modules/stm32-gdbtest")
+        for path in (package, str(module_path.parent)):
+            sys.path.insert(0, path)
+            self.addCleanup(sys.path.remove, path)
         spec = importlib.util.spec_from_file_location("portable_fixture_core", module_path)
         self.core = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(self.core)
