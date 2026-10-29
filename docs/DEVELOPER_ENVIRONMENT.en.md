@@ -46,7 +46,7 @@ Renode 1.17.0 is selected through RENODE_BINARY, RENODE_EXECUTABLE or PATH/Progr
    work, there is no time limit and Ctrl+C cancels the run. The result goes to
    `build/<preset>/hwtest/interactive-runs`, separate from automated runs; the scenario and its
    `timeout_s` do not change. The `ms-python.debugpy` extension is required. Details:
-   [stepping through a scenario](https://github.com/ViacheslavMezentsev/stm32-gdbtest/blob/v0.6.0/docs/en/MANUAL_DEBUG.md).
+   [stepping through a scenario](https://github.com/ViacheslavMezentsev/stm32-gdbtest/blob/v0.6.1/docs/en/MANUAL_DEBUG.md).
 
 ## Terminal without a board
 

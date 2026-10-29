@@ -21,7 +21,7 @@ hil/
 ```
 
 Плата выбирается сборкой: пресеты `f103c8-hil` и `f103cb-hil` задают `BOARD` и
-`BLUEPILL_HIL=ON`, `cmake/hil.cmake` подключает stm32-gdbtest `v0.6.0` (API 3) (`modules/stm32-gdbtest`) с
+`BLUEPILL_HIL=ON`, `cmake/hil.cmake` подключает stm32-gdbtest `v0.6.1` (API 3) (`modules/stm32-gdbtest`) с
 конфигурацией прогона `hil/<MCU>/session.toml` (`SESSION_CONFIG`) и общими сценариями `hil/common/tests`.
 Конфигурация связывает описание MCU, общий `api.toml` и файл данных платы: сценарии читают их
 через `t.profile` (`t.profile.data["board"]`, `t.profile.get("user.post.vdda_mv")`), поэтому один
@@ -67,7 +67,7 @@ python hil/tools/results.py --runs build/f103cb-hil/hwtest/runs
 выбирается из списка) и панель «Testing», где каждый сценарий виден как `hw.<ID>` и
 `prepare.<ID>`.
 
-| Сценарий | Что проверяет | Приёмы ([техники](https://github.com/ViacheslavMezentsev/stm32-gdbtest/blob/v0.6.0/docs/ru/TESTING_TECHNIQUES.md)) |
+| Сценарий | Что проверяет | Приёмы ([техники](https://github.com/ViacheslavMezentsev/stm32-gdbtest/blob/v0.6.1/docs/ru/TESTING_TECHNIQUES.md)) |
 | --- | --- | --- |
 | `HW_BOOT` | DEV_ID и F_SIZE по адресам из описания MCU, SYSCLK от HSI, `SystemCoreClock` | `t.profile`, `evaluate`, `read` |
 | `HW_BOOT_CMSIS` | то же именами CMSIS при входе в `board::init()` | таблица `check(rows)`, контракт, TECH-001 |
@@ -144,7 +144,7 @@ source [find target/stm32f1x.cfg]
 [План](common/plans/ddtt-feedback.md) и [результат цикла](common/plans/ddtt-feedback-results.md):
 сначала сценарий выявляет дефект на исходной прошивке, затем проверяет исправление и регрессию.
 Навык — `.claude/skills/stm32-gdbtest-develop/SKILL.md`; его опытная копия сопровождает эту ветку,
-Подмодуль закреплён на теге v0.6.0. Локальные копии шести навыков обновлены вместе с подмодулем; исходные инструкции — в modules/stm32-gdbtest/skills.
+Подмодуль закреплён на теге v0.6.1. Локальные копии шести навыков обновлены вместе с подмодулем; исходные инструкции — в modules/stm32-gdbtest/skills.
 В отличие от stand-loop, разработке нужен checkout исходников и компилятор, а не только ZIP.
 Профили используют target schema 2 с `[openocd]`; сессии включают `[results] capture = true`.
 

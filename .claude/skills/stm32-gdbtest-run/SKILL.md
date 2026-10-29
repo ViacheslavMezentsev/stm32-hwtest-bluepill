@@ -2,10 +2,10 @@
 name: stm32-gdbtest-run
 description: Запуск сценариев stm32-gdbtest и разбор результатов — doctor, prepare-only, CTest host/hw, один сценарий через CLI, удалённый GDB-сервер по SSH, пакет подготовленного запуска (pack/run --package), аппаратный CI, чтение result.json и журналов при FAIL/ERROR, уборка после аварии. Используй, когда просят «прогнать тесты на плате», «запустить сценарий», «почему ERROR/FAIL», «GDB server startup timed out», «отладчик занят», «собрать пакет для стенда», «запустить на Orange Pi/Linux-стенде»; по-английски — run stm32-gdbtest scenarios, debug a failed hardware run, prepared run package, remote GDB server.
 license: MIT
-compatibility: stm32-gdbtest 0.6.0 (API_VERSION 3); Python 3.11+, GDB с Python 3.11+ (arm-none-eabi-gdb-py3), CMake 3.25+ и Ninja; GDB-сервер (OpenOCD, J-Link, ST-LINK GDB Server, st-util) и SWD-отладчик; для удалённого стенда — SSH-ключ
+compatibility: stm32-gdbtest 0.6.x (API_VERSION 3); Python 3.11+, GDB с Python 3.11+ (arm-none-eabi-gdb-py3), CMake 3.25+ и Ninja; GDB-сервер (OpenOCD, J-Link, ST-LINK GDB Server, st-util) и SWD-отладчик; для удалённого стенда — SSH-ключ
 metadata:
   author: Viacheslav Mezentsev
-  version: "0.6.0"
+  version: "0.6.1"
   module: stm32-gdbtest
   api_version: "3"
 ---
@@ -14,9 +14,9 @@ metadata:
 
 Пути — от корня модуля (`modules/stm32-gdbtest/` у потребителя); CLI из любого каталога —
 `python -B <модуль>/stm32_gdbtest/cli.py`, из корня модуля — `python -B -m stm32_gdbtest`.
-Подробности: [проверки и CI](../../docs/ru/testing.md), [памятка](../../docs/ru/HOWTO.md),
-[Linux-стенд](../../docs/ru/LINUX_STAND.md), [аппаратный CI](../../docs/ru/HARDWARE_CI.md),
-[владение отладчиком](../../docs/ru/DEBUGGER_OWNERSHIP.md).
+Подробности: [проверки и CI](../../docs/guides/ru/testing.md), [памятка](../../docs/guides/ru/HOWTO.md),
+[Linux-стенд](../../docs/guides/ru/LINUX_STAND.md), [аппаратный CI](../../docs/guides/ru/HARDWARE_CI.md),
+[владение отладчиком](../../docs/guides/ru/DEBUGGER_OWNERSHIP.md).
 
 ## Правила для агента
 
@@ -87,7 +87,7 @@ metadata:
 общий журнал/проекции, независимые исходы export/verify/report. В session.toml `[results] capture = true`
 включает сохранение records; отсутствие capture не означает пустой журнал.
 
-Для каждого backend читай [отдельную страницу](../../docs/ru/BACKENDS.md). st-util 1.6.0 и 1.9.0
+Для каждого backend читай [отдельную страницу](../../docs/guides/ru/BACKENDS.md). st-util 1.6.0 и 1.9.0
 не взаимозаменяемы по подтверждённым результатам. На OrangePi GitHub self-hosted job с локальным
 [probe] исполняет runner/GDB/server на одном хосте; это не SSH-схема.
 Создавай новый каталог для каждой попытки. На Windows выбирай короткий --workdir/--output:
@@ -112,7 +112,7 @@ metadata:
 | `reach` ждёт до таймаута | функция встроена (LTO) или уже выполнена; сборка без LTO, другое место остановки |
 | Макрос не найден | остановка вне единицы трансляции с заголовком устройства или сборка без `-g3` |
 
-Полный список — [памятка](../../docs/ru/HOWTO.md).
+Полный список — [памятка](../../docs/guides/ru/HOWTO.md).
 
 ## Отчёт владельцу
 
@@ -120,6 +120,10 @@ metadata:
 (PASS/FAIL/ERROR/SKIP по сценариям), для не-PASS — проверка, фактическое и ожидаемое значение и вывод.
 Что изменилось на плате (записанный образ, инъекции) и как восстановлено.
 
-## Маршруты 0.6.0
+## Возможности 0.6.0
 
-Карта пакетов A1–A6 с командами, критерием приёмки и парами «правильно/неправильно» — [release-060-routes](../stm32-gdbtest-scenarios/references/release-060-routes.md).
+- `run --interactive` — пошаговый проход для автора сценария: без ограничения по времени, результаты в `hwtest/interactive-runs` с `execution_kind: "interactive"`; не смешивай их с `hwtest/runs` и приёмкой ([ручная отладка](../../docs/ru/MANUAL_DEBUG.md)).
+- Неполный журнал при квотах api schema 3 даёт command code 2 даже при PASS сценария; читай `evidence` в result.json, прежде чем считать прогон завершённым ([журналирование](../../docs/ru/JOURNALING.md)).
+- `[report] console = "summary"` меняет только вывод, а не число проверок; полные события остаются в result.json (result schema 2).
+
+[маршруты 0.6.0](../stm32-gdbtest-scenarios/references/release-060-routes.md) — пакеты A1–A6: команды, принимаемый исход, пары «правильно/неправильно».

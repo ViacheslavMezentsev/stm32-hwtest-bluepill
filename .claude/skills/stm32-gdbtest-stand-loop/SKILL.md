@@ -2,10 +2,10 @@
 name: stm32-gdbtest-stand-loop
 description: Подготовка и выполнение конечной автономной кампании stm32-gdbtest на OrangePi или другом локальном стенде через tools/stand_loop.py; пакеты, TOML-план, STOP, review.json и передача на анализ pi/Qwen. Используй для «гонять сценарии по кругу», «развернуть комплект тестирования», «запустить стендовую автоматизацию»; bounded stand campaign, prepared-package soak loop. Для одного запуска — stm32-gdbtest-run, для чтения готового протокола — stm32-gdbtest-results.
 license: MIT
-compatibility: stm32-gdbtest 0.6.0 (API_VERSION 3); Python 3.11+, GDB с Python 3.11+ (arm-none-eabi-gdb-py3); Linux-стенд (OrangePi и т. п.) с окружением tools/linux_stand.py, GDB-сервером и SWD-отладчиком
+compatibility: stm32-gdbtest 0.6.x (API_VERSION 3); Python 3.11+, GDB с Python 3.11+ (arm-none-eabi-gdb-py3); Linux-стенд (OrangePi и т. п.) с окружением tools/linux_stand.py, GDB-сервером и SWD-отладчиком
 metadata:
   author: Viacheslav Mezentsev
-  version: "0.6.0"
+  version: "0.6.1"
   module: stm32-gdbtest
   api_version: "3"
 ---
@@ -101,3 +101,8 @@ systemd/pi/Qwen; никаких автоматических публикаци�
 async-сценарии и не делает эмуляторную кампанию аппаратной. Для API 3 проверяй
 execution_cleanup отдельно от восстановления проекта; данные допуска имеют
 свою область применимости и не продлеваются автоматически на следующий цикл.
+
+## Возможности 0.6.0
+
+- Комплект переносит конфигурацию api schema 3 (квоты и политики журнала) в капсуле; принимающий модуль повторно проверяет её значения. Неполный журнал даёт command code 2: учитывай его в политике цикла как отдельный исход, не как PASS ([журналирование](../../docs/ru/JOURNALING.md)).
+- Интерактивный режим для стенда не предназначен: циклы выполняются только автоматическим `run`.

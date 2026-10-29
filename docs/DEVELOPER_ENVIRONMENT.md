@@ -52,7 +52,7 @@ Renode 1.17.0: RENODE_BINARY, CMake RENODE_EXECUTABLE или PATH/ProgramFiles.
    ограничения по времени нет, Ctrl+C отменяет запуск. Итог пишется в
    `build/<пресет>/hwtest/interactive-runs`, отдельно от автоматических прогонов; сценарий и его
    `timeout_s` не меняются. Нужно расширение `ms-python.debugpy`. Подробно — [пошаговый проход
-   сценария](https://github.com/ViacheslavMezentsev/stm32-gdbtest/blob/v0.6.0/docs/ru/MANUAL_DEBUG.md).
+   сценария](https://github.com/ViacheslavMezentsev/stm32-gdbtest/blob/v0.6.1/docs/ru/MANUAL_DEBUG.md).
 
 ## Терминал, без платы
 

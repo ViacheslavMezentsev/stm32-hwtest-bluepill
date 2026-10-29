@@ -1,11 +1,11 @@
 ---
 name: stm32-gdbtest-scenarios
-description: Техника написания тестовых сценариев stm32-gdbtest на API_VERSION=3 (линии 0.5.x и 0.6.x) — требование и контракт, выбор места остановки, таблицы check(rows) и write(rows), подмена возврата ret, инъекции, refused, watch/frames, профиль прогона, стиль сценариев и каталог техник TECH-001…026. Используй, когда просят «написать сценарий/тест для платы», «проверить регистр/периферию/callback через GDB», «добавить HW_-кейс», «перевести сценарии с value/set_value/force_return на новый API», «сделать ревью сценария»; по-английски — write a stm32-gdbtest scenario, hardware test case, migrate scenarios to API 3.
+description: Техника написания тестовых сценариев stm32-gdbtest на API_VERSION=3 (линии 0.5.x и 0.6.x) — требование и контракт, выбор места остановки, таблицы check(rows) и write(rows), подмена возврата ret, инъекции, refused, watch/frames, профиль прогона, стиль сценариев и каталог техник TECH-001…027. Используй, когда просят «написать сценарий/тест для платы», «проверить регистр/периферию/callback через GDB», «добавить HW_-кейс», «перевести сценарии с value/set_value/force_return на новый API», «сделать ревью сценария»; по-английски — write a stm32-gdbtest scenario, hardware test case, migrate scenarios to API 3.
 license: MIT
-compatibility: stm32-gdbtest 0.6.0 (API_VERSION 3); Python 3.11+, GDB с Python 3.11+ (arm-none-eabi-gdb-py3); плата нужна только для прогона, prepare выполняется без неё
+compatibility: stm32-gdbtest 0.6.x (API_VERSION 3); Python 3.11+, GDB с Python 3.11+ (arm-none-eabi-gdb-py3); плата нужна только для прогона, prepare выполняется без неё
 metadata:
   author: Viacheslav Mezentsev
-  version: "0.6.0"
+  version: "0.6.1"
   module: stm32-gdbtest
   api_version: "3"
 ---
@@ -20,7 +20,7 @@ metadata:
 
 Пути — от корня модуля (`modules/stm32-gdbtest/` у потребителя). Источники истины:
 [справочник API](../../docs/ru/api/index.md), [каталог техник](../../docs/ru/TESTING_TECHNIQUES.md),
-[автору тестов](../../docs/ru/TEST_AUTHORING.md), [HAL-макросы](../../docs/ru/HAL_MACRO_GUIDE.md).
+[автору тестов](../../docs/ru/TEST_AUTHORING.md), [HAL-макросы](../../docs/guides/ru/HAL_MACRO_GUIDE.md).
 Образцы — `tests/firmware/common/tests/board/*.py` и `tests/firmware/profiles/*/tests/board/*.py`.
 
 ## Порядок работы
@@ -99,6 +99,10 @@ def tim2_publication(t):
 | Серия измерений | `t.record(name, data)`, расчёт по `t.records(name)` | TECH-011 |
 | Адрес до смены контекста DWARF | сохранить `t.symbol(...)["address"]` заранее | TECH-002 |
 | Сон и WFI | контекст прерванного WFI | TECH-008 |
+| Контекст исключения (ISR) | `t.mmio.read("SCB.ICSR") & t.evaluate("SCB_ICSR_VECTACTIVE_Msk")`; не `$xPSR` — имя регистра зависит от GDB-сервера | TECH-027 |
+| Метод или функция C++ | `t.call("ns::Class::method", …, this="&obj", signature="…")`, `Pointer`/`Reference` | [call](../../docs/ru/api/call.md) |
+| Длинная серия воздействий | квоты журнала api schema 3, `t.records()` с `require_complete=True` | [журналирование](../../docs/ru/JOURNALING.md) |
+| Имитируемый вход | подмена в SRAM до чтения или `ret` драйвера, затем проверка использования значения прошивкой | [маршруты 0.6.0](references/release-060-routes.md), A5 |
 
 Ссылка на технику — комментарий у нетривиального действия:
 `# TECH-004: <URL закреплённой версии модуля>/docs/ru/TESTING_TECHNIQUES.md#tech-004`.
@@ -225,8 +229,12 @@ wait и halt требуют await и конечного timeout; timeout wait н
 дают команды и точные отрицательные контроли. Сохраняй факт до check; call возвращает
 словарь, а отказ приложения не является refused API. Ожидания проекта задай независимо.
 
-## Маршруты 0.6.0
+## Возможности 0.6.0
 
-Карта пакетов A1–A6 с командами, критерием приёмки и парами «правильно/неправильно» — [release-060-routes](references/release-060-routes.md).
-Пошаговый проход сценария в VS Code при его написании — `run --interactive`
-([ручная отладка](../../docs/ru/MANUAL_DEBUG.md)); результат такого прогона не является свидетельством приёмки.
+- Длинные серии воздействий — квоты журнала api schema 3 в `api.toml` ([журналирование](../../docs/ru/JOURNALING.md)); `t.records()` по умолчанию отказывает при неполном журнале (`incomplete_evidence`), частичное чтение — только явно `require_complete=False`.
+- Методы и функции C++ — `t.call("ns::Class::method", …, this="&obj", signature="…")`, указатели и ссылки — `Pointer`/`Reference` из `stm32_gdbtest` ([call](../../docs/ru/api/call.md)).
+- Имитируемый вход (подмена данных в SRAM или результата функции через `ret`) доказывает реакцию логики после точки чтения, а не путь сигнала от вывода; проверяй, что прошивка использовала подставленное значение. Физический вход требует внешнего источника сигнала.
+- Контекст исключения проверяй по `SCB.ICSR` (VECTACTIVE) через `t.mmio`, а не через `$xPSR`: имя регистра (`xPSR`/`xpsr`) зависит от GDB-сервера.
+- Пошаговый проход сценария в VS Code при его написании — `run --interactive` ([ручная отладка](../../docs/ru/MANUAL_DEBUG.md)); результат такого прогона не является свидетельством приёмки.
+
+[маршруты 0.6.0](references/release-060-routes.md) — пакеты A1–A6: команды, принимаемый исход, пары «правильно/неправильно».

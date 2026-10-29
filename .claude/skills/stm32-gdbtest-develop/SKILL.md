@@ -2,10 +2,10 @@
 name: stm32-gdbtest-develop
 description: Разработать или изменить прошивку через цикл DDTT с обратной связью от платы — план, сценарий, сборка, инъекция через GDB, анализ свидетельств и исправление. Применять при совместном изменении кода приложения и проверок; для повторения готового комплекта использовать stm32-gdbtest-stand-loop.
 license: MIT
-compatibility: stm32-gdbtest 0.6.0 (API_VERSION 3); Python 3.11+, GDB с Python 3.11+ (arm-none-eabi-gdb-py3), CMake 3.25+ и Ninja; SWD-отладчик и плата с разрешёнными воздействиями
+compatibility: stm32-gdbtest 0.6.x (API_VERSION 3); Python 3.11+, GDB с Python 3.11+ (arm-none-eabi-gdb-py3), CMake 3.25+ и Ninja; SWD-отладчик и плата с разрешёнными воздействиями
 metadata:
   author: Viacheslav Mezentsev
-  version: "0.6.0"
+  version: "0.6.1"
   module: stm32-gdbtest
   api_version: "3"
 ---
@@ -124,6 +124,10 @@ logical-time, counter-cost или external-capture. Сначала воспро�
 reset, неопределённость через ноль или исходный FAIL через сводный PASS кампании.
 Проверка модели помогает выбрать гипотезу, но не квалифицирует физическую плату.
 
-## Маршруты 0.6.0
+## Возможности 0.6.0
 
-Карта пакетов A1–A6 с командами, критерием приёмки и парами «правильно/неправильно» — [release-060-routes](../stm32-gdbtest-scenarios/references/release-060-routes.md).
+- Чтобы понять исходный FAIL, пройди сценарий по шагам в VS Code — `run --interactive` ([ручная отладка](../../docs/ru/MANUAL_DEBUG.md)); итоговые FAIL и регрессия фиксируются только обычным прогоном.
+- Длинную серию воздействий веди с квотами журнала api schema 3; потеря записи даёт command code 2 и не превращается в PASS ([журналирование](../../docs/ru/JOURNALING.md)).
+- Подмена данных в SRAM или через `ret` проверяет логику после точки чтения; исправление драйвера или периферии требует наблюдения физического входа или регистров через `t.mmio`.
+
+[маршруты 0.6.0](../stm32-gdbtest-scenarios/references/release-060-routes.md) — пакеты A1–A6: команды, принимаемый исход, пары «правильно/неправильно».

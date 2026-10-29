@@ -2,10 +2,10 @@
 name: stm32-gdbtest-results
 description: Разбор сохранённых результатов stm32-gdbtest — связать result.json, records, JUnit, логи, пакет и исходник сценария; проверить целостность, объяснить PASS/FAIL/ERROR/SKIP и границы выводов. Используй для аудита протокола или архива, отчёта кампании и анализа на OrangePi, включая агента pi; interpret hardware test artifacts, audit evidence, analyze scenario results. Сам по себе разбор не запускает плату повторно.
 license: MIT
-compatibility: stm32-gdbtest 0.6.0 (API_VERSION 3); Python 3.11+; плата, GDB и сервер не нужны
+compatibility: stm32-gdbtest 0.6.x (API_VERSION 3); Python 3.11+; плата, GDB и сервер не нужны
 metadata:
   author: Viacheslav Mezentsev
-  version: "0.6.0"
+  version: "0.6.1"
   module: stm32-gdbtest
   api_version: "3"
 ---
@@ -124,6 +124,10 @@ shutdown_wait.ready нужен для соответствующего lifecycle
 Разделяй сценарий, транспорт, анализ и cleanup; UNKNOWN не превращай в ноль, а FAIL
 анализа не переписывай в исходный result. Учебные JSON не являются схемами модуля.
 
-## Маршруты 0.6.0
+## Возможности 0.6.0
 
-Карта пакетов A1–A6 с командами, критерием приёмки и парами «правильно/неправильно» — [release-060-routes](../stm32-gdbtest-scenarios/references/release-060-routes.md).
+- Читатели понимают result schema 2 и records 1/2. Полноту проверяй по `evidence.stores` и `check_accounting`, а не по одному полю `complete` коллекции; неполный источник даёт partial-сводку и не экспортируется как обычный набор данных ([журналирование](../../docs/ru/JOURNALING.md)).
+- Каталог `interactive-runs` — ручные попытки автора; в разбор приёмки и DDTT они не входят.
+- Вывод о подмене входа формулируй по уровню: имитируемый вход (SRAM, `ret`) подтверждает логику после точки чтения, физический — весь путь сигнала.
+
+[маршруты 0.6.0](../stm32-gdbtest-scenarios/references/release-060-routes.md) — пакеты A1–A6: команды, принимаемый исход, пары «правильно/неправильно».

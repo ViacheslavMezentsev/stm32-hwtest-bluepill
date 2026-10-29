@@ -2,10 +2,10 @@
 name: stm32-gdbtest-integrate
 description: Подключение stm32-gdbtest к существующему проекту прошивки STM32 (CMake + Ninja) — Git-подмодуль, каталог hil/ с описанием MCU, session.toml и api.toml, вызов stm32_gdbtest_attach, пресеты CTest host/hw, файл стенда, первый сценарий и первый прогон. Используй, когда просят «подключить stm32-gdbtest», «добавить HIL/DDTT-тесты в проект», «настроить аппаратные тесты через GDB», «обновить версию модуля у потребителя», «перевести hwtest-проект на API 3»; по-английски — integrate stm32-gdbtest, add hardware-in-the-loop tests, attach the module to a firmware project, bump the submodule.
 license: MIT
-compatibility: stm32-gdbtest 0.6.0 (API_VERSION 3); Python 3.11+, GDB с Python 3.11+ (arm-none-eabi-gdb-py3), CMake 3.25+ и Ninja; проект прошивки STM32 или совместимого Cortex-M на CMake
+compatibility: stm32-gdbtest 0.6.x (API_VERSION 3); Python 3.11+, GDB с Python 3.11+ (arm-none-eabi-gdb-py3), CMake 3.25+ и Ninja; проект прошивки STM32 или совместимого Cortex-M на CMake
 metadata:
   author: Viacheslav Mezentsev
-  version: "0.6.0"
+  version: "0.6.1"
   module: stm32-gdbtest
   api_version: "3"
 ---
@@ -19,8 +19,8 @@ stm32-gdbtest проверяет работающую прошивку на на
 
 Пути ниже — от корня модуля (`modules/stm32-gdbtest/` в проекте потребителя). Подробности:
 [начало работы](../../docs/ru/GETTING_STARTED.md), [API и конфигурация](../../docs/ru/API.md),
-[identity и Flash](../../docs/ru/TARGET_IDENTITY.md), [GDB-серверы](../../docs/ru/BACKENDS.md),
-[памятка](../../docs/ru/HOWTO.md). Сценарии — навык `stm32-gdbtest-scenarios`, запуски и разбор
+[identity и Flash](../../docs/ru/TARGET_IDENTITY.md), [GDB-серверы](../../docs/guides/ru/BACKENDS.md),
+[памятка](../../docs/guides/ru/HOWTO.md). Сценарии — навык `stm32-gdbtest-scenarios`, запуски и разбор
 отчётов — `stm32-gdbtest-run`.
 
 ## Что выяснить до начала
@@ -89,7 +89,7 @@ hil/
 
 Точки fault handlers занимают слоты `breakpoint_limit` — сценарию остаётся меньше. Cortex-M-совместимый МК
 другого производителя (Artery AT32, GD32, APM32) подключается своим профилем и CMSIS производителя; образец —
-профиль `at32f403a` ([совместимые МК](../../docs/ru/COMPATIBLE_MCU.md)).
+профиль `at32f403a` ([совместимые МК](../../docs/guides/ru/COMPATIBLE_MCU.md)).
 
 ### 4. Конфигурация сессии
 
@@ -113,7 +113,7 @@ board = "board.toml"
 Для Renode/QEMU нужна schema 3 с environment="emulator" и architecture="cortex-m".
 Бери профиль соответствующего backend из текущего примера, включая backend-specific
 команды reset/setup; не переноси monitor-команды OpenOCD в st-util или ST-LINK GDB Server.
-[Страницы backend](../../docs/ru/BACKENDS.md) описывают различия и установку st-util на Ubuntu 20.04.
+[Страницы backend](../../docs/guides/ru/BACKENDS.md) описывают различия и установку st-util на Ubuntu 20.04.
 Если нужны записи после запуска, добавь в session.toml:
 
 ```toml
@@ -178,9 +178,9 @@ endif()
 шаблон в `hil/stands/<board>-<backend>.local.toml` (удалённый стенд из `remote.example.toml` —
 `hil/stands/<board>-<backend>.remote.toml`) и вписывает серийный номер; агент серийные номера в
 коммиты и документы не переносит. Другой зонд для OpenOCD — ключи `interface` и `transport`, J-Link по JTAG —
-`interface = "JTAG"` ([GDB-серверы](../../docs/ru/BACKENDS.md)). `flash = "if-different"` пишет Flash только при отличии образа,
+`interface = "JTAG"` ([GDB-серверы](../../docs/guides/ru/BACKENDS.md)). `flash = "if-different"` пишет Flash только при отличии образа,
 `verify-only` — только сверяет. Удалённый стенд — таблица `[remote]` с SSH-ключом; пароли не
-поддерживаются ([Linux-стенд](../../docs/ru/LINUX_STAND.md)).
+поддерживаются ([Linux-стенд](../../docs/guides/ru/LINUX_STAND.md)).
 
 ### 8. Первый сценарий
 
@@ -233,7 +233,14 @@ inspect не запускает инструменты и не проверяе�
 Для MMIO добавь `[mmio] svd="device.svd"` в session.toml: путь от этого файла,
 описание захватывается в пакет. Получатель должен поддерживать капсулу schema 2.
 Без MMIO SVD не обязателен. Читай [SVD](../../docs/ru/SVD.md).
-Для эмулятора используй [Renode](../../docs/ru/RENODE.md) или [QEMU](../../docs/ru/QEMU.md):
+Для эмулятора используй [Renode](../../docs/guides/ru/RENODE.md) или [QEMU](../../docs/guides/ru/QEMU.md):
 новый собственный процесс на сценарий, без keep/attach/SSH и аппаратной identity.
 Синхронные def сохраняются; async-помощники и скрытые вызовы функций мигрируются
 по [контракту API 3](../../docs/ru/LIVE_EXECUTION.md). prepare не доказывает эту миграцию.
+
+## Возможности 0.6.0
+
+- Переход с 0.5.x: API_VERSION остаётся 3, новое включается явно ([переход к 0.6.0](../../docs/ru/VERSIONING.md#переход-к-060)).
+- При смене версии модуля прогоняй все шаги CI потребителя, а не только `ctest --preset …-host`: отдельные unittest, проверки стиля сценариев, сборку на Linux. Копии `tools/` модуля (например, `ddtt_coverage.py`) в 0.6.0 требуют рядом пакет `stm32_gdbtest`.
+- Копии навыков в `.claude/skills/` обновляй вместе с gitlink, включая каталоги `references/`.
+- Для пошагового прохода сценария добавь задачу VS Code с `run --interactive` и расширение `ms-python.debugpy` ([ручная отладка](../../docs/ru/MANUAL_DEBUG.md)); образцы — BluePill и BlackPill, `hil/tools/debug_scenario.py`.

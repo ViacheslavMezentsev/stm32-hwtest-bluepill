@@ -2,7 +2,7 @@
 
 [Русский](MMIO_SVD.md)
 
-This consumer pins stm32-gdbtest v0.6.0 (API_VERSION=3).
+This consumer pins stm32-gdbtest v0.6.1 (API_VERSION=3).
 Neither the module core nor firmware changes here. All 28 scenarios remain ordinary
 def functions: synchronous navigation is compatible and requires no await.
 

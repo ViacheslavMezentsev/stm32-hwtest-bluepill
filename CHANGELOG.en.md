@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+- The stm32-gdbtest submodule is pinned to release v0.6.1 (7f4f2ef): register diagnostics on any GDB server and the reorganised module documentation; links to module documents and the six skill copies are refreshed. Scenarios and SVD are unchanged.
 - The exception context in HW_DMA_CAPTURE, HW_DMA_ERROR, HW_DMA_ERROR_TC and HW_SYSTICK_PROGRESS is checked with SCB.ICSR.VECTACTIVE through `t.mmio` instead of `$xPSR`: the register name (`xPSR`/`xpsr`) depends on the GDB server, and the scenarios gave ERROR on xPack OpenOCD. SCB.ICSR is added to the project SVD.
 - The stm32-gdbtest submodule is pinned to release v0.6.0 (e68a455, API_VERSION=3); the six skill copies are refreshed and scenarios gains the 0.6.0 routes. Stepping through a scenario uses only `run --interactive`: the module 0.5.x fallback (PYTHONUSERBASE hook, 300 s limit, `manual-runs`) is removed. Scenarios and SVD are unchanged.
 - The stm32-gdbtest submodule moves to a7b0951, the final 0.5.0 candidate after the live-observer example's hardware assessment fix (core and API unchanged, version 0.5.0). Skill copies are unchanged.

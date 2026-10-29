@@ -36,7 +36,7 @@ python tests/counter-cost/run.py --toolchain <ARM-GCC-root> --renode <Renode-exe
 Значения в угловых скобках замени установленными путями; готовые PowerShell/Linux
 примеры — в README. Нужны host g++, Python 3.11+, ARM GCC/GDB-Python и Renode 1.17.
 External-capture требует только Python. Docker на Windows: исходники и сборки в одном
-volume по [локальному CI](../../../docs/ru/local-ci.md), не запуск через bind mount NTFS.
+volume по [локальному CI](../../../docs/guides/ru/local-ci.md), не запуск через bind mount NTFS.
 
 Каждая кампания создаёт новый каталог build/<example>/<id>. Сохрани summary, исходные
 result/records либо fixture-файлы, хеши входов и журналы. Summary PASS означает

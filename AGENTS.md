@@ -43,7 +43,7 @@ Requirements: CMake ≥ 3.25, Ninja, xPack GNU Arm 14.2.1-1.1 (`ARM_TOOLCHAIN_RO
    scenarios must survive optimization and `--gc-sections`: `g_led` is `const volatile` for
    this reason (a plain `const` was folded away and HW_BLINK failed with "Missing ELF symbol").
 2. Every `@case` ID has a `## HW_...` section in `hil/common/tests/requirements.md`. Scenarios follow
-   the stm32-gdbtest API of the pinned submodule (0.6.0, API_VERSION=3, tag v0.6.0) and its scenario style
+   the stm32-gdbtest API of the pinned submodule (0.6.1, API_VERSION=3, tag v0.6.1) and its scenario style
    (`skills/stm32-gdbtest-scenarios` in the module; check with
    `python modules/stm32-gdbtest/tests/host/test_scenario_style.py hil/common/tests/board/*.py`).
    Board-specific expectations belong in `hil/<MCU>/board.toml`, scenario parameters in `hil/api.toml`.
@@ -60,7 +60,7 @@ Requirements: CMake ≥ 3.25, Ninja, xPack GNU Arm 14.2.1-1.1 (`ARM_TOOLCHAIN_RO
 
 For firmware changes with target feedback, read `.claude/skills/stm32-gdbtest-develop/SKILL.md`
 and `hil/common/plans/ddtt-feedback.en.md`. The develop skill is a trial copy accompanying this branch;
-the module is pinned to tag v0.6.0 (API_VERSION=3). Preserve red attempts, then verify the unchanged
+the module is pinned to tag v0.6.1 (API_VERSION=3). Preserve red attempts, then verify the unchanged
 assertion and adjacent scenarios after fixing production code. No test hooks.
 
 Developer workflows: [docs/DEVELOPER_ENVIRONMENT.en.md](docs/DEVELOPER_ENVIRONMENT.en.md).
