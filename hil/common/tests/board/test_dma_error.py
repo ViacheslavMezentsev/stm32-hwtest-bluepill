@@ -34,10 +34,10 @@ def inject_error(t, completed):
             breakpoint.remove()
 
         # Проверяем контекст и освобождение периферии до изменения локального status.
-        t.check([
-            ("injection in DMA IRQ", "$xPSR & 511", "DMA1_Channel1_IRQn + 16"),
-            ("real TC before injection", "(status & DMA_ISR_TCIF1) != 0", 1)
-        ])
+        # Активное исключение — по SCB.ICSR.VECTACTIVE: имя регистра xPSR зависит от GDB-сервера.
+        t.check("injection in DMA IRQ", t.mmio.read("SCB.ICSR") & t.evaluate("SCB_ICSR_VECTACTIVE_Msk"),
+                t.evaluate("DMA1_Channel1_IRQn + 16"))
+        t.check("real TC before injection", t.evaluate("(status & DMA_ISR_TCIF1) != 0"), 1)
         t.check("injection DMA stopped", t.mmio.read('DMA1_Channel1.CCR') & t.evaluate('DMA_CCR_EN'), 0)
         t.check("injection ADC stopped", t.mmio.read('ADC1.CR2') & t.evaluate('ADC_CR2_ADON'), 0)
 

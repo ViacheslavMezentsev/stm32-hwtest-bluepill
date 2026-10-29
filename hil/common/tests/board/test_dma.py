@@ -56,7 +56,9 @@ def dma_capture(t):
     t.reach("DMA1_Channel1_IRQHandler")
 
     # TC выставлен аппаратурой; чтение DR здесь не делаем, чтобы не менять состояние ADC.
-    t.check([ ("DMA IRQ context", "$xPSR & 511", "DMA1_Channel1_IRQn + 16") ])
+    # Активное исключение — по SCB.ICSR.VECTACTIVE: имя регистра xPSR зависит от GDB-сервера.
+    t.check("DMA IRQ context", t.mmio.read("SCB.ICSR") & t.evaluate("SCB_ICSR_VECTACTIVE_Msk"),
+            t.evaluate("DMA1_Channel1_IRQn + 16"))
     t.check("DMA transfer completed", t.mmio.read('DMA1.ISR') & t.evaluate('DMA_ISR_TCIF1') != 0, 1)
     t.check("DMA count exhausted", t.mmio.read('DMA1_Channel1.CNDTR'), 0)
 

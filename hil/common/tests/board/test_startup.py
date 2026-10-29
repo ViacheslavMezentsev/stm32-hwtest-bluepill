@@ -101,7 +101,8 @@ def startup_order(t):
 def systick_progress(t):
     t.reach("SysTick_Handler")
     before = t.read("g_ticks")
-    t.check("SysTick exception context", t.read("$xPSR") & 511, 15)
+    # Активное исключение — по SCB.ICSR.VECTACTIVE: имя регистра xPSR зависит от GDB-сервера.
+    t.check("SysTick exception context", t.mmio.read("SCB.ICSR") & t.evaluate("SCB_ICSR_VECTACTIVE_Msk"), 15)
     t.reach("SysTick_Handler")
     after = t.read("g_ticks")
     t.record("startup.systick", {"before": before, "after": after, "delta": (after - before) & 0xFFFFFFFF})

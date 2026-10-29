@@ -42,7 +42,7 @@ class MMIOTests(unittest.TestCase):
             "DMA1.ISR": (0x40020000, 32), "DMA1.IFCR": (0x40020004, 32),
             "DMA1_Channel1.CCR": (0x40020008, 32), "DMA1_Channel1.CNDTR": (0x4002000C, 32),
             "DMA1_Channel1.CPAR": (0x40020010, 32), "DMA1_Channel1.CMAR": (0x40020014, 32),
-            "DBGMCU.IDCODE": (0xE0042000, 32), "FACTORY.FLASH_SIZE": (0x1FFFF7E0, 16),
+            "DBGMCU.IDCODE": (0xE0042000, 32), "FACTORY.FLASH_SIZE": (0x1FFFF7E0, 16), "SCB.ICSR": (0xE000ED04, 32),
             "SysTick.CTRL": (0xE000E010, 32), "SysTick.LOAD": (0xE000E014, 32)
         }
         for name, expected_value in expected.items():

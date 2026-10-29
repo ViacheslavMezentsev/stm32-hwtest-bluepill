@@ -269,6 +269,19 @@
       </registers>
     </peripheral>
     <peripheral>
+      <name>SCB</name>
+      <baseAddress>0xe000ed00</baseAddress>
+      <registers>
+        <register>
+          <name>ICSR</name>
+          <addressOffset>0x4</addressOffset>
+          <size>32</size>
+          <access>read-write</access>
+          <modifiedWriteValues>modify</modifiedWriteValues>
+        </register>
+      </registers>
+    </peripheral>
+    <peripheral>
       <name>SysTick</name>
       <baseAddress>0xe000e010</baseAddress>
       <registers>
